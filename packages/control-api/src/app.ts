@@ -2,6 +2,10 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { healthRoutes } from './routes/health.js';
+import { authRoutes } from './routes/auth.js';
+import { tenantRoutes } from './routes/tenants.js';
+import { subscriptionRoutes } from './routes/subscriptions.js';
+import { auditRoutes } from './routes/audit.js';
 
 const app = new Hono();
 
@@ -11,6 +15,10 @@ app.use('*', cors());
 
 // Routes
 app.route('/api/v1', healthRoutes);
+app.route('/api/v1', authRoutes);
+app.route('/api/v1', tenantRoutes);
+app.route('/api/v1', subscriptionRoutes);
+app.route('/api/v1', auditRoutes);
 
 // 404 fallback
 app.notFound((c) => {

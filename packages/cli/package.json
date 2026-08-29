@@ -13,11 +13,12 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "commander": "^13.0.0",
+    "@sibangku/db": "workspace:*",
     "@sibangku/shared": "workspace:*",
-    "@sibangku/db": "workspace:*"
+    "commander": "^13.0.0"
   },
   "devDependencies": {
+    "@types/node": "^26.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
