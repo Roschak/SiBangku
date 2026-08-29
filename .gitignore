@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+
+# Secrets - NEVER commit
+*.keystore
+*.jks
+signing-keys/
+credentials.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-data/
+
+# Logs
+logs/
+*.log
+
+# Test
+coverage/
+
+# Generated tenant output
+output/
+
+# Drizzle
+drizzle/meta/
