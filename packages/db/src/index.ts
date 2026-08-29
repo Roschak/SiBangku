@@ -1,3 +1,3 @@
-export * from './schema/control/index.js';
-export * from './schema/tenant/index.js';
-export * from './connection.js';
+export * from './schema/control/index';
+export * from './schema/tenant/index';
+export * from './connection';

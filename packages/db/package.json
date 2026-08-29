@@ -16,17 +16,22 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
     "generate": "drizzle-kit generate",
+    "generate:tenant": "drizzle-kit generate --config=drizzle-tenant.config.ts",
     "migrate": "drizzle-kit migrate",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts"
   },
   "dependencies": {
+    "@sibangku/shared": "workspace:*",
+    "bcrypt": "^5.1.1",
     "drizzle-orm": "^0.39.0",
-    "pg": "^8.13.0",
-    "@sibangku/shared": "workspace:*"
+    "pg": "^8.13.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.23.12",
     "typescript": "^5.7.0"
   }
 }

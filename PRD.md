@@ -1,62 +1,68 @@
 ============================================================
-PRODUCT REQUIREMENTS DOCUMENT
+PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ============================================================
 
 PROJECT NAME:
 SiBangku
 
-PRODUCT TYPE:
+PROJECT TYPE:
 Dedicated-Tenant White-Label Restaurant Reservation SaaS
 
 VERSION:
-2.0.0
+3.0.0
 
 DOCUMENT STATUS:
 MASTER IMPLEMENTATION SPECIFICATION
 
 PRIMARY OBJECTIVE:
-Build a production-ready dedicated-tenant restaurant
-reservation and food pre-order platform with Web + Android APK,
-tenant isolation, configurable subscription/trial lifecycle,
-visual table reservation, menu management, payment configuration,
-and automated tenant provisioning.
+Build a production-ready dedicated-tenant restaurant reservation
+and food pre-order platform consisting of:
+
+1. Web Application
+2. Android APK
+3. Platform Control Plane
+4. Dedicated Tenant Application
+5. Dedicated Tenant Database
+6. Automated Tenant Provisioning
+7. Trial Management
+8. Subscription Management
+9. Restaurant Administration
+10. Customer Reservation
+11. Visual Table Management
+12. Menu Management
+13. Food Pre-Order
+14. Payment Integration Architecture
+15. Automated Web + APK Generation
+16. Docker-based Infrastructure
+17. Security and Tenant Isolation
+18. External Expired Experience
 
 ============================================================
-0. CRITICAL AGENT INSTRUCTIONS
+0. MASTER AGENT INSTRUCTIONS
 ============================================================
 
 THIS DOCUMENT IS THE SOURCE OF TRUTH.
 
-The implementation agent MUST follow this PRD.
+The coding agent MUST follow this PRD.
 
-The agent MUST NOT invent unspecified functionality.
+The agent MUST NOT invent unspecified business requirements.
+
+The agent MUST NOT silently remove required functionality.
 
 The agent MUST NOT silently change architectural decisions.
 
-The agent MUST NOT assume that "dedicated tenant" means
-shared database tables.
+The agent MUST NOT declare the project complete merely because:
 
-The agent MUST NOT implement shared tenant data in one database
-when the configuration specifies a dedicated database.
+- the application starts
+- the frontend renders
+- the backend compiles
+- some API endpoints exist
+- unit tests pass
+- mock data is displayed
 
-If an implementation detail is not defined:
+A feature is complete only when its complete execution path works.
 
-1. Detect the ambiguity.
-2. Choose the safest production-grade implementation.
-3. Document the decision.
-4. Do not invent business requirements.
-
-If an external dependency is required:
-
-- document it
-- isolate it behind an adapter
-- provide development/mock mode where appropriate
-- never hardcode credentials
-
-The application MUST NOT be considered complete merely because
-the frontend renders.
-
-Every feature must be connected through:
+Required execution path:
 
 UI
 ↓
@@ -66,39 +72,125 @@ Business Logic
 ↓
 Database
 ↓
-External Service where applicable
+External Service when applicable
+↓
+Response
+↓
+UI
 
 ============================================================
-1. PRODUCT VISION
+0.1 ANTI-HALLUCINATION RULE
 ============================================================
 
-SiBangku is a white-label restaurant technology platform.
+When the PRD does not define a specific implementation detail:
 
-The platform allows the platform owner to provision a dedicated
-digital restaurant system for each restaurant client.
+1. Do not invent a business requirement.
+2. Choose a standard production-grade implementation.
+3. Keep the implementation modular.
+4. Document the decision.
+5. Do not change existing business rules.
+6. Do not introduce unrelated features.
 
-Each restaurant receives:
+If ambiguity affects security, tenant isolation, payment,
+subscription, authentication, or data integrity:
 
-1. Dedicated web application
-2. Dedicated Android APK
-3. Dedicated database
-4. Dedicated tenant configuration
-5. Dedicated branding
-6. Dedicated restaurant admin account
-7. Dedicated menu
-8. Dedicated table layout
-9. Dedicated reservation configuration
-10. Dedicated payment configuration
-11. Dedicated subscription/trial lifecycle
-
-The customer interacts only with the restaurant's branded
-application.
+STOP AND ANALYZE THE ARCHITECTURE BEFORE IMPLEMENTATION.
 
 ============================================================
-2. CORE BUSINESS MODEL
+0.2 NO FAKE COMPLETION
 ============================================================
 
-SiBangku operates using:
+The agent MUST NOT use:
+
+fake success
+
+fake payment
+
+fake reservation
+
+fake subscription
+
+fake authentication
+
+fake database
+
+fake tenant
+
+fake API
+
+placeholder response
+
+hardcoded production data
+
+dummy production implementation
+
+to claim a feature is complete.
+
+Mocks are allowed only when explicitly isolated for:
+
+development
+
+testing
+
+local development
+
+integration testing
+
+============================================================
+0.3 CODEBASE MUST BE AI-READABLE
+============================================================
+
+The repository MUST be understandable by:
+
+1. Human developers
+2. New developers
+3. Future maintainers
+4. Other AI coding agents
+
+Another developer or AI agent must be able to:
+
+- understand architecture
+- run the project
+- locate modules
+- locate business rules
+- modify features
+- run tests
+- debug errors
+- build Web
+- build APK
+- run Docker
+- understand tenant isolation
+
+without relying on undocumented knowledge.
+
+============================================================
+1. PRODUCT OVERVIEW
+============================================================
+
+SiBangku is a White-Label SaaS platform for restaurants.
+
+Each restaurant becomes an independent tenant.
+
+Each tenant receives:
+
+- dedicated tenant identity
+- dedicated tenant database
+- dedicated restaurant configuration
+- dedicated branding
+- dedicated admin account
+- dedicated restaurant data
+- dedicated Web configuration
+- dedicated Android APK configuration
+- dedicated subscription/trial lifecycle
+
+The platform owner manages all tenants through a centralized
+Control Plane.
+
+============================================================
+2. BUSINESS MODEL
+============================================================
+
+SiBangku uses:
 
 TRIAL
 +
@@ -107,155 +199,216 @@ SUBSCRIPTION
 Lifecycle:
 
 PROVISIONED
-    ↓
+↓
 TRIAL
-    ↓
-SUBSCRIPTION
-    ↓
-ACTIVE
-    ↓
+↓
+ACTIVE SUBSCRIPTION
+↓
 RENEWAL
-    ↓
-EXPIRED / SUSPENDED
+↓
+ACTIVE
 
-A tenant can exist before a paid subscription is activated.
+Possible interruption:
+
+TRIAL
+↓
+TRIAL_EXPIRED
+
+ACTIVE
+↓
+PAST_DUE
+↓
+GRACE_PERIOD
+↓
+SUSPENDED
+↓
+SUBSCRIPTION_EXPIRED
 
 ============================================================
-3. IMPORTANT TRIAL DECISION
+3. CRITICAL TRIAL DECISION
 ============================================================
 
-DO NOT USE A SHARED DEFAULT TRIAL ACCOUNT.
+SiBangku DOES NOT require a Trial Key.
 
-DO NOT USE:
+Do NOT implement a trial activation code as the primary
+trial mechanism.
 
-username: admin
-password: admin
+Do NOT distribute a shared trial key.
+
+Do NOT use:
+
+TRIAL-XXXX-XXXX
+
+for normal client onboarding.
+
+Trial is controlled through:
+
+tenant
+
+trialStart
+
+trialEnd
+
+subscriptionStatus
+
+server-side lifecycle management.
+
+============================================================
+4. TRIAL ACCOUNT MODEL
+============================================================
+
+Every tenant receives a UNIQUE administrator account.
+
+Never use:
+
+admin/admin
 
 for real clients.
 
-DO NOT use a trial activation key as the primary mechanism.
-
-Instead use:
-
-AUTOMATED TENANT PROVISIONING.
-
-Each generated tenant receives its own credentials.
-
 Example:
 
-Tenant:
-tenant_8F4K2M
+Tenant A:
 
-Admin:
-admin@restaurant-domain.example
+admin@restaurant-a.com
 
-Temporary password:
-GENERATED_RANDOM_PASSWORD
+Tenant B:
 
-The temporary password MUST be changed on first login.
+admin@restaurant-b.com
+
+Tenant C:
+
+admin@restaurant-c.com
+
+Each has a unique temporary password.
 
 ============================================================
-4. DEVELOPMENT DEFAULT ACCOUNT
+5. DEVELOPMENT ACCOUNT
 ============================================================
 
 For LOCAL DEVELOPMENT ONLY:
 
 username:
+
 admin
 
 password:
+
 admin
 
 This account MUST:
 
-- only exist in development mode
-- never be generated into production tenant packages
-- never be used by multiple real tenants
-- never be included in production seed data
+- only exist in development
+- never exist in production
+- never be generated for clients
+- never be included in production seed
+- never be used as a shared tenant account
 
-Production seed MUST NOT contain:
+CI/CD should detect and reject production use of:
 
 admin/admin
 
 ============================================================
-5. TRIAL MODEL
+6. TRIAL DURATION
 ============================================================
 
-Default trial duration:
+Default:
 
 60 DAYS
 
-This value MUST be configurable.
+The duration MUST be configurable.
 
-Possible values:
+Supported examples:
 
-7 days
-14 days
-30 days
-60 days
-90 days
-custom
+7
 
-Trial duration is controlled by the Platform Owner.
+14
+
+30
+
+60
+
+90
+
+CUSTOM
+
+Trial duration belongs to platform configuration.
 
 ============================================================
-6. TRIAL START
+7. TRIAL START
 ============================================================
 
-Recommended rule:
+Default behavior:
 
-Trial starts when the tenant is PROVISIONED.
+Trial begins when tenant provisioning completes successfully.
 
 Example:
 
 Provisioned:
-2026-08-28
+
+2026-08-29
 
 Trial:
-2026-08-28 → 2026-10-27
 
-The trial MUST NOT reset simply because the client logs out,
-reinstalls the APK, clears browser storage, or creates another
-local session.
+2026-08-29
+→
+2026-10-27
 
-Trial state MUST be server-side.
+Trial MUST NOT reset because:
+
+- user logs out
+- browser is cleared
+- application is reinstalled
+- APK is reinstalled
+- localStorage is deleted
+- device time is changed
+- customer changes device
+
+Trial state is server-side.
 
 ============================================================
-7. TRIAL EXPIRATION
+8. TRIAL EXPIRATION
 ============================================================
 
 When:
 
-currentTime >= trialEnd
+current server time >= trialEnd
 
-the tenant becomes:
+tenant becomes:
 
 TRIAL_EXPIRED
 
-The application MUST enforce expiration server-side.
-
-Frontend-only expiration is NOT acceptable.
+Expiration MUST be enforced server-side.
 
 ============================================================
-8. EXPIRED EXPERIENCE
+9. TRIAL WARNING
 ============================================================
 
-When trial expires:
+System may notify:
 
-Customer application:
+7 days remaining
 
-    ↓
+3 days remaining
+
+1 day remaining
+
+Trial expired
+
+Notification thresholds must be configurable.
+
+============================================================
+10. EXPIRED EXPERIENCE
+============================================================
+
+When trial or subscription expires, normal customer operations
+are blocked.
+
+Customer is redirected to:
 
 EXPIRED EXPERIENCE
 
-The normal restaurant application must no longer be usable
-for customer transactions.
-
-Display a professional expired/trial-ended page.
-
 Example:
 
-------------------------------------------------
+------------------------------------------------------------
 
 TRIAL PERIOD ENDED
 
@@ -264,80 +417,136 @@ Terima kasih telah menggunakan SiBangku.
 Masa uji coba sistem restoran ini telah berakhir.
 
 Untuk melanjutkan penggunaan layanan,
-silakan hubungi pengelola restoran / SiBangku.
+silakan hubungi pengelola.
 
-[ WhatsApp ]
+[ WHATSAPP ]
 
-[ Instagram ]
+[ INSTAGRAM ]
 
-[ TikTok ]
+[ TIKTOK ]
 
-------------------------------------------------
+------------------------------------------------------------
 
-This page may be hosted separately from the restaurant application.
+The expired page must be professional.
 
 ============================================================
-9. EXPIRED HOSTING ARCHITECTURE
+11. EXPIRED EXPERIENCE DESIGN
 ============================================================
 
-The expired experience MUST be deployable independently.
+The expired experience should contain:
+
+large headline
+
+short explanation
+
+restaurant/platform message
+
+WhatsApp button
+
+Instagram button
+
+TikTok button
+
+optional phone button
+
+optional email button
+
+optional contact button
+
+animated downward arrow
+
+subtle background animation
+
+professional typography
+
+responsive design
+
+mobile support
+
+desktop support
+
+============================================================
+12. EXPIRED EXPERIENCE ANIMATION
+============================================================
+
+The expired experience may use:
+
+electric glow
+
+electric line effect
+
+neon-like text energy
+
+subtle particle animation
+
+animated border
+
+animated downward arrow
+
+lightning/electric text effect
+
+The animation MUST remain:
+
+professional
+
+smooth
+
+lightweight
+
+accessible
+
+not distracting
+
+Do not use excessive animation that harms performance.
+
+============================================================
+13. EXPIRED HOSTING
+============================================================
+
+Expired Experience MUST be independently deployable.
 
 Example:
 
-Restaurant application:
+Restaurant Application:
 
-restaurant-a.example.com
+distroavenue.sibangku.app
 
-Expired page:
+Expired Experience:
 
-expired.sibangku.example.com
+expired.sibangku.app
 
-OR:
+or:
 
-expired-restaurant-a.example.com
+expired-distroavenue.sibangku.app
 
-When tenant is expired:
+The expired experience MUST NOT depend on the tenant frontend
+being alive.
 
-application redirects to:
+============================================================
+14. EXPIRATION REDIRECTION
+============================================================
 
-EXPIRED EXPERIENCE
+Architecture:
 
-The expired experience MUST NOT depend on the restaurant
-application being operational.
-
-Recommended architecture:
-
+Customer
+↓
 Tenant Application
-       |
-       | tenant status check
-       ↓
-Subscription Middleware
-       |
-       ├── ACTIVE → Application
-       |
-       └── EXPIRED → External Expired Experience
+↓
+Server-side Tenant Status
+↓
+ACTIVE?
+├── YES → Application
+└── NO → Expired Experience
+
+Prefer server-side middleware/API enforcement.
+
+Frontend-only redirect is insufficient.
 
 ============================================================
-10. IMPORTANT SECURITY RULE
+15. TENANT MODEL
 ============================================================
 
-Expiration MUST be enforced by backend/API middleware.
-
-Do NOT rely only on:
-
-JavaScript timer
-localStorage
-APK local date
-browser date
-frontend state
-
-The backend is the authority.
-
-============================================================
-11. TENANT MODEL
-============================================================
-
-Each tenant has:
+Every tenant must have:
 
 tenantId
 
@@ -361,21 +570,21 @@ subscriptionEnd
 
 databaseIdentifier
 
+storageIdentifier
+
 webIdentifier
 
 apkIdentifier
-
-brandingIdentifier
 
 createdAt
 
 updatedAt
 
 ============================================================
-12. TENANT STATUS
+16. TENANT STATUS
 ============================================================
 
-Possible states:
+Allowed states:
 
 PROVISIONING
 
@@ -396,12 +605,110 @@ CANCELLED
 ARCHIVED
 
 ============================================================
-13. TENANT ISOLATION
+17. TENANT ARCHITECTURE
+============================================================
+
+SiBangku uses:
+
+CONTROL PLANE
+
++
+
+TENANT PLANES
+
+Architecture:
+
+                    PLATFORM OWNER
+                           |
+                           ↓
+                    CONTROL PLANE
+                           |
+          ┌────────────────┼────────────────┐
+          ↓                ↓                ↓
+      TENANT A          TENANT B          TENANT C
+          |                |                |
+          ↓                ↓                ↓
+        WEB A            WEB B            WEB C
+          |                |                |
+          ↓                ↓                ↓
+        APK A            APK B            APK C
+          |                |                |
+          ↓                ↓                ↓
+        DB A             DB B             DB C
+
+============================================================
+18. CONTROL PLANE
+============================================================
+
+Control Plane manages:
+
+tenants
+
+tenant metadata
+
+provisioning
+
+trial
+
+subscription
+
+billing metadata
+
+deployment
+
+APK metadata
+
+domain metadata
+
+database metadata
+
+audit logs
+
+platform configuration
+
+tenant health
+
+============================================================
+19. TENANT PLANE
+============================================================
+
+Tenant application manages:
+
+restaurant
+
+staff
+
+customers
+
+tables
+
+table layout
+
+menu
+
+categories
+
+reservations
+
+orders
+
+payments
+
+branding
+
+reports
+
+notifications
+
+restaurant settings
+
+============================================================
+20. DATABASE ARCHITECTURE
 ============================================================
 
 CRITICAL:
 
-Each restaurant MUST have an isolated database.
+DATABASE PER TENANT.
 
 Tenant A:
 
@@ -415,116 +722,118 @@ Tenant C:
 
 Database C
 
-Data MUST NOT cross between tenants.
+Operational tenant data MUST NOT be stored in a shared tenant
+database.
 
 ============================================================
-14. DATABASE ARCHITECTURE
+21. CONTROL DATABASE
 ============================================================
 
-Use:
+Control database stores:
 
-DATABASE PER TENANT
-
-NOT:
-
-single database with tenant_id only.
-
-The platform control plane may have its own database.
-
-Architecture:
-
-CONTROL PLANE DATABASE
-        |
-        ├── Tenant A metadata
-        ├── Tenant B metadata
-        └── Tenant C metadata
-
-
-TENANT DATABASE A
-        |
-        ├── users
-        ├── tables
-        ├── menus
-        ├── reservations
-        ├── orders
-        └── settings
-
-
-TENANT DATABASE B
-        |
-        ├── users
-        ├── tables
-        ├── menus
-        ├── reservations
-        ├── orders
-        └── settings
-
-============================================================
-15. CONTROL PLANE
-============================================================
-
-The Control Plane manages:
-
-tenants
-
-tenant status
-
-trial
+tenant metadata
 
 subscription
 
-provisioning
+trial
+
+provisioning state
 
 deployment metadata
 
-domain
-
-APK metadata
-
-database connection metadata
-
-platform users
-
-billing state
-
-system configuration
+database reference
 
 audit logs
 
+platform users
+
+It MUST NOT become a storage location for all tenant operational
+data.
+
 ============================================================
-16. TENANT PLANE
+22. TENANT DATABASE
 ============================================================
 
-Each tenant application manages:
+Each tenant database may contain:
 
-restaurant users
+users
 
 customers
 
 tables
 
-table layouts
+table_layout
 
 menus
 
-categories
-
-orders
+menu_categories
 
 reservations
 
+orders
+
 payments
 
-restaurant settings
-
 branding
+
+restaurant_settings
 
 notifications
 
 reports
 
+audit records relevant to tenant
+
 ============================================================
-17. PLATFORM OWNER
+23. DATABASE ISOLATION
+============================================================
+
+Tenant A MUST NOT access:
+
+Tenant B database
+
+Tenant B customers
+
+Tenant B reservations
+
+Tenant B orders
+
+Tenant B menus
+
+Tenant B branding
+
+Tenant B staff
+
+============================================================
+24. TENANT IDENTITY
+============================================================
+
+Every tenant must have globally unique ID.
+
+Example:
+
+TEN-2026-8F4K2M
+
+Do not use restaurant name alone as primary identity.
+
+============================================================
+25. TENANT CODE
+============================================================
+
+Human-readable code.
+
+Example:
+
+DISTRO-AVENUE
+
+or:
+
+RESTO-BOGOR-001
+
+Must be unique.
+
+============================================================
+26. PLATFORM SUPER ADMIN
 ============================================================
 
 Role:
@@ -537,64 +846,80 @@ create tenant
 
 provision tenant
 
-suspend tenant
+view tenants
+
+inspect tenant
 
 activate tenant
 
+suspend tenant
+
+expire tenant
+
 extend trial
 
-change trial duration
+change trial
 
 activate subscription
 
-expire subscription
+manage subscription
 
-view tenant status
+view deployment
 
-view deployment status
+generate Web
 
-regenerate tenant package
+generate APK
 
-view tenant health
+reset tenant admin
 
-manage platform settings
+backup tenant
+
+restore tenant
+
+archive tenant
+
+audit activity
 
 ============================================================
-18. TENANT ADMIN
+27. TENANT ADMIN
 ============================================================
 
-Each restaurant receives its own:
+Each restaurant gets its own:
 
 TENANT_ADMIN
 
 Capabilities:
 
-manage restaurant
+restaurant settings
 
-manage staff
+branding
 
-manage menu
+images
 
-manage categories
+menu
 
-manage tables
+categories
 
-manage table layout
+tables
 
-manage reservation rules
+table layout
 
-manage payment configuration
+reservation rules
 
-manage orders
+orders
 
-manage customers
+customers
 
-manage branding
+payments
 
-view reports
+staff
+
+reports
+
+account
 
 ============================================================
-19. TENANT STAFF
+28. TENANT STAFF
 ============================================================
 
 Optional roles:
@@ -609,19 +934,19 @@ WAITER
 
 HOST
 
-Roles must be configurable.
+Role-based authorization MUST be implemented.
 
 ============================================================
-20. CUSTOMER
+29. CUSTOMER
 ============================================================
 
-Customer capabilities:
+Customer can:
 
-browse restaurant
+view restaurant
 
 view menu
 
-view table availability
+view availability
 
 select date
 
@@ -629,11 +954,11 @@ select time
 
 select table
 
-reserve table
+reserve
 
-pre-order food
+pre-order
 
-make payment where configured
+pay
 
 view reservation
 
@@ -642,10 +967,10 @@ cancel according to policy
 receive confirmation
 
 ============================================================
-21. WHITE-LABEL
+30. WHITE LABEL
 ============================================================
 
-Each tenant can customize:
+Tenant can configure:
 
 restaurant name
 
@@ -657,137 +982,15 @@ primary color
 
 secondary color
 
-background
-
-font configuration
+font
 
 hero image
 
-restaurant images
+gallery
 
 menu images
 
-contact information
-
-social media
-
-address
-
-phone
-
-WhatsApp
-
-opening hours
-
-description
-
-terms
-
-reservation policy
-
-============================================================
-22. BRANDING STORAGE
-============================================================
-
-Branding configuration MUST be tenant-specific.
-
-Never hardcode restaurant branding inside source code.
-
-Use:
-
-TenantBranding
-
-Fields:
-
-logo
-
-favicon
-
-primaryColor
-
-secondaryColor
-
-font
-
-heroImage
-
-gallery
-
-socialLinks
-
-contactInfo
-
-============================================================
-23. IMAGE MANAGEMENT
-============================================================
-
-Tenant Admin must be able to manage all restaurant images.
-
-Categories:
-
-logo
-
-hero
-
-gallery
-
-menu
-
-promotion
-
-table
-
-banner
-
-favicon
-
-Images can be:
-
-uploaded
-
-replaced
-
-deleted
-
-reordered
-
-activated/deactivated
-
-============================================================
-24. IMAGE VALIDATION
-============================================================
-
-Validate:
-
-file type
-
-file size
-
-dimensions where required
-
-filename
-
-content type
-
-storage path
-
-Prevent:
-
-path traversal
-
-malicious extensions
-
-unsafe uploads
-
-============================================================
-25. RESTAURANT PROFILE
-============================================================
-
-Tenant Admin can configure:
-
-name
-
-description
+promotion images
 
 address
 
@@ -807,25 +1010,177 @@ Google Maps
 
 opening hours
 
-holiday schedule
+restaurant description
 
-reservation rules
+reservation policy
+
+terms
 
 ============================================================
-26. TABLE MANAGEMENT
+31. IMAGE MANAGEMENT
 ============================================================
 
-Admin can create:
+Tenant Admin can manage ALL tenant images.
 
-table number
+Image categories:
 
-table name
+logo
+
+favicon
+
+hero
+
+gallery
+
+menu
+
+promotion
+
+banner
+
+table
+
+other restaurant media
+
+Actions:
+
+upload
+
+replace
+
+delete
+
+activate
+
+deactivate
+
+reorder
+
+============================================================
+32. IMAGE STORAGE
+============================================================
+
+Storage namespace:
+
+tenants/{tenantId}/
+
+Example:
+
+tenants/TEN-2026-8F4K2M/logo.png
+
+Tenant storage MUST be isolated.
+
+============================================================
+33. IMAGE SECURITY
+============================================================
+
+Validate:
+
+MIME
+
+extension
+
+size
+
+filename
+
+content type
+
+storage path
+
+Prevent:
+
+path traversal
+
+malicious uploads
+
+unsafe file types
+
+tenant path manipulation
+
+============================================================
+34. RESTAURANT PROFILE
+============================================================
+
+Fields:
+
+restaurantName
+
+description
+
+address
+
+phone
+
+WhatsApp
+
+email
+
+Instagram
+
+TikTok
+
+Facebook
+
+Google Maps
+
+openingHours
+
+holidaySchedule
+
+reservationRules
+
+============================================================
+35. TABLE MANAGEMENT
+============================================================
+
+Admin can:
+
+create table
+
+edit table
+
+delete table
+
+duplicate table
+
+move table
+
+resize table
+
+rotate table
+
+change capacity
+
+change shape
+
+change section
+
+change status
+
+============================================================
+36. TABLE ENTITY
+============================================================
+
+Fields:
+
+id
+
+tableNumber
+
+name
 
 capacity
 
 shape
 
-position
+positionX
+
+positionY
+
+width
+
+height
 
 rotation
 
@@ -833,15 +1188,27 @@ section
 
 status
 
-minimum reservation time
+createdAt
 
-maximum reservation time
+updatedAt
 
 ============================================================
-27. TABLE TYPES
+37. TABLE STATUS
 ============================================================
 
-Support:
+AVAILABLE
+
+RESERVED
+
+OCCUPIED
+
+BLOCKED
+
+MAINTENANCE
+
+============================================================
+38. TABLE SHAPE
+============================================================
 
 ROUND
 
@@ -856,55 +1223,57 @@ BAR
 CUSTOM
 
 ============================================================
-28. VISUAL TABLE LAYOUT
+39. VISUAL TABLE LAYOUT
 ============================================================
 
-Customer sees a visual floor plan.
+Customer sees an interactive floor plan.
 
 Example:
 
         TABLE 01
 
-   ┌─────────────┐
-   │             │
-   └─────────────┘
+     ┌───────────┐
+     │           │
+     └───────────┘
 
-       TABLE 02
+         TABLE 02
 
-The actual layout is controlled by tenant.
+Table layout is tenant-specific.
 
 ============================================================
-29. TABLE BUILDER
+40. TABLE BUILDER
 ============================================================
 
 Tenant Admin can:
 
-create table
+drag
 
-drag table
+drop
 
-move table
+move
 
-resize table
+resize
 
-rotate table
+rotate
 
 rename
+
+duplicate
+
+delete
 
 change capacity
 
 change shape
 
-delete
-
-duplicate
-
 group by section
 
-save layout
+save
+
+preview
 
 ============================================================
-30. TABLE AVAILABILITY
+41. TABLE AVAILABILITY
 ============================================================
 
 Availability depends on:
@@ -913,48 +1282,86 @@ date
 
 time
 
-reservation duration
+duration
 
-existing reservations
-
-table status
+existing reservation
 
 capacity
 
-reservation rules
+table status
+
+reservation policy
 
 ============================================================
-31. RESERVATION MODES
+42. RESERVATION MODES
 ============================================================
 
-MODE 1:
+MODE A:
 
 RESERVATION ONLY
 
-Customer:
+Flow:
 
-select date
-select time
-select table
-confirm
+date
 
-MODE 2:
+↓
+
+time
+
+↓
+
+guest count
+
+↓
+
+table
+
+↓
+
+confirmation
+
+MODE B:
 
 RESERVATION + PRE-ORDER
 
-Customer:
+Flow:
 
-select date
-select time
-select table
-select menu
-select quantity
+date
+
+↓
+
+time
+
+↓
+
+guest count
+
+↓
+
+table
+
+↓
+
+menu
+
+↓
+
+quantity
+
+↓
+
 checkout
+
+↓
+
 payment
+
+↓
+
 confirmation
 
 ============================================================
-32. RESERVATION ENTITY
+43. RESERVATION ENTITY
 ============================================================
 
 Fields:
@@ -990,7 +1397,7 @@ createdAt
 updatedAt
 
 ============================================================
-33. RESERVATION STATUS
+44. RESERVATION STATUS
 ============================================================
 
 PENDING
@@ -1010,31 +1417,45 @@ NO_SHOW
 EXPIRED
 
 ============================================================
-34. RESERVATION CONFLICT PREVENTION
+45. RESERVATION CONFLICT
 ============================================================
 
-The backend MUST prevent:
+Backend MUST prevent:
 
 double booking
 
 overlapping reservation
 
-same table + same slot collision
+same table same slot
 
 race conditions
 
+duplicate booking requests
+
 Client-side availability is NOT authoritative.
 
-Use:
+============================================================
+46. CONCURRENCY CONTROL
+============================================================
 
-database transaction
+Reservation creation should use appropriate:
 
-row locking / appropriate concurrency control
+database transactions
 
-unique constraints where possible
+locking
+
+unique constraints
+
+optimistic/pessimistic concurrency where appropriate
+
+idempotency
+
+Two simultaneous requests for the same table and slot:
+
+Only one may succeed.
 
 ============================================================
-35. TIME SLOT
+47. TIME SLOT
 ============================================================
 
 Tenant config:
@@ -1051,51 +1472,62 @@ bufferTime
 
 Example:
 
-Opening:
+opening:
+
 10:00
 
-Closing:
+closing:
+
 22:00
 
-Slot:
+slot:
+
 30 minutes
 
-Reservation:
+reservation:
+
 120 minutes
 
-Buffer:
+buffer:
+
 15 minutes
 
 ============================================================
-36. MENU MANAGEMENT
+48. MENU MANAGEMENT
 ============================================================
 
 Admin can:
 
 create category
 
-create menu
+edit category
 
-edit menu
+delete category
 
-delete menu
+create menu item
 
-activate/deactivate
+edit menu item
+
+delete menu item
+
+activate
+
+deactivate
 
 set price
 
-set description
-
-upload image
+set stock
 
 set availability
 
-set stock
-
 set preparation time
 
+upload image
+
+reorder
+
 ============================================================
-37. MENU CATEGORY
+49. MENU CATEGORY
 ============================================================
 
 Examples:
@@ -1113,7 +1545,7 @@ COFFEE
 SPECIAL
 
 ============================================================
-38. MENU ITEM
+50. MENU ITEM
 ============================================================
 
 Fields:
@@ -1143,7 +1575,7 @@ createdAt
 updatedAt
 
 ============================================================
-39. PRE-ORDER
+51. PRE-ORDER
 ============================================================
 
 Customer can add:
@@ -1159,7 +1591,7 @@ price
 subtotal
 
 ============================================================
-40. ORDER STATUS
+52. ORDER STATUS
 ============================================================
 
 PENDING
@@ -1177,29 +1609,29 @@ COMPLETED
 CANCELLED
 
 ============================================================
-41. PAYMENT CONFIGURATION
+53. PAYMENT ARCHITECTURE
 ============================================================
 
-Payment configuration belongs to tenant.
+Payment must use an adapter architecture.
 
-Supported architecture:
+Example:
 
-PaymentProviderAdapter
+PaymentProvider
 
-Examples:
+↓
 
-MIDTRANS
+MidtransPaymentProvider
 
-XENDIT
+XenditPaymentProvider
 
-MANUAL_TRANSFER
+ManualTransferProvider
 
-CASH
+CashProvider
 
-OTHER_SUPPORTED_PROVIDER
+MockPaymentProvider
 
 ============================================================
-42. PAYMENT MODES
+54. PAYMENT METHODS
 ============================================================
 
 FULL_PAYMENT
@@ -1211,14 +1643,10 @@ PAY_AT_RESTAURANT
 MANUAL_CONFIRMATION
 
 ============================================================
-43. PAYMENT ABSTRACTION
+55. PAYMENT INTERFACE
 ============================================================
 
-Never hardcode one payment gateway into reservation logic.
-
-Use:
-
-PaymentProvider
+Provider abstraction must support where applicable:
 
 createPayment()
 
@@ -1231,7 +1659,7 @@ refundPayment()
 verifyWebhook()
 
 ============================================================
-44. PAYMENT SECURITY
+56. PAYMENT SECURITY
 ============================================================
 
 Never store:
@@ -1240,51 +1668,37 @@ raw card number
 
 CVV
 
+payment secret
+
 payment credentials
 
 in tenant database.
 
-Store only:
-
-provider transaction ID
-
-status
-
-amount
-
-currency
-
-timestamps
-
-safe metadata
+Store only safe transaction metadata.
 
 ============================================================
-45. WEBHOOK
+57. PAYMENT WEBHOOK
 ============================================================
 
-Payment webhook MUST:
+Webhook MUST:
 
 verify signature
 
 validate payload
 
-be idempotent
+support idempotency
 
-prevent replay where applicable
+prevent duplicate state transitions
 
-update payment transaction
+update payment safely
 
 update reservation/order safely
 
 ============================================================
-46. SUBSCRIPTION
+58. SUBSCRIPTION
 ============================================================
 
-Platform-level subscription.
-
-Subscription belongs to:
-
-TENANT
+Subscription belongs to tenant.
 
 Fields:
 
@@ -1315,10 +1729,8 @@ createdAt
 updatedAt
 
 ============================================================
-47. BILLING CYCLE
+59. BILLING CYCLE
 ============================================================
-
-Support:
 
 MONTHLY
 
@@ -1327,7 +1739,7 @@ YEARLY
 CUSTOM
 
 ============================================================
-48. SUBSCRIPTION STATUS
+60. SUBSCRIPTION STATUS
 ============================================================
 
 TRIAL
@@ -1343,7 +1755,7 @@ EXPIRED
 CANCELLED
 
 ============================================================
-49. TRIAL TO SUBSCRIPTION
+61. TRIAL → SUBSCRIPTION
 ============================================================
 
 Flow:
@@ -1352,7 +1764,7 @@ TRIAL
 
 ↓
 
-Client decides to subscribe
+Client agrees
 
 ↓
 
@@ -1366,134 +1778,234 @@ ACTIVE
 
 ↓
 
-Subscription end date set
+subscriptionStart
+
+↓
+
+subscriptionEnd
 
 ============================================================
-50. TRIAL EXTENSION
+62. TRIAL EXTENSION
 ============================================================
 
 SUPER_ADMIN may extend trial.
 
 Example:
 
-Original:
-
 60 days
 
-Extension:
++
 
-+14 days
+14 days
 
-All changes MUST be logged.
+=
 
-============================================================
-51. TRIAL AUDIT
-============================================================
+74 days
 
-Audit:
-
-trial created
-
-trial extended
-
-trial shortened
-
-trial expired
-
-subscription activated
-
-subscription cancelled
+Every change MUST be audited.
 
 ============================================================
-52. ACCOUNT PROVISIONING
+63. SUBSCRIPTION EXPIRATION
 ============================================================
 
-When creating tenant:
+When:
 
-Generate:
+currentTime >= subscriptionEnd
 
-tenantId
+Tenant:
 
-tenantCode
+SUBSCRIPTION_EXPIRED
 
-admin user
+Customer:
 
-temporary password
-
-database
-
-database credentials
-
-storage namespace
-
-deployment configuration
-
-branding defaults
-
-trial period
+EXPIRED EXPERIENCE
 
 ============================================================
-53. TENANT ID
+64. GRACE PERIOD
 ============================================================
 
-Tenant ID must be globally unique.
+Optional configurable period.
 
 Example:
 
-TEN-2026-8F4K2M
+7 days
 
-Never use restaurant name alone as tenant identifier.
-
-============================================================
-54. TENANT CODE
-============================================================
-
-Human-readable code:
-
-DISTRO-AVENUE
-
-or:
-
-RESTO-BOGOR-001
-
-Must also be unique.
+Behavior must be configurable.
 
 ============================================================
-55. ADMIN ACCOUNT GENERATION
+65. TENANT SUSPENSION
+============================================================
+
+Suspended tenant:
+
+customer operations blocked
+
+reservation blocked
+
+new order blocked
+
+application shows suspended/expired experience
+
+Admin access policy configurable.
+
+============================================================
+66. ADMIN ACCESS AFTER EXPIRATION
 ============================================================
 
 Recommended:
 
-email:
+Tenant Admin may still access:
 
-owner@tenant-domain.com
+billing
 
-OR:
+subscription status
 
-admin email entered during provisioning.
+account
+
+support
+
+data export
+
+Operational features may be disabled.
+
+============================================================
+67. AUTOMATED TENANT PROVISIONING
+============================================================
+
+This is a CORE SYSTEM.
+
+When creating tenant:
+
+generate tenant ID
+
+generate tenant code
+
+create database
+
+run migration
+
+create storage namespace
+
+create admin
+
+generate temporary password
+
+configure trial
+
+configure branding
+
+configure API
+
+configure Web
+
+configure APK
+
+validate
+
+mark tenant READY
+
+============================================================
+68. TENANT PROVISIONING CLI
+============================================================
+
+Required CLI:
+
+sibangku tenant create
+
+Example:
+
+sibangku tenant create \
+  --name "Distro Avenue Store" \
+  --code "DISTRO-AVENUE" \
+  --admin-email "owner@example.com" \
+  --trial-days 60
+
+============================================================
+69. CLI COMMANDS
+============================================================
+
+Required commands:
+
+sibangku tenant create
+
+sibangku tenant list
+
+sibangku tenant inspect
+
+sibangku tenant activate
+
+sibangku tenant suspend
+
+sibangku tenant expire
+
+sibangku tenant extend-trial
+
+sibangku tenant reset-admin
+
+sibangku tenant build
+
+sibangku tenant build-web
+
+sibangku tenant build-apk
+
+sibangku tenant backup
+
+sibangku tenant restore
+
+sibangku tenant archive
+
+sibangku tenant destroy
+
+============================================================
+70. ADMIN ACCOUNT GENERATOR
+============================================================
+
+The provisioning system must generate unique credentials.
 
 Generate:
 
+tenant ID
+
+admin identity
+
 temporary password
 
-The password MUST be random and cryptographically secure.
+firstLoginRequired
+
+password expiration if configured
+
+Never use predictable passwords.
 
 ============================================================
-56. FIRST LOGIN
+71. TEMPORARY PASSWORD
 ============================================================
 
-Tenant admin logs in.
+Password MUST be generated using cryptographically secure
+randomness.
+
+Temporary password:
+
+- unique
+- high entropy
+- never hardcoded
+- never predictable
+
+============================================================
+72. FIRST LOGIN
+============================================================
+
+Admin logs in using temporary credentials.
 
 System detects:
 
 mustChangePassword = true
 
-Admin MUST create a new password.
+Admin must create permanent password.
 
 Temporary password becomes invalid.
 
 ============================================================
-57. PASSWORD SECURITY
+73. PASSWORD STORAGE
 ============================================================
 
 Use:
@@ -1504,122 +2016,100 @@ or:
 
 bcrypt with secure configuration.
 
-Never store plaintext password.
+Never store plaintext passwords.
 
 ============================================================
-58. CREDENTIAL DELIVERY
+74. CREDENTIAL DELIVERY
 ============================================================
 
-Provisioning generator may produce:
+Credentials may be shown once during provisioning.
 
-credentials.txt
+Do not:
 
-BUT:
+commit credentials to Git
 
-Do NOT store permanent passwords in logs.
+store permanent passwords in logs
 
-Do NOT commit credentials to Git.
+include permanent credentials in APK
 
-Prefer:
-
-one-time credential display
-
-or secure secret handoff.
+include passwords in generated frontend files
 
 ============================================================
-59. TENANT PROVISIONING GENERATOR
+75. PROVISIONING IDEMPOTENCY
 ============================================================
 
-Create a dedicated CLI tool:
-
-sibangku tenant create
-
-Example:
-
-sibangku tenant create \
-    --name "Distro Avenue Store" \
-    --code "DISTRO-AVENUE" \
-    --admin-email "owner@example.com" \
-    --trial-days 60
-
-============================================================
-60. GENERATOR OUTPUT
-============================================================
-
-The generator must create:
-
-tenant metadata
-
-database
-
-database migration
-
-storage namespace
-
-branding config
-
-admin account
-
-trial config
-
-web config
-
-APK config
-
-deployment config
-
-============================================================
-61. GENERATOR COMMANDS
-============================================================
-
-Required:
+Running:
 
 tenant create
 
-tenant list
+twice with the same tenant identifier MUST NOT create duplicate:
 
-tenant inspect
+tenant
 
-tenant suspend
+database
 
-tenant activate
+admin
 
-tenant expire
+storage
 
-tenant extend-trial
+domain
 
-tenant reset-admin
-
-tenant build
-
-tenant build-web
-
-tenant build-apk
-
-tenant destroy
-
-tenant backup
+package ID
 
 ============================================================
-62. TENANT BUILD
+76. PROVISIONING STATE
 ============================================================
 
-Command:
+PROVISIONING
 
-sibangku tenant build TEN-2026-8F4K2M
+DATABASE_CREATING
 
-Must generate:
+DATABASE_READY
 
-Web
+MIGRATING
 
-Android APK
+AUTH_CREATING
 
-configuration
+STORAGE_CREATING
 
-deployment artifacts
+CONFIGURING
+
+WEB_BUILDING
+
+APK_BUILDING
+
+VERIFYING
+
+READY
+
+FAILED
+
+ARCHIVED
 
 ============================================================
-63. ONE-COMMAND BUILD
+77. PROVISIONING FAILURE
+============================================================
+
+If:
+
+database = SUCCESS
+
+web = SUCCESS
+
+apk = FAILED
+
+Tenant MUST NOT be destroyed automatically.
+
+Allow:
+
+retry APK
+
+retry deployment
+
+retry failed step
+
+============================================================
+78. TENANT BUILD GENERATOR
 ============================================================
 
 Required:
@@ -1628,22 +2118,142 @@ sibangku tenant build --all TEN-2026-8F4K2M
 
 Pipeline:
 
-tenant config
-      ↓
-branding
-      ↓
-web build
-      ↓
-Android configuration
-      ↓
-APK build
-      ↓
-verification
-      ↓
-artifacts
+load tenant
+
+↓
+
+load branding
+
+↓
+
+load configuration
+
+↓
+
+validate tenant
+
+↓
+
+generate Web
+
+↓
+
+generate Android
+
+↓
+
+build APK
+
+↓
+
+validate artifacts
+
+↓
+
+generate deployment configuration
+
+↓
+
+generate build report
 
 ============================================================
-64. OUTPUT DIRECTORY
+79. WEB GENERATOR
+============================================================
+
+Web build must support tenant-specific:
+
+name
+
+logo
+
+favicon
+
+colors
+
+fonts
+
+images
+
+API endpoint
+
+domain
+
+configuration
+
+============================================================
+80. WEB BUILD OUTPUT
+============================================================
+
+Example:
+
+output/
+
+TEN-2026-8F4K2M/
+
+web/
+
+deployment/
+
+metadata/
+
+build-report.json
+
+============================================================
+81. APK GENERATOR
+============================================================
+
+Each tenant receives a unique Android application configuration.
+
+Configure:
+
+application name
+
+application icon
+
+splash screen
+
+colors
+
+branding
+
+API endpoint
+
+package identifier
+
+version
+
+============================================================
+82. APK PACKAGE ID
+============================================================
+
+Must be unique.
+
+Example:
+
+com.sibangku.distroavenue
+
+Never use the same package ID for unrelated tenants.
+
+============================================================
+83. APK SIGNING
+============================================================
+
+Production APK/AAB must be signed.
+
+Signing keys MUST:
+
+never be committed
+
+never be included in tenant source
+
+never be logged
+
+never be exposed to clients
+
+Use secure signing infrastructure.
+
+============================================================
+84. BUILD OUTPUT
 ============================================================
 
 Example:
@@ -1666,293 +2276,193 @@ TEN-2026-8F4K2M/
 
     metadata/
 
+    build-report.json
+
 ============================================================
-65. APK BRANDING
+85. BUILD REPORT
 ============================================================
-
-APK should contain tenant-specific:
-
-application name
-
-icon
-
-splash screen
-
-colors
-
-API endpoint
-
-branding
-
-package identifier
 
 Example:
 
-com.sibangku.tenant.distroavenue
+TENANT BUILD REPORT
 
-Package ID MUST be unique.
+Tenant:
+Distro Avenue Store
 
-============================================================
-66. APK PACKAGE ID
-============================================================
+Tenant ID:
+TEN-2026-8F4K2M
 
-Never use the same Android package ID for every generated app.
+Database:
+READY
 
-Generate deterministic unique ID:
+Web:
+SUCCESS
 
-com.sibangku.<tenant-slug>
+APK:
+SUCCESS
 
-Validate Android package naming rules.
+Branding:
+SUCCESS
 
-============================================================
-67. APK SIGNING
-============================================================
+Trial:
+60 DAYS
 
-Production APK/AAB must be signed.
-
-Signing keys MUST NOT be:
-
-committed to Git
-
-included in generated project
-
-exposed in logs
-
-For production:
-
-use secure signing infrastructure.
+Status:
+READY
 
 ============================================================
-68. WEB DEPLOYMENT
+86. WEB DEPLOYMENT
 ============================================================
 
-Each tenant web application may use:
+Supported deployment targets may include:
 
 Vercel
 
-self-hosted
-
 Docker
+
+self-hosted
 
 other supported hosting
 
-Deployment configuration must be tenant-specific.
+Tenant deployment configuration must be isolated.
 
 ============================================================
-69. DOMAIN
+87. DOMAIN
 ============================================================
 
 Support:
 
 tenant.sibangku.example
 
-OR
-
-custom restaurant domain.
-
 Example:
 
 distroavenue.sibangku.example
 
-Later:
-
-www.distroavenue.com
+Custom domain may later be supported.
 
 ============================================================
-70. API ENDPOINT
+88. API ISOLATION
 ============================================================
 
-Each generated web/APK configuration points to the correct
-tenant API.
+Tenant A Web:
 
-Never allow APK A to accidentally connect to Tenant B.
+API A
+
+Tenant B Web:
+
+API B
+
+Tenant A APK:
+
+API A
+
+Tenant B APK:
+
+API B
+
+Clients MUST NOT be able to select arbitrary tenant APIs through
+normal client input.
 
 ============================================================
-71. TENANT ROUTING
+89. TENANT RESOLUTION
 ============================================================
 
-Tenant resolution can use:
+Tenant can be resolved using:
 
 subdomain
 
-tenant domain
+custom domain
 
 tenant identifier
 
-API configuration
+trusted deployment configuration
 
-The tenant context MUST be validated server-side.
+Server MUST validate tenant identity.
 
 ============================================================
-72. TENANT SECURITY BOUNDARY
+90. AUTHORIZATION
 ============================================================
 
-Every request must resolve:
+Every protected request must verify:
+
+authentication
 
 tenant
 
-user
-
 role
 
-database connection
+permission
 
-authorization
-
-Never trust:
-
-client-provided tenant ID
-
-without server-side verification.
+resource ownership
 
 ============================================================
-73. DATABASE CONNECTION
+91. TENANT SECURITY BOUNDARY
 ============================================================
 
-The tenant database connection must be resolved through the
-trusted control plane configuration.
+Never trust client-provided tenant ID without validation.
 
-Do not allow a client to submit arbitrary database URLs.
+Never allow:
 
-============================================================
-74. DATABASE PROVISIONING
-============================================================
+tenant A token
+→ tenant B resource
 
-Provisioning service must:
+Expected:
 
-create database
+403
 
-create credentials
-
-run migrations
-
-seed required defaults
-
-verify connection
-
-mark database READY
+or safe 404.
 
 ============================================================
-75. DATABASE STATE
+92. CUSTOMER AUTHENTICATION
 ============================================================
 
-PROVISIONING
-
-READY
-
-MIGRATION_FAILED
-
-UNAVAILABLE
-
-ARCHIVED
-
-============================================================
-76. DOCKER
-============================================================
-
-The platform MUST support Docker.
-
-Recommended services:
-
-control-api
-
-tenant-api
-
-worker
-
-postgres-control
-
-redis
-
-clickhouse optional
-
-web
-
-nginx
-
-For dedicated tenant databases:
-
-each tenant database must have a distinct logical database
-or isolated database service according to deployment strategy.
-
-============================================================
-77. DEDICATED DATABASE DEPLOYMENT
-============================================================
-
-Development:
-
-PostgreSQL instance
-
-    ├── sibangku_control
-    ├── tenant_distroavenue
-    ├── tenant_restaurant_b
-    └── tenant_restaurant_c
-
-Production can use:
-
-separate database servers
-
-or:
-
-separate PostgreSQL clusters
-
-depending on isolation requirements.
-
-The architectural abstraction MUST allow this upgrade.
-
-============================================================
-78. CUSTOMER AUTHENTICATION
-============================================================
-
-Customers may optionally create accounts.
-
-Support:
+Support configurable:
 
 guest reservation
 
-email
+email account
 
 phone
 
 OTP
 
-account
+customer account
 
-according to tenant configuration.
-
-============================================================
-79. CUSTOMER DATA
-============================================================
-
-Tenant database stores only the customer's data belonging to
-that restaurant.
-
-Do not share customer profiles between unrelated tenants.
+Tenant controls enabled methods where applicable.
 
 ============================================================
-80. ADMIN DASHBOARD
+93. CUSTOMER DATA ISOLATION
 ============================================================
 
-Tenant Admin Dashboard:
+Customer data belongs to tenant operational scope.
 
-Today
-
-Reservations
-
-Occupied tables
-
-Upcoming reservations
-
-Orders
-
-Revenue
-
-Popular menu
-
-Table utilization
+Customer from Tenant A must not automatically become a customer
+of Tenant B.
 
 ============================================================
-81. RESERVATION DASHBOARD
+94. ADMIN DASHBOARD
+============================================================
+
+Tenant Dashboard displays:
+
+today
+
+reservations
+
+occupied tables
+
+upcoming reservations
+
+orders
+
+revenue
+
+popular menu
+
+table utilization
+
+============================================================
+95. RESERVATION DASHBOARD
 ============================================================
 
 Display:
@@ -1963,69 +2473,53 @@ time slots
 
 tables
 
-reservation status
-
 customer
 
 guest count
 
-order
+status
 
 payment
 
-============================================================
-82. TABLE MAP
-============================================================
-
-Interactive.
-
-States:
-
-AVAILABLE
-
-SELECTED
-
-RESERVED
-
-OCCUPIED
-
-BLOCKED
-
-MAINTENANCE
+pre-order
 
 ============================================================
-83. MENU UI
+96. CUSTOMER APPLICATION
 ============================================================
 
-Restaurant branded.
+Customer homepage:
+
+restaurant branding
+
+hero
+
+restaurant information
+
+menu
+
+reservation CTA
+
+table availability
+
+opening hours
+
+contact
+
+social media
+
+============================================================
+97. CUSTOMER CHECKOUT
+============================================================
 
 Display:
 
-image
-
-name
-
-description
-
-price
-
-availability
-
-category
-
-============================================================
-84. CHECKOUT
-============================================================
-
-Checkout:
-
-reservation
-
-table
+restaurant
 
 date
 
 time
+
+table
 
 guest count
 
@@ -2041,8 +2535,10 @@ total
 
 payment method
 
+confirmation
+
 ============================================================
-85. CONFIRMATION
+98. RESERVATION CONFIRMATION
 ============================================================
 
 After successful booking:
@@ -2063,27 +2559,25 @@ pre-order
 
 payment status
 
-QR code optional
+optional QR code
 
 ============================================================
-86. QR CODE
+99. QR CODE
 ============================================================
 
-Optional feature.
+Optional.
 
-QR can encode:
+If implemented:
 
-reservation ID
+use signed verification token.
 
-signed verification token
-
-Do NOT put sensitive customer data directly into QR.
+Never place sensitive customer data directly inside QR.
 
 ============================================================
-87. NOTIFICATION
+100. NOTIFICATION ARCHITECTURE
 ============================================================
 
-Optional adapter architecture:
+Notification adapters may include:
 
 Email
 
@@ -2091,15 +2585,15 @@ WhatsApp provider
 
 SMS
 
-Push notification
+Push
 
-Notifications must not be hardcoded to one provider.
+Do not hardcode one provider into business logic.
 
 ============================================================
-88. ADMIN NOTIFICATION
+101. ADMIN NOTIFICATIONS
 ============================================================
 
-Notify tenant admin when:
+Notify when:
 
 new reservation
 
@@ -2107,30 +2601,14 @@ payment received
 
 reservation cancelled
 
-pre-order created
+new pre-order
 
 trial approaching expiration
 
 subscription expired
 
 ============================================================
-89. TRIAL WARNING
-============================================================
-
-Example:
-
-7 days remaining
-
-3 days remaining
-
-1 day remaining
-
-Trial expired
-
-Notifications are configurable.
-
-============================================================
-90. REPORTING
+102. REPORTING
 ============================================================
 
 Tenant reports:
@@ -2156,1085 +2634,36 @@ weekly
 monthly
 
 ============================================================
-91. PLATFORM REPORTING
-============================================================
-
-SUPER_ADMIN:
-
-total tenants
-
-active tenants
-
-trial tenants
-
-expired trials
-
-subscriptions
-
-revenue metadata
-
-provisioning failures
-
-database health
-
-deployment health
-
-============================================================
-92. TENANT CREATION FLOW
-============================================================
-
-SUPER_ADMIN:
-
-Create Tenant
-
-↓
-
-Restaurant information
-
-↓
-
-Owner information
-
-↓
-
-Trial duration
-
-↓
-
-Branding
-
-↓
-
-Payment configuration
-
-↓
-
-Provision
-
-↓
-
-Database created
-
-↓
-
-Admin created
-
-↓
-
-Web generated
-
-↓
-
-APK generated
-
-↓
-
-Tenant READY
-
-============================================================
-93. PROVISIONING STATUS
-============================================================
-
-Show:
-
-DATABASE
-
-WEB
-
-APK
-
-STORAGE
-
-AUTH
-
-CONFIGURATION
-
-Each:
-
-PENDING
-
-RUNNING
-
-SUCCESS
-
-FAILED
-
-============================================================
-94. PROVISIONING FAILURE
-============================================================
-
-If database creation succeeds but APK build fails:
-
-Do NOT destroy everything automatically.
-
-Record:
-
-database SUCCESS
-
-web SUCCESS
-
-apk FAILED
-
-Allow retry.
-
-============================================================
-95. IDEMPOTENT PROVISIONING
-============================================================
-
-Running provisioning twice must NOT create duplicate:
-
-tenant
-
-database
-
-admin
-
-storage
-
-domain
-
-package ID
-
-============================================================
-96. TENANT DELETION
-============================================================
-
-Destructive.
-
-Require:
-
-explicit confirmation
-
-tenant code
-
-optional confirmation phrase
-
-Audit log.
-
-Backup before destruction where configured.
-
-============================================================
-97. TENANT SUSPENSION
-============================================================
-
-Suspended tenant:
-
-API access restricted.
-
-Customer app:
-
-suspended/expired experience.
-
-Admin access:
-
-policy-dependent.
-
-============================================================
-98. SUBSCRIPTION EXPIRATION
-============================================================
-
-When subscription expires:
-
-ACTIVE
-
-↓
-
-SUBSCRIPTION_EXPIRED
-
-↓
-
-Expired Experience
-
-No customer booking.
-
-No new order.
-
-============================================================
-99. PAYMENT FAILURE
-============================================================
-
-PAST_DUE
-
-↓
-
-grace period
-
-↓
-
-SUSPENDED
-
-according to configurable billing policy.
-
-============================================================
-100. GRACE PERIOD
-============================================================
-
-Configurable.
-
-Example:
-
-7 days.
-
-Do not hardcode.
-
-============================================================
-101. ADMIN ACCESS AFTER EXPIRATION
-============================================================
-
-Default policy:
-
-Tenant Admin can still log in to view billing/subscription
-information.
-
-Operational restaurant functions may be disabled.
-
-This policy must be configurable.
-
-============================================================
-102. PLATFORM ADMIN ACCESS
-============================================================
-
-SUPER_ADMIN retains access to tenant management.
-
-============================================================
-103. AUDIT LOG
-============================================================
-
-Audit:
-
-tenant created
-
-database created
-
-admin created
-
-trial started
-
-trial extended
-
-trial expired
-
-subscription activated
-
-subscription expired
-
-tenant suspended
-
-tenant activated
-
-APK generated
-
-web generated
-
-branding changed
-
-payment settings changed
-
-admin reset
-
-tenant deleted
-
-============================================================
-104. SECURITY
-============================================================
-
-Implement:
-
-RBAC
-
-authentication
-
-authorization
-
-password hashing
-
-secure sessions
-
-rate limiting
-
-CSRF where applicable
-
-XSS protection
-
-SQL injection protection
-
-SSRF protection
-
-secure file upload
-
-audit logging
-
-secure secrets
-
-secure headers
-
-============================================================
-105. API SECURITY
-============================================================
-
-Every API request:
-
-authenticate
-
-resolve tenant
-
-authorize
-
-validate input
-
-execute business logic
-
-return safe response
-
-============================================================
-106. TENANT ISOLATION TEST
-============================================================
-
-Mandatory test:
-
-User from Tenant A attempts to access Tenant B.
-
-Expected:
-
-403
-
-or:
-
-404
-
-No Tenant B data may be returned.
-
-============================================================
-107. DATABASE ISOLATION TEST
-============================================================
-
-Tenant A database:
-
-reservation A
-
-Tenant B database:
-
-reservation B
-
-Query from Tenant A:
-
-must never return reservation B.
-
-============================================================
-108. APK ISOLATION TEST
-============================================================
-
-APK A:
-
-API A
-
-APK B:
-
-API B
-
-Verify APK A cannot be configured by normal client input to
-access Tenant B.
-
-============================================================
-109. TRIAL SECURITY TEST
-============================================================
-
-Manipulate:
-
-localStorage
-
-device date
-
-APK date
-
-browser date
-
-Expected:
-
-trial status remains controlled by server.
-
-============================================================
-110. PASSWORD RESET
-============================================================
-
-Tenant admin can request password reset.
-
-Use:
-
-one-time token
-
-expiration
-
-secure reset flow.
-
-============================================================
-111. ADMIN GENERATOR
-============================================================
-
-Create secure credential generation service.
-
-It must generate:
-
-username/email
-
-temporary password
-
-tenant identifier
-
-first-login state
-
-Never use predictable passwords.
-
-============================================================
-112. NO SHARED ACCOUNT
-============================================================
-
-NEVER:
-
-client A → admin/admin
-
-client B → admin/admin
-
-client C → admin/admin
-
-Instead:
-
-client A → unique admin
-
-client B → unique admin
-
-client C → unique admin
-
-============================================================
-113. DEFAULT ACCOUNT POLICY
-============================================================
-
-Development:
-
-admin/admin allowed.
-
-Production:
-
-FORBIDDEN.
-
-CI/CD should fail if production seed contains default credentials.
-
-============================================================
-114. CONFIGURATION
-============================================================
-
-Use:
-
-environment variables
-
-tenant configuration
-
-platform configuration
-
-Never hardcode secrets.
-
-============================================================
-115. TENANT CONFIGURATION
-============================================================
-
-Example:
-
-tenant.json
-
-{
-
-  "tenantId": "...",
-
-  "name": "...",
-
-  "branding": {
-
-      "primaryColor": "...",
-
-      "logo": "..."
-
-  },
-
-  "api": {
-
-      "baseUrl": "..."
-
-  }
-
-}
-
-No secrets in this file.
-
-============================================================
-116. IMAGE STORAGE
-============================================================
-
-Recommended:
-
-S3-compatible storage.
-
-Namespace:
-
-tenants/{tenantId}/
-
-Example:
-
-tenants/TEN-2026-8F4K2M/logo.png
-
-============================================================
-117. BACKUP
-============================================================
-
-Each tenant database must have:
-
-backup policy
-
-retention
-
-restore procedure
-
-backup status.
-
-============================================================
-118. RESTORE
-============================================================
-
-SUPER_ADMIN can restore tenant database.
-
-Must not overwrite production without confirmation.
-
-============================================================
-119. MIGRATIONS
-============================================================
-
-Tenant database migrations must be versioned.
-
-Provisioning automatically runs migrations.
-
-============================================================
-120. VERSION COMPATIBILITY
-============================================================
-
-Every tenant has:
-
-applicationVersion
-
-databaseSchemaVersion
-
-minimumSupportedVersion
-
-============================================================
-121. UPDATE STRATEGY
-============================================================
-
-Platform Owner can update tenant application.
-
-Before update:
-
-backup
-
-migration check
-
-compatibility check
-
-deployment
-
-health check
-
-rollback if required.
-
-============================================================
-122. APK VERSION
-============================================================
-
-Store:
-
-versionName
-
-versionCode
-
-tenantId
-
-buildDate
-
-gitCommit
-
-============================================================
-123. BUILD METADATA
-============================================================
-
-Every generated artifact must contain:
-
-tenant ID
-
-version
-
-build timestamp
-
-build commit
-
-environment
-
-============================================================
-124. WEB BUILD
-============================================================
-
-Web build must use tenant configuration.
-
-No source-code modification should be required for basic
-branding differences.
-
-============================================================
-125. APK BUILD
-============================================================
-
-APK build must use:
-
-tenant name
-
-tenant icon
-
-tenant package ID
-
-tenant API endpoint
-
-tenant branding
-
-============================================================
-126. BUILD CACHE
-============================================================
-
-Build system may cache dependencies.
-
-Do not accidentally reuse tenant-specific assets between builds.
-
-============================================================
-127. ARTIFACT VALIDATION
-============================================================
-
-After build:
-
-verify APK exists
-
-verify package ID
-
-verify application name
-
-verify web build
-
-verify configuration
-
-verify API endpoint
-
-============================================================
-128. WEB VALIDATION
-============================================================
-
-Run:
-
-build
-
-lint
-
-typecheck
-
-tests
-
-smoke test
-
-============================================================
-129. APK VALIDATION
-============================================================
-
-Run:
-
-build
-
-unit tests
-
-package validation
-
-manifest validation
-
-API endpoint validation
-
-============================================================
-130. DATABASE VALIDATION
-============================================================
-
-Verify:
-
-connection
-
-migration
-
-tables
-
-indexes
-
-constraints
-
-seed
-
-============================================================
-131. PERFORMANCE
-============================================================
-
-Support:
-
-many tenants
-
-large reservations
-
-large menu
-
-large customer records
-
-concurrent reservations
-
-============================================================
-132. CONCURRENCY
-============================================================
-
-Reservation booking must handle simultaneous requests.
-
-Example:
-
-Customer A selects Table 5.
-
-Customer B selects Table 5.
-
-Same slot.
-
-Only one reservation succeeds.
-
-============================================================
-133. IDEMPOTENT PAYMENT
-============================================================
-
-Payment callback received twice.
-
-Expected:
-
-one payment state transition.
-
-============================================================
-134. IDEMPOTENT RESERVATION
-============================================================
-
-Client retries same request.
-
-Expected:
-
-no duplicate reservation.
-
-============================================================
-135. API OBSERVABILITY
-============================================================
-
-Use:
-
-structured logs
-
-request ID
-
-tenant ID
-
-user ID where safe
-
-latency
-
-error
-
-status
-
-Never log:
-
-password
-
-token
-
-payment secret
-
-API key
-
-============================================================
-136. HEALTH ENDPOINT
-============================================================
-
-/health
-
-/readiness
-
-/liveness
-
-============================================================
-137. TENANT HEALTH
-============================================================
-
-Platform Owner can see:
-
-database
-
-API
-
-storage
-
-web
-
-subscription
-
-APK version
-
-last activity
-
-============================================================
-138. TESTING
-============================================================
-
-Unit tests:
-
-reservation
-
-table availability
-
-pricing
-
-lead/trial calculation
-
-subscription
-
-authentication
-
-authorization
-
-tenant resolution
-
-============================================================
-139. INTEGRATION TEST
-============================================================
-
-Test:
-
-Tenant provisioning
-
-Database creation
-
-Migration
-
-Admin creation
-
-Trial creation
-
-============================================================
-140. E2E TEST
-============================================================
-
-Test:
-
-Create tenant
-
-↓
-
-Login admin
-
-↓
-
-Change password
-
-↓
-
-Create table
-
-↓
-
-Create menu
-
-↓
-
-Configure branding
-
-↓
-
-Customer opens web
-
-↓
-
-Select table
-
-↓
-
-Reserve
-
-↓
-
-Pre-order
-
-↓
-
-Payment
-
-↓
-
-Confirmation
-
-============================================================
-141. TRIAL E2E
-============================================================
-
-Create:
-
-trial = 1 day
-
-Move system clock in test environment
-
-Expected:
-
-ACTIVE
-
-↓
-
-TRIAL_EXPIRED
-
-↓
-
-EXPIRED EXPERIENCE
-
-============================================================
-142. MULTI-TENANT E2E
-============================================================
-
-Create:
-
-Tenant A
-
-Tenant B
-
-Tenant C
-
-Verify:
-
-different database
-
-different admin
-
-different branding
-
-different menu
-
-different tables
-
-different reservations
-
-different API configuration.
-
-============================================================
-143. SECURITY TEST
-============================================================
-
-Attempt:
-
-Tenant A token
-→ Tenant B endpoint
-
-Expected:
-
-DENIED.
-
-============================================================
-144. IMPORTANCE OF SOURCE OF TRUTH
-============================================================
-
-The following must always come from server/control plane:
-
-tenant status
-
-trial start
-
-trial end
-
-subscription
-
-database configuration
-
-tenant identity
-
-============================================================
-145. CLIENT-SIDE DATA
-============================================================
-
-localStorage/AsyncStorage may store:
-
-UI preferences
-
-temporary cache
-
-non-sensitive state
-
-Never use it as the authority for:
-
-trial
-
-subscription
-
-authorization
-
-tenant identity
-
-============================================================
-146. MOBILE OFFLINE POLICY
-============================================================
-
-If offline:
-
-Customer may see cached non-sensitive UI.
-
-Reservation creation requires server confirmation.
-
-Never confirm a reservation offline unless a future explicit
-offline reservation architecture is implemented.
-
-============================================================
-147. ADMIN UI
+103. PLATFORM REPORTING
 ============================================================
 
 Platform Admin:
 
-/platform
+total tenants
 
-Tenant Admin:
+trial tenants
+
+active tenants
+
+expired tenants
+
+suspended tenants
+
+subscriptions
+
+provisioning failures
+
+deployment health
+
+database health
+
+============================================================
+104. ADMIN ROUTES
+============================================================
+
+Tenant:
 
 /admin
-
-Customer:
-
-/
-
-============================================================
-148. PLATFORM ROUTES
-============================================================
-
-/platform/dashboard
-
-/platform/tenants
-
-/platform/tenants/[id]
-
-/platform/provisioning
-
-/platform/subscriptions
-
-/platform/trials
-
-/platform/deployments
-
-/platform/settings
-
-/platform/audit
-
-============================================================
-149. TENANT ADMIN ROUTES
-============================================================
 
 /admin/dashboard
 
@@ -3261,7 +2690,31 @@ Customer:
 /admin/account
 
 ============================================================
-150. CUSTOMER ROUTES
+105. PLATFORM ROUTES
+============================================================
+
+/platform
+
+/platform/dashboard
+
+/platform/tenants
+
+/platform/tenants/[id]
+
+/platform/provisioning
+
+/platform/subscriptions
+
+/platform/trials
+
+/platform/deployments
+
+/platform/settings
+
+/platform/audit
+
+============================================================
+106. CUSTOMER ROUTES
 ============================================================
 
 /
@@ -3279,299 +2732,321 @@ Customer:
 /account
 
 ============================================================
-151. EXPIRED ROUTE
+107. EXPIRED ROUTE
 ============================================================
 
 /expired
 
-However:
-
-Prefer external expired experience when deployment architecture
-allows it.
+But external expired hosting is preferred.
 
 ============================================================
-152. PLATFORM DASHBOARD
+108. DOCKER
 ============================================================
 
-Metrics:
+Platform MUST support Docker.
 
-total tenants
+Potential services:
 
-trial
+control-api
 
-active
+tenant-api
 
-past due
+worker
 
-suspended
+web
 
-expired
+redis
 
-provisioning failures
+postgres-control
 
-============================================================
-153. TENANT TABLE
-============================================================
+tenant database services
 
-Columns:
+reverse proxy
 
-Tenant
-
-Code
-
-Status
-
-Trial
-
-Subscription
-
-Database
-
-Web
-
-APK
-
-Created
-
-Actions
+build service
 
 ============================================================
-154. PROVISIONING UI
+109. DOCKER DEVELOPMENT
 ============================================================
 
-Wizard:
+Developer should be able to start core environment with:
 
-Restaurant
+docker compose up
 
-↓
-
-Owner
-
-↓
-
-Trial
-
-↓
-
-Branding
-
-↓
-
-Payment
-
-↓
-
-Review
-
-↓
-
-Provision
-
-↓
-
-Build
-
-↓
-
-Complete
+where appropriate.
 
 ============================================================
-155. BUILD UI
+110. DATABASE DEPLOYMENT
 ============================================================
 
-Show:
+Development may use:
 
-Configuration
+one PostgreSQL server
 
-Web Build
+with separate databases.
 
-APK Build
+Example:
 
-Validation
+sibangku_control
 
-Artifacts
+tenant_distroavenue
 
-Deployment
+tenant_restaurant_b
 
-============================================================
-156. TENANT ARTIFACT DOWNLOAD
-============================================================
+tenant_restaurant_c
 
-SUPER_ADMIN can obtain:
-
-APK
-
-web deployment artifact
-
-configuration
-
-metadata
-
-No permanent credentials should be packaged.
+Production architecture MUST allow stronger physical isolation
+when required.
 
 ============================================================
-157. CUSTOMER APPLICATION DESIGN
+111. DATABASE PROVISIONING
 ============================================================
 
-Each tenant application must visually represent the restaurant.
+Provisioner must:
 
-Do NOT display:
+create database
 
-SiBangku platform branding prominently unless required.
+create credentials
 
-White-label experience is primary.
+run migrations
 
-============================================================
-158. ADMIN DESIGN
-============================================================
+seed defaults
 
-Tenant admin UI:
+verify connection
 
-professional
-
-clean
-
-responsive
-
-restaurant-oriented
-
-not overly technical.
+mark READY
 
 ============================================================
-159. PLATFORM ADMIN DESIGN
+112. DATABASE MIGRATIONS
 ============================================================
 
-Platform admin:
+Migrations must be:
 
-technical SaaS control center.
+versioned
 
-Display:
+reproducible
 
-tenant health
+reviewable
 
-database health
+safe
 
-trial status
+automatable
 
-subscription
+============================================================
+113. DATABASE BACKUP
+============================================================
+
+Each tenant must support:
+
+backup
+
+retention
+
+restore
+
+backup status
+
+============================================================
+114. DATABASE RESTORE
+============================================================
+
+Restore must require explicit operation.
+
+Do not overwrite production without confirmation.
+
+============================================================
+115. VERSIONING
+============================================================
+
+Tenant tracks:
+
+applicationVersion
+
+databaseSchemaVersion
+
+minimumSupportedVersion
+
+============================================================
+116. UPDATE STRATEGY
+============================================================
+
+Before update:
+
+backup
+
+compatibility check
+
+migration
 
 deployment
 
-build
+health check
 
-logs
-
-============================================================
-160. INTERNATIONALIZATION
-============================================================
-
-Initial:
-
-Indonesian
-
-English
-
-Tenant may configure default language.
+rollback if necessary
 
 ============================================================
-161. CURRENCY
+117. APK VERSION
 ============================================================
 
-Tenant configurable.
+Store:
 
-Default:
+versionName
 
-IDR
+versionCode
 
-Support:
+tenantId
 
-USD
+buildDate
 
-SGD
-
-MYR
-
-etc.
-
-Use proper currency formatting.
+commitHash
 
 ============================================================
-162. TIMEZONE
+118. BUILD METADATA
 ============================================================
 
-Tenant timezone configurable.
+Every artifact should contain:
 
-Default:
+tenant ID
 
-Asia/Jakarta
+version
 
-Store timestamps in UTC.
+build timestamp
 
-Render using tenant timezone.
+commit hash
 
-============================================================
-163. BUSINESS RULE ENGINE
-============================================================
-
-Do not hardcode:
-
-trial duration
-
-reservation duration
-
-slot duration
-
-deposit percentage
-
-cancellation period
-
-grace period
-
-Lead-like business rules
-
-All configurable values belong in configuration.
+environment
 
 ============================================================
-164. CONFIGURATION HIERARCHY
+119. OBSERVABILITY
 ============================================================
 
-Platform defaults
+Use:
 
-↓
+structured logging
 
-Tenant overrides
+request ID
 
-↓
+correlation ID
 
-Reservation-specific overrides where applicable
+tenant ID
 
-============================================================
-165. DATA VALIDATION
-============================================================
+operation ID where appropriate
 
-Use strict schemas.
+latency
 
-Reject:
+status
 
-invalid dates
-
-invalid times
-
-negative prices
-
-invalid capacity
-
-invalid URLs
-
-invalid email
-
-invalid currency
+error code
 
 ============================================================
-166. API ERROR MODEL
+120. SECURITY LOGGING
 ============================================================
 
-Standard:
+NEVER log:
+
+password
+
+access token
+
+refresh token
+
+database password
+
+payment secret
+
+API secret
+
+private key
+
+APK signing key
+
+============================================================
+121. HEALTH CHECK
+============================================================
+
+Provide:
+
+/health
+
+/liveness
+
+/readiness
+
+============================================================
+122. TENANT HEALTH
+============================================================
+
+Platform Admin can see:
+
+database
+
+API
+
+storage
+
+Web
+
+APK version
+
+subscription
+
+trial
+
+last activity
+
+============================================================
+123. RATE LIMITING
+============================================================
+
+Protect:
+
+login
+
+reservation
+
+payment
+
+password reset
+
+admin APIs
+
+file upload
+
+public APIs
+
+============================================================
+124. INPUT VALIDATION
+============================================================
+
+Validate:
+
+dates
+
+times
+
+prices
+
+capacity
+
+email
+
+URLs
+
+currency
+
+file uploads
+
+payment webhooks
+
+CLI arguments
+
+external API responses
+
+============================================================
+125. API ERROR MODEL
+============================================================
+
+Standard response:
 
 code
 
@@ -3586,94 +3061,106 @@ timestamp
 Do not expose stack traces.
 
 ============================================================
-167. RATE LIMITING
+126. ERROR CODES
 ============================================================
 
-Protect:
+Examples:
 
-login
+TENANT_NOT_FOUND
 
-reservation
+TENANT_SUSPENDED
 
-payment
+TRIAL_EXPIRED
 
-password reset
+SUBSCRIPTION_EXPIRED
 
-admin API
+TABLE_UNAVAILABLE
 
-file upload
+RESERVATION_CONFLICT
 
-public endpoints
+PAYMENT_FAILED
 
-============================================================
-168. FILE UPLOAD SECURITY
-============================================================
+INVALID_CREDENTIALS
 
-Validate:
+FORBIDDEN_OPERATION
 
-MIME
+DATABASE_UNAVAILABLE
 
-extension
-
-size
-
-content
-
-storage path
-
-Tenant isolation.
+PROVISIONING_FAILED
 
 ============================================================
-169. CSRF
+127. SECURITY
 ============================================================
 
-Implement according to authentication architecture.
+Implement appropriate:
+
+RBAC
+
+authentication
+
+authorization
+
+password hashing
+
+secure session/token handling
+
+rate limiting
+
+CSRF protection where applicable
+
+XSS protection
+
+SQL injection protection
+
+SSRF protection
+
+secure file upload
+
+security headers
+
+audit logging
+
+secret management
 
 ============================================================
-170. XSS
+128. PASSWORD RESET
 ============================================================
 
-Sanitize user-generated:
+Password reset uses:
 
-restaurant description
+one-time token
 
-menu description
+expiration
 
-notes
+secure validation
 
-customer input
-
-============================================================
-171. SQL INJECTION
-============================================================
-
-Use parameterized queries/ORM.
-
-Never concatenate raw SQL from user input.
+token invalidation after use
 
 ============================================================
-172. SECRET MANAGEMENT
+129. SECRET MANAGEMENT
 ============================================================
 
 Never commit:
 
-DATABASE_PASSWORD
+database passwords
 
-JWT_SECRET
+JWT secrets
 
 API keys
 
-payment secret
+payment secrets
 
-APK signing key
+storage secrets
 
-storage secret
+APK signing keys
+
+private keys
 
 ============================================================
-173. ENVIRONMENT
+130. ENVIRONMENT CONFIGURATION
 ============================================================
 
-Create:
+Provide:
 
 .env.example
 
@@ -3681,311 +3168,1075 @@ Development:
 
 .env.development
 
-Production:
-
-secure deployment secrets.
+Production secrets MUST come from secure deployment
+configuration.
 
 ============================================================
-174. DOCKER COMPOSE DEVELOPMENT
+131. INTERNATIONALIZATION
 ============================================================
 
-Must allow:
+Initial languages:
 
-docker compose up
+Indonesian
 
-and launch:
+English
 
-control database
+Tenant may configure default language.
 
-Redis
+============================================================
+132. CURRENCY
+============================================================
+
+Default:
+
+IDR
+
+Support configurable currencies.
+
+Examples:
+
+USD
+
+SGD
+
+MYR
+
+etc.
+
+============================================================
+133. TIMEZONE
+============================================================
+
+Default:
+
+Asia/Jakarta
+
+Store timestamps in UTC.
+
+Render using tenant timezone.
+
+============================================================
+134. BUSINESS CONFIGURATION
+============================================================
+
+Do NOT hardcode:
+
+trial duration
+
+reservation duration
+
+slot duration
+
+deposit percentage
+
+cancellation window
+
+grace period
+
+opening hours
+
+payment mode
+
+These belong to configuration.
+
+============================================================
+135. CONFIGURATION HIERARCHY
+============================================================
+
+Platform defaults
+
+↓
+
+Tenant configuration
+
+↓
+
+Context-specific override when required
+
+============================================================
+136. OFFLINE POLICY
+============================================================
+
+Web/Mobile may cache non-sensitive UI.
+
+Reservation creation requires server confirmation.
+
+Do NOT confirm a reservation offline unless a dedicated offline
+reservation architecture exists.
+
+============================================================
+137. API CONTRACT
+============================================================
+
+API contracts must be explicit.
+
+Use:
+
+DTO
+
+Schema
+
+Request Model
+
+Response Model
+
+Command
+
+Query
+
+where appropriate.
+
+Do not expose database entities directly when it creates security
+or coupling problems.
+
+============================================================
+138. SHARED TYPES
+============================================================
+
+Where technically appropriate:
+
+share API contract/types between:
+
+Web
+
+Mobile
 
 API
 
-worker
-
-web
-
-tenant database environment.
+Do not copy-paste contracts.
 
 ============================================================
-175. CI/CD
+139. BACKWARD COMPATIBILITY
 ============================================================
 
-Pipeline:
+API changes must consider:
 
-install
+existing Web clients
 
-lint
+existing APK versions
 
-typecheck
-
-unit tests
-
-integration tests
-
-E2E
-
-build web
-
-build API
-
-build worker
-
-Docker build
-
-security scan
+existing tenant deployments
 
 ============================================================
-176. BUILD ARTIFACT
+140. ARCHITECTURE PRINCIPLES
 ============================================================
 
-Every tenant build gets:
+Use:
 
-tenant metadata
+separation of concerns
 
-web artifact
+modularity
 
-APK/AAB artifact
+dependency inversion where appropriate
 
-deployment configuration
+domain-oriented organization
 
-build report
+testability
+
+clear boundaries
 
 ============================================================
-177. BUILD REPORT
+141. MODULES
+============================================================
+
+Recommended logical modules:
+
+Authentication
+
+Authorization
+
+Tenants
+
+Provisioning
+
+Subscriptions
+
+Reservations
+
+Tables
+
+Table Layout
+
+Menus
+
+Orders
+
+Payments
+
+Customers
+
+Branding
+
+Storage
+
+Notifications
+
+Reports
+
+Audit
+
+Health
+
+Deployment
+
+============================================================
+142. CONTROLLER RULE
+============================================================
+
+Controllers must be thin.
+
+Controller responsibilities:
+
+receive
+
+validate
+
+authorize
+
+call service/use case
+
+return response
+
+Do NOT put large business algorithms in controllers.
+
+============================================================
+143. SERVICE RULE
+============================================================
+
+Services should contain business logic.
+
+Do not create one giant service containing unrelated features.
+
+============================================================
+144. DATABASE ACCESS RULE
+============================================================
+
+Database access must be isolated through:
+
+repository
+
+data access layer
+
+ORM
+
+or equivalent persistence boundary.
+
+Do not scatter database queries throughout UI components.
+
+============================================================
+145. SINGLE RESPONSIBILITY
+============================================================
+
+Each class/function/module should have one clear responsibility.
+
+Avoid:
+
+GOD CLASS
+
+GOD SERVICE
+
+GOD CONTROLLER
+
+GOD COMPONENT
+
+GOD FUNCTION
+
+============================================================
+146. READABLE CODE
+============================================================
+
+Code MUST be:
+
+clear
+
+explicit
+
+consistent
+
+logical
+
+easy to navigate
+
+easy to debug
+
+easy to modify
+
+Avoid unnecessarily clever code.
+
+Avoid excessive one-liners.
+
+Avoid deep nesting.
+
+Use descriptive names.
+
+============================================================
+147. NAMING
+============================================================
+
+Use descriptive names for:
+
+variables
+
+functions
+
+classes
+
+services
+
+repositories
+
+controllers
+
+DTOs
+
+interfaces
+
+types
+
+components
+
+hooks
+
+utilities
+
+constants
+
+============================================================
+148. BAD NAMING
+============================================================
+
+Avoid:
+
+x
+
+y
+
+tmp
+
+foo
+
+bar
+
+thing
+
+stuff
+
+newData
+
+finalData
+
+test1
+
+test2
+
+unless genuinely appropriate to context.
+
+============================================================
+149. MAGIC VALUES
+============================================================
+
+Avoid:
+
+if (days > 60)
+
+Prefer:
+
+if (days > DEFAULT_TRIAL_DAYS)
+
+Avoid unexplained:
+
+numbers
+
+strings
+
+status values
+
+timeouts
+
+limits
+
+============================================================
+150. ENUMS / CONSTANTS
+============================================================
+
+Use type-safe representations for important states.
+
+Example:
+
+TenantStatus.TRIAL_EXPIRED
+
+ReservationStatus.CONFIRMED
+
+PaymentStatus.PAID
+
+============================================================
+151. TYPE SAFETY
+============================================================
+
+Use strict typing where supported.
+
+Avoid unnecessary:
+
+any
+
+dynamic
+
+unsafe casts
+
+untyped objects
+
+============================================================
+152. COMMENTS
+============================================================
+
+Comments should explain WHY.
+
+Do not write comments that merely repeat code.
+
+Required comments for:
+
+complex business rules
+
+security decisions
+
+workarounds
+
+external provider limitations
+
+concurrency decisions
+
+important architectural decisions
+
+============================================================
+153. TODO POLICY
+============================================================
+
+Do not leave meaningless:
+
+TODO
+
+FIXME
+
+placeholder
+
+unfinished code.
+
+Production TODO must contain:
+
+reason
+
+scope
+
+expected resolution
+
+tracking reference if available.
+
+============================================================
+154. ERROR HANDLING
+============================================================
+
+Never silently swallow errors.
+
+Forbidden:
+
+empty catch
+
+ignored promise rejection
+
+console.log as sole error handling
+
+Every significant error must be:
+
+handled
+
+logged safely
+
+represented with error code
+
+returned safely
+
+============================================================
+155. DEBUGGABILITY
+============================================================
+
+Important operations must be traceable using:
+
+requestId
+
+correlationId
+
+tenantId
+
+operationId where appropriate
+
+============================================================
+156. NO DUPLICATED BUSINESS LOGIC
+============================================================
+
+Do not duplicate:
+
+trial calculation
+
+subscription expiration
+
+reservation conflict
+
+pricing
+
+payment state
+
+authorization
+
+tenant resolution
+
+across:
+
+Web
+
+APK
+
+API
+
+Worker
+
+Admin UI
+
+The server/control plane is authoritative.
+
+============================================================
+157. BUSINESS RULE LOCATION
+============================================================
+
+Business rules should exist in one logical authoritative location.
+
+Example:
+
+Trial expiration:
+
+Control Plane / backend
+
+Not:
+
+Web timer
+
+APK timer
+
+localStorage
+
+============================================================
+158. UI COMPONENT RULE
+============================================================
+
+UI components should focus on presentation and interaction.
+
+Do not place all of the following into one component:
+
+API calls
+
+payment logic
+
+reservation algorithm
+
+authentication
+
+large state machine
+
+large rendering tree
+
+Separate where appropriate.
+
+============================================================
+159. API CLIENT RULE
+============================================================
+
+Do not scatter raw HTTP calls throughout UI components.
+
+Use centralized API client/services.
+
+============================================================
+160. MOBILE API RULE
+============================================================
+
+APK must use defined backend APIs.
+
+Do not duplicate authoritative business rules inside APK.
+
+============================================================
+161. TESTABILITY
+============================================================
+
+Business logic must be independently testable.
+
+Avoid unnecessary tight coupling to:
+
+HTTP
+
+database
+
+filesystem
+
+external APIs
+
+framework lifecycle.
+
+============================================================
+162. TEST NAMING
+============================================================
+
+Tests should describe behavior.
+
+GOOD:
+
+should_reject_reservation_when_table_is_already_booked
+
+should_expire_trial_when_current_time_reaches_trial_end
+
+should_prevent_tenant_a_from_accessing_tenant_b
+
+BAD:
+
+test1
+
+test2
+
+works
+
+============================================================
+163. UNIT TESTS
+============================================================
+
+Test:
+
+tenant
+
+trial
+
+subscription
+
+reservation
+
+table availability
+
+pricing
+
+payment state
+
+authentication
+
+authorization
+
+tenant resolution
+
+provisioning
+
+============================================================
+164. INTEGRATION TESTS
+============================================================
+
+Test:
+
+tenant provisioning
+
+database creation
+
+migration
+
+admin creation
+
+trial creation
+
+storage
+
+API
+
+============================================================
+165. E2E TEST
+============================================================
+
+Flow:
+
+Create tenant
+
+↓
+
+Login admin
+
+↓
+
+Change password
+
+↓
+
+Create table
+
+↓
+
+Create layout
+
+↓
+
+Create menu
+
+↓
+
+Configure branding
+
+↓
+
+Customer opens Web
+
+↓
+
+Select table
+
+↓
+
+Reservation
+
+↓
+
+Pre-order
+
+↓
+
+Payment
+
+↓
+
+Confirmation
+
+============================================================
+166. MULTI-TENANT E2E
+============================================================
+
+Create:
+
+Tenant A
+
+Tenant B
+
+Tenant C
+
+Verify:
+
+different database
+
+different admin
+
+different branding
+
+different menu
+
+different table layout
+
+different reservation
+
+different API configuration
+
+============================================================
+167. TRIAL E2E
+============================================================
+
+Create:
+
+trialDays = 1
+
+Verify:
+
+TRIAL
+
+↓
+
+TRIAL_EXPIRED
+
+↓
+
+EXPIRED EXPERIENCE
+
+Changing:
+
+browser date
+
+device date
+
+APK date
+
+localStorage
+
+MUST NOT bypass expiration.
+
+============================================================
+168. CROSS-TENANT SECURITY TEST
+============================================================
+
+Tenant A attempts:
+
+Tenant B API
+
+Tenant B reservation
+
+Tenant B customer
+
+Tenant B database
+
+Expected:
+
+DENIED.
+
+============================================================
+169. RESERVATION CONCURRENCY TEST
+============================================================
+
+Customer A:
+
+Table 5
+
+20:00
+
+Customer B:
+
+Table 5
+
+20:00
+
+Expected:
+
+Only one succeeds.
+
+============================================================
+170. PAYMENT IDEMPOTENCY TEST
+============================================================
+
+Same payment webhook:
+
+received twice
+
+Expected:
+
+one logical state transition.
+
+============================================================
+171. PRODUCTION CREDENTIAL TEST
+============================================================
+
+Production build MUST NOT contain:
+
+admin/admin
+
+default password
+
+hardcoded secret
+
+hardcoded API key
+
+============================================================
+172. APK ISOLATION TEST
+============================================================
+
+APK A:
+
+Tenant A API
+
+APK B:
+
+Tenant B API
+
+Verify:
+
+different package IDs
+
+different branding
+
+different API configuration.
+
+============================================================
+173. WEB ISOLATION TEST
+============================================================
+
+Web A:
+
+Tenant A branding/data
+
+Web B:
+
+Tenant B branding/data
+
+Verify no cross-tenant data.
+
+============================================================
+174. CODE QUALITY
+============================================================
+
+The codebase must be:
+
+readable
+
+maintainable
+
+testable
+
+modular
+
+documented
+
+debuggable
+
+observable
+
+secure
+
+AI-readable
+
+developer-readable
+
+============================================================
+175. REFACTORING POLICY
+============================================================
+
+If code becomes difficult to understand:
+
+STOP
+
+Refactor
+
+Then continue implementation.
+
+Do not keep adding code to a poorly structured module.
+
+============================================================
+176. FILE ORGANIZATION
+============================================================
+
+Organize code by logical domain/module.
+
+Example:
+
+src/
+
+    auth/
+
+    tenants/
+
+    provisioning/
+
+    subscriptions/
+
+    reservations/
+
+    tables/
+
+    menus/
+
+    orders/
+
+    payments/
+
+    customers/
+
+    branding/
+
+    storage/
+
+    notifications/
+
+    reports/
+
+    audit/
+
+    health/
+
+    deployment/
+
+============================================================
+177. FILE SIZE
+============================================================
+
+Do not create unnecessarily huge source files.
+
+If a file contains multiple unrelated responsibilities:
+
+split it.
+
+Do not split files mechanically without improving cohesion.
+
+============================================================
+178. DEPENDENCY POLICY
+============================================================
+
+Do not add dependencies without justification.
+
+Before adding dependency:
+
+check necessity
+
+check security
+
+check maintenance
+
+check license
+
+check compatibility
+
+============================================================
+179. DEAD CODE
+============================================================
+
+Remove verified:
+
+unused imports
+
+unused services
+
+unused components
+
+unused routes
+
+unused functions
+
+unused dependencies
+
+unused configuration
+
+============================================================
+180. PLACEHOLDER POLICY
+============================================================
+
+Production path MUST NOT contain fake:
+
+payment success
+
+reservation success
+
+subscription
+
+authentication
+
+tenant
+
+database
+
+unless explicitly configured as a development/mock adapter.
+
+============================================================
+181. MOCK ARCHITECTURE
 ============================================================
 
 Example:
 
-TENANT BUILD
+PaymentProvider
 
-Tenant:
-Distro Avenue Store
+├── MidtransPaymentProvider
 
-Tenant ID:
-TEN-2026-8F4K2M
+├── XenditPaymentProvider
 
-Web:
-SUCCESS
+├── ManualPaymentProvider
 
-APK:
-SUCCESS
+└── MockPaymentProvider
 
-Database:
-READY
-
-Branding:
-SUCCESS
-
-Trial:
-60 DAYS
-
-Status:
-READY
+Mock MUST NOT accidentally run in production.
 
 ============================================================
-178. FAILURE RECOVERY
-============================================================
-
-If:
-
-APK fails
-
-allow:
-
-Retry APK
-
-Do not recreate database.
-
-If:
-
-database migration fails
-
-tenant remains:
-
-MIGRATION_FAILED
-
-and provisioning stops.
-
-============================================================
-179. ROLLBACK
-============================================================
-
-Deployment supports rollback.
-
-At minimum:
-
-previous web version
-
-previous database migration strategy
-
-previous APK version metadata.
-
-============================================================
-180. DATABASE MIGRATION SAFETY
-============================================================
-
-Before migration:
-
-backup
-
-verify
-
-migrate
-
-health check
-
-============================================================
-181. LOG RETENTION
-============================================================
-
-Configurable.
-
-Do not retain sensitive credentials.
-
-============================================================
-182. DATA PRIVACY
-============================================================
-
-Each restaurant owns/control its operational customer data
-according to applicable contractual/legal arrangements.
-
-Platform must provide:
-
-data isolation
-
-data deletion
-
-backup strategy
-
-audit
-
-export controls
-
-============================================================
-183. PLATFORM OWNER VS TENANT
-============================================================
-
-PLATFORM OWNER:
-
-controls infrastructure and subscription.
-
-TENANT:
-
-controls restaurant operation.
-
-CUSTOMER:
-
-uses restaurant services.
-
-============================================================
-184. DO NOT MIX ROLES
-============================================================
-
-Tenant Admin must NOT automatically become:
-
-Platform Super Admin.
-
-Customer must NOT access:
-
-Platform Admin.
-
-============================================================
-185. DEFAULT SEED
-============================================================
-
-Development only:
-
-admin/admin
-
-Production:
-
-no default credentials.
-
-============================================================
-186. PRODUCTION BOOT
-============================================================
-
-Production startup MUST fail or require explicit setup if:
-
-no secure admin
-
-missing secret
-
-invalid database
-
-missing required configuration.
-
-============================================================
-187. MONITORING
-============================================================
-
-Monitor:
-
-API
-
-worker
-
-database
-
-Redis
-
-tenant database
-
-storage
-
-payment adapter
-
-build service
-
-============================================================
-188. TENANT PROVISIONING MONITOR
-============================================================
-
-Track:
-
-provision duration
-
-database duration
-
-build duration
-
-failure reason
-
-retry count
-
-============================================================
-189. TEST DATA
-============================================================
-
-Development seed:
-
-Restaurant A
-
-Restaurant B
-
-Restaurant C
-
-Different:
-
-branding
-
-tables
-
-menu
-
-reservations
-
-users
-
-============================================================
-190. NO CROSS-TENANT SEED
-============================================================
-
-Tenant A seed must never appear in Tenant B.
-
-============================================================
-191. DOCUMENTATION
+182. ARCHITECTURE DOCUMENTATION
 ============================================================
 
 Generate:
@@ -4002,6 +4253,18 @@ TRIAL_AND_SUBSCRIPTION.md
 
 DATABASE_ISOLATION.md
 
+AUTHENTICATION.md
+
+AUTHORIZATION.md
+
+RESERVATION.md
+
+TABLE_LAYOUT.md
+
+MENU.md
+
+PAYMENT.md
+
 APK_BUILD.md
 
 WEB_BUILD.md
@@ -4010,220 +4273,712 @@ DOCKER.md
 
 SECURITY.md
 
-PAYMENT.md
-
-RESERVATION.md
-
-TABLE_LAYOUT.md
-
 DEPLOYMENT.md
 
 TESTING.md
 
 OPERATIONS.md
 
-============================================================
-192. CLI DOCUMENTATION
-============================================================
-
-Document:
-
-tenant create
-
-tenant list
-
-tenant inspect
-
-tenant build
-
-tenant build-web
-
-tenant build-apk
-
-tenant activate
-
-tenant suspend
-
-tenant extend-trial
-
-tenant expire
-
-tenant reset-admin
-
-tenant backup
-
-tenant destroy
+CODE_STRUCTURE.md
 
 ============================================================
-193. FINAL ARCHITECTURE
+183. ARCHITECTURE DECISION RECORDS
 ============================================================
 
-ARCHITECTURE:
+Document important decisions.
 
-                  PLATFORM OWNER
-                        |
-                        ↓
-                 CONTROL PLANE
-                        |
-          ┌─────────────┼─────────────┐
-          ↓             ↓             ↓
-      TENANT A       TENANT B       TENANT C
-          |             |             |
-          ↓             ↓             ↓
-       WEB A          WEB B          WEB C
-          |             |             |
-          ↓             ↓             ↓
-       APK A          APK B          APK C
-          |             |             |
-          ↓             ↓             ↓
-       DB A           DB B           DB C
+Examples:
 
-Each tenant is isolated.
+ADR-001-database-per-tenant
+
+ADR-002-server-side-trial
+
+ADR-003-no-trial-key
+
+ADR-004-payment-adapter
+
+ADR-005-external-expired-experience
+
+ADR-006-automated-tenant-provisioning
+
+ADR-007-web-apk-generation
 
 ============================================================
-194. PROVISIONING ARCHITECTURE
+184. AI HANDOFF
 ============================================================
 
-                CREATE TENANT
-                     |
-                     ↓
-              Tenant Generator
-                     |
-        ┌────────────┼────────────┐
-        ↓            ↓            ↓
-    Tenant ID    Database      Admin
-        |            |            |
-        └────────────┼────────────┘
-                     ↓
-                Trial Config
-                     ↓
-                  Branding
-                     ↓
-                Web Build
-                     ↓
-                APK Build
-                     ↓
-               Verification
-                     ↓
-                  READY
+A new AI agent must be able to read:
+
+README
+
+architecture
+
+module structure
+
+environment setup
+
+database setup
+
+Docker setup
+
+test commands
+
+build commands
+
+deployment process
+
+without hidden context.
 
 ============================================================
-195. TRIAL ARCHITECTURE
+185. CHANGE IMPACT
 ============================================================
 
-Tenant Created
+Changing reservation rules should primarily affect:
 
-       ↓
+reservation domain
 
-Trial Start
+reservation tests
 
-       ↓
+configuration
 
-Trial Active
+related API/UI behavior
 
-       ↓
+It should not unexpectedly require modifications to unrelated
+modules.
 
-Warning
+============================================================
+186. CLEAN ARCHITECTURE
+============================================================
 
-       ↓
+Use clean architectural principles where appropriate.
 
-Trial End
+Prioritize:
 
-       ↓
+clear boundaries
+
+testability
+
+separation
+
+dependency inversion
+
+maintainability
+
+Do not apply patterns mechanically.
+
+============================================================
+187. OVER-ENGINEERING
+============================================================
+
+Avoid unnecessary:
+
+microservices
+
+factories
+
+interfaces
+
+abstractions
+
+design patterns
+
+services
+
+Do not add architecture merely to appear sophisticated.
+
+============================================================
+188. UNDER-ENGINEERING
+============================================================
+
+Do not under-engineer:
+
+authentication
+
+authorization
+
+tenant isolation
+
+payment
+
+reservation concurrency
+
+trial expiration
+
+subscription
+
+database provisioning
+
+secret management
+
+file uploads
+
+============================================================
+189. MAINTAINABILITY PRIORITY
+============================================================
+
+When choosing between implementations:
+
+Prefer the one that is:
+
+clearer
+
+safer
+
+more testable
+
+more maintainable
+
+more observable
+
+provided performance remains acceptable.
+
+============================================================
+190. PRODUCTION CONFIGURATION
+============================================================
+
+Production configuration MUST be externalized.
+
+Never hardcode:
+
+production URL
+
+database password
+
+JWT secret
+
+payment secret
+
+storage credentials
+
+tenant database credentials
+
+APK signing key
+
+============================================================
+191. SECURITY BOUNDARY
+============================================================
+
+Every protected operation must verify:
+
+authentication
+
+tenant
+
+role
+
+permission
+
+resource ownership
+
+============================================================
+192. AUDIT LOG
+============================================================
+
+Audit:
+
+tenant created
+
+tenant provisioned
+
+database created
+
+admin created
+
+trial started
+
+trial extended
+
+trial expired
+
+subscription activated
+
+subscription renewed
+
+subscription expired
+
+tenant suspended
+
+tenant activated
+
+APK generated
+
+Web generated
+
+branding changed
+
+payment settings changed
+
+admin reset
+
+tenant archived
+
+tenant deleted
+
+============================================================
+193. DATA PRIVACY
+============================================================
+
+System must support:
+
+tenant isolation
+
+data export
+
+data deletion
+
+backup
+
+restore
+
+audit
+
+secure storage
+
+============================================================
+194. TENANT DELETION
+============================================================
+
+Destructive operation requires:
+
+explicit confirmation
+
+tenant code
+
+confirmation phrase where appropriate
+
+audit
+
+backup according to policy
+
+============================================================
+195. ARCHIVE
+============================================================
+
+Archived tenant:
+
+operational access disabled
+
+data retained according to policy
+
+database may be moved to archival storage
+
+============================================================
+196. MONITORING
+============================================================
+
+Monitor:
+
+Control API
+
+Tenant API
+
+Worker
+
+Database
+
+Redis
+
+Storage
+
+Payment adapters
+
+Provisioning
+
+Web deployments
+
+Build service
+
+============================================================
+197. PROVISIONING MONITORING
+============================================================
+
+Track:
+
+duration
+
+step
+
+success
+
+failure
+
+retry count
+
+error reason
+
+tenant ID
+
+============================================================
+198. CI/CD
+============================================================
+
+Pipeline should execute:
+
+install
+
+lint
+
+typecheck
+
+unit tests
+
+integration tests
+
+E2E
+
+Web build
+
+API build
+
+Docker build
+
+security checks
+
+============================================================
+199. WEB VALIDATION
+============================================================
+
+Before declaring Web build successful:
+
+build
+
+lint
+
+typecheck
+
+tests
+
+smoke test
+
+configuration validation
+
+tenant identity validation
+
+============================================================
+200. APK VALIDATION
+============================================================
+
+Before declaring APK successful:
+
+build
+
+tests
+
+package ID validation
+
+manifest validation
+
+application name validation
+
+API endpoint validation
+
+branding validation
+
+============================================================
+201. DATABASE VALIDATION
+============================================================
+
+Verify:
+
+connection
+
+migration
+
+tables
+
+indexes
+
+constraints
+
+seed
+
+tenant isolation
+
+============================================================
+202. BUILD CACHE SAFETY
+============================================================
+
+Build caching MUST NOT accidentally reuse tenant-specific:
+
+logos
+
+icons
+
+branding
+
+API URLs
+
+package IDs
+
+configuration
+
+============================================================
+203. TENANT BUILD SECURITY
+============================================================
+
+Generated tenant artifacts must not expose:
+
+control plane secrets
+
+database passwords
+
+payment secrets
+
+platform admin credentials
+
+APK signing keys
+
+============================================================
+204. FINAL SYSTEM FLOW
+============================================================
+
+PLATFORM ADMIN
+
+↓
+
+CREATE TENANT
+
+↓
+
+TENANT PROVISIONER
+
+↓
+
+TENANT ID
+
+↓
+
+DATABASE
+
+↓
+
+MIGRATION
+
+↓
+
+ADMIN ACCOUNT
+
+↓
+
+STORAGE
+
+↓
+
+TRIAL
+
+↓
+
+BRANDING
+
+↓
+
+WEB BUILD
+
+↓
+
+APK BUILD
+
+↓
+
+VALIDATION
+
+↓
+
+READY
+
+============================================================
+205. CUSTOMER FLOW
+============================================================
+
+CUSTOMER
+
+↓
+
+OPEN RESTAURANT WEB/APK
+
+↓
+
+VIEW RESTAURANT
+
+↓
+
+VIEW MENU
+
+↓
+
+SELECT DATE
+
+↓
+
+SELECT TIME
+
+↓
+
+SELECT GUEST COUNT
+
+↓
+
+VIEW TABLE MAP
+
+↓
+
+SELECT TABLE
+
+↓
+
+OPTIONAL PRE-ORDER
+
+↓
+
+CHECKOUT
+
+↓
+
+PAYMENT
+
+↓
+
+RESERVATION CONFIRMED
+
+============================================================
+206. TRIAL FLOW
+============================================================
+
+TENANT CREATED
+
+↓
+
+TRIAL START
+
+↓
+
+TRIAL ACTIVE
+
+↓
+
+WARNING
+
+↓
+
+TRIAL END
+
+↓
 
 TRIAL_EXPIRED
 
-       ↓
+↓
 
-Expired Experience
+EXPIRED EXPERIENCE
 
 ============================================================
-196. SUBSCRIPTION ARCHITECTURE
+207. SUBSCRIPTION FLOW
 ============================================================
 
 TRIAL
 
-  ↓
+↓
 
 CLIENT AGREES
 
-  ↓
+↓
 
-SUBSCRIPTION ACTIVE
+SUBSCRIPTION ACTIVATED
 
-  ↓
-
-RENEWAL
-
-  ↓
+↓
 
 ACTIVE
 
-or
+↓
+
+RENEWAL
+
+↓
+
+ACTIVE
+
+OR
 
 PAST_DUE
 
-  ↓
+↓
 
 GRACE PERIOD
 
-  ↓
+↓
 
 SUSPENDED
 
-============================================================
-197. CRITICAL DESIGN DECISION
-============================================================
+↓
 
-NO TRIAL KEY REQUIRED.
+SUBSCRIPTION_EXPIRED
 
-NO SHARED ADMIN ACCOUNT.
+↓
 
-NO admin/admin FOR CLIENTS.
-
-USE:
-
-Tenant Provisioning
-
-+
-
-Unique Tenant
-
-+
-
-Unique Admin
-
-+
-
-Secure Temporary Password
-
-+
-
-Server-Side Trial
+EXPIRED EXPERIENCE
 
 ============================================================
-198. EXAMPLE
+208. EXPIRED FLOW
+============================================================
+
+TENANT STATUS CHECK
+
+↓
+
+ACTIVE?
+
+YES
+↓
+NORMAL APPLICATION
+
+NO
+↓
+EXPIRED EXPERIENCE
+
+Expired Experience contains:
+
+message
+
+WhatsApp
+
+Instagram
+
+TikTok
+
+optional email
+
+optional phone
+
+animated arrow
+
+professional animation
+
+============================================================
+209. FINAL TENANT EXAMPLE
 ============================================================
 
 Restaurant:
 
 Distro Avenue Store
 
-Tenant:
+Tenant ID:
 
 TEN-2026-8F4K2M
+
+Tenant Code:
+
+DISTRO-AVENUE
 
 Admin:
 
 owner@distroavenue.example
 
-Temporary password:
+Temporary Password:
 
-GENERATED SECURE VALUE
+SECURELY GENERATED
 
 Trial:
 
-60 days
+60 DAYS
 
 Database:
 
@@ -4238,190 +4993,94 @@ APK:
 com.sibangku.distroavenue
 
 ============================================================
-199. FINAL ACCEPTANCE TEST
+210. FINAL ACCOUNT SECURITY EXAMPLE
 ============================================================
 
-Create Tenant A.
+Tenant A:
 
-Create Tenant B.
+unique account
 
-Verify:
+unique password
 
-A database != B database
+unique database
 
-A admin != B admin
+unique API configuration
 
-A branding != B branding
+unique branding
 
-A menu != B menu
+Tenant B:
 
-A tables != B tables
+unique account
 
-A reservation != B reservation
+unique password
 
-A API configuration != B API configuration
+unique database
 
-============================================================
-200. FINAL ACCEPTANCE TEST — TRIAL
-============================================================
+unique API configuration
 
-Create tenant with:
+unique branding
 
-trialDays = 1
+NEVER:
 
-Verify:
+Tenant A → admin/admin
 
-DAY 0:
-
-TRIAL
-
-DAY 1:
-
-TRIAL_EXPIRED
-
-Customer:
-
-EXPIRED EXPERIENCE
-
-Admin:
-
-billing/subscription access according to policy
+Tenant B → admin/admin
 
 ============================================================
-201. FINAL ACCEPTANCE TEST — PRODUCTION CREDENTIALS
+211. FINAL PROVISIONING COMMAND EXAMPLE
 ============================================================
 
-Build production tenant.
+sibangku tenant create \
+  --name "Distro Avenue Store" \
+  --code "DISTRO-AVENUE" \
+  --admin-email "owner@example.com" \
+  --trial-days 60
 
-Verify:
+Then:
 
-admin/admin does not exist.
-
-Temporary password is unique.
-
-First login requires password change.
-
-Password is hashed.
-
-Password is not present in logs.
-
-============================================================
-202. FINAL ACCEPTANCE TEST — APK
-============================================================
-
-Generate:
-
-Tenant A APK
-
-Tenant B APK
-
-Verify:
-
-different package IDs
-
-different app names
-
-different icons
-
-different API endpoints
-
-============================================================
-203. FINAL ACCEPTANCE TEST — WEBSITE
-============================================================
-
-Generate:
-
-Tenant A Web
-
-Tenant B Web
-
-Verify:
-
-different branding
-
-different API configuration
-
-different tenant data.
-
-============================================================
-204. FINAL ACCEPTANCE TEST — RESERVATION
-============================================================
-
-Two customers attempt:
-
-same table
-
-same date
-
-same time
+sibangku tenant build --all TEN-2026-8F4K2M
 
 Expected:
 
-one succeeds.
+DATABASE:
+SUCCESS
 
-one receives:
+ADMIN:
+SUCCESS
 
-TABLE NO LONGER AVAILABLE.
+TRIAL:
+SUCCESS
 
-============================================================
-205. FINAL ACCEPTANCE TEST — PAYMENT
-============================================================
+BRANDING:
+SUCCESS
 
-Send same payment webhook twice.
+WEB:
+SUCCESS
 
-Expected:
+APK:
+SUCCESS
 
-one transaction state transition.
+VALIDATION:
+SUCCESS
 
-============================================================
-206. FINAL ACCEPTANCE TEST — SECURITY
-============================================================
-
-Tenant A attempts:
-
-Tenant B API
-
-Tenant B database
-
-Tenant B reservation
-
-Expected:
-
-DENIED.
+STATUS:
+READY
 
 ============================================================
-207. FINAL ACCEPTANCE TEST — EXPIRATION
+212. FINAL CODE QUALITY AUDIT
 ============================================================
 
-Change trial status server-side.
-
-Customer opens application.
-
-Expected:
-
-redirect to expired experience.
-
-Changing local browser date MUST NOT bypass.
-
-============================================================
-208. FINAL SYSTEM AUDIT
-============================================================
-
-Agent MUST inspect the entire repository.
-
-Find:
+The agent MUST inspect the entire repository for:
 
 TODO
 
 FIXME
 
-NotImplemented
-
 placeholder
 
-fake
-
 dummy
+
+fake
 
 mock
 
@@ -4437,27 +5096,31 @@ hardcoded API
 
 unused route
 
-dead component
-
-unused API
+unused component
 
 unused service
+
+unused dependency
 
 broken import
 
 security bypass
 
+dead code
+
+duplicate business logic
+
 ============================================================
-209. INTEGRATION AUDIT
+213. FINAL ARCHITECTURE AUDIT
 ============================================================
 
-Trace:
+Trace every major system path:
 
 Platform Admin
 
 ↓
 
-Tenant Generator
+Tenant Provisioning
 
 ↓
 
@@ -4501,11 +5164,11 @@ Payment
 
 ↓
 
-Subscription
+Trial
 
 ↓
 
-Trial
+Subscription
 
 ↓
 
@@ -4515,45 +5178,223 @@ Expiration
 
 Expired Experience
 
-Every path must actually work.
+Every path must be connected.
 
 ============================================================
-210. FINAL REPORT
+214. FINAL CROSS-TENANT AUDIT
 ============================================================
 
-At completion report:
+Create:
 
-Architecture
+Tenant A
 
-Technology Stack
+Tenant B
 
-Database Architecture
+Tenant C
 
-Tenant Isolation
+Verify:
 
-Control Plane
+Database A != Database B
 
-Tenant Plane
+Database B != Database C
+
+Admin A != Admin B
+
+Branding A != Branding B
+
+Menu A != Menu B
+
+Tables A != Tables B
+
+Reservations A != Reservations B
+
+API A != API B
+
+APK A != APK B
+
+============================================================
+215. FINAL SECURITY AUDIT
+============================================================
+
+Verify:
+
+No production admin/admin
+
+No plaintext password
+
+No exposed secrets
+
+No cross-tenant access
+
+No arbitrary tenant switching
+
+No client-side trial bypass
+
+No payment webhook bypass
+
+No insecure file upload
+
+No sensitive logs
+
+No exposed database credentials
+
+No exposed signing keys
+
+============================================================
+216. FINAL TRIAL AUDIT
+============================================================
+
+Verify:
+
+trial starts server-side
+
+trial end stored server-side
+
+trial cannot be reset through logout
+
+trial cannot be reset through reinstall
+
+trial cannot be bypassed through localStorage
+
+trial cannot be bypassed through device date
+
+trial cannot be bypassed through APK date
+
+expired tenant receives expired experience
+
+============================================================
+217. FINAL RESERVATION AUDIT
+============================================================
+
+Verify:
+
+table availability
+
+time slot
+
+capacity
+
+reservation duration
+
+conflict detection
+
+transaction safety
+
+concurrency
+
+duplicate request protection
+
+============================================================
+218. FINAL PAYMENT AUDIT
+============================================================
+
+Verify:
+
+provider abstraction
+
+signature validation
+
+idempotency
+
+transaction state
+
+reservation state
+
+order state
+
+secure credentials
+
+============================================================
+219. FINAL PROVISIONING AUDIT
+============================================================
+
+Verify:
+
+tenant ID
+
+tenant code
+
+database
+
+migration
+
+admin
+
+temporary password
+
+storage
+
+branding
+
+Web
+
+APK
+
+package ID
+
+configuration
+
+trial
+
+deployment
+
+============================================================
+220. FINAL DEFINITION OF DONE
+============================================================
+
+SiBangku is COMPLETE only when:
+
+FUNCTIONAL COMPLETENESS
+
+AND
+
+ENGINEERING COMPLETENESS
+
+are BOTH satisfied.
+
+============================================================
+221. FUNCTIONAL COMPLETENESS
+============================================================
+
+Required:
+
+Tenant Management
+
+Provisioning
 
 Authentication
 
 Authorization
 
-Provisioning
+Tenant Isolation
 
 Trial
 
 Subscription
 
-Reservation
+Restaurant Profile
 
-Table Layout
+Branding
+
+Image Management
+
+Tables
+
+Visual Table Layout
+
+Reservations
 
 Menu
 
 Pre-order
 
-Payment
+Orders
+
+Payment Architecture
+
+Notifications where configured
+
+Reports
 
 Web Generation
 
@@ -4561,68 +5402,233 @@ APK Generation
 
 Docker
 
-Security
-
-Testing
-
-CI/CD
-
-Deployment
-
-Known Limitations
-
-Remaining Tasks
-
-Production Readiness
+Expired Experience
 
 ============================================================
-211. FINAL RULE
+222. ENGINEERING COMPLETENESS
 ============================================================
 
-DO NOT DECLARE COMPLETE UNTIL:
+Required:
 
-APPLICATION BUILDS
+Readable code
 
-DATABASE MIGRATES
+Maintainable code
 
-TENANT PROVISIONING WORKS
+Modular architecture
 
-WEB GENERATION WORKS
+Clear naming
 
-APK GENERATION WORKS
+Strict typing where available
 
-ADMIN AUTH WORKS
+Testable business logic
 
-CUSTOMER AUTH/ACCESS WORKS
+Structured errors
 
-TABLE RESERVATION WORKS
+Structured logging
 
-MENU WORKS
+Security controls
 
-PRE-ORDER WORKS
+Documentation
 
-PAYMENT ABSTRACTION WORKS
+Architecture documentation
 
-TRIAL WORKS
+Deployment documentation
 
-SUBSCRIPTION WORKS
+AI-readable repository
 
-EXPIRATION WORKS
+No critical TODO
 
-EXPIRED EXPERIENCE WORKS
+No fake production implementation
 
-DATABASE ISOLATION WORKS
+No hardcoded production credentials
 
-SECURITY TESTS PASS
-
-CROSS-TENANT TESTS PASS
-
-E2E TESTS PASS
-
-DOCKER STARTS
-
-PRODUCTION BUILD PASSES
+No duplicated business logic
 
 ============================================================
-END OF PRD
+223. QUALITY GATES
+============================================================
+
+BUILD:
+
+PASS
+
+TYPECHECK:
+
+PASS
+
+LINT:
+
+PASS
+
+UNIT TEST:
+
+PASS
+
+INTEGRATION TEST:
+
+PASS
+
+E2E TEST:
+
+PASS
+
+SECURITY TEST:
+
+PASS
+
+TENANT ISOLATION:
+
+PASS
+
+PROVISIONING:
+
+PASS
+
+TRIAL:
+
+PASS
+
+SUBSCRIPTION:
+
+PASS
+
+RESERVATION:
+
+PASS
+
+PAYMENT:
+
+PASS
+
+WEB BUILD:
+
+PASS
+
+APK BUILD:
+
+PASS
+
+DOCKER BUILD:
+
+PASS
+
+DOCUMENTATION:
+
+COMPLETE
+
+CODE QUALITY:
+
+PASS
+
+PRODUCTION SECURITY:
+
+PASS
+
+============================================================
+224. FINAL PRODUCTION READINESS
+============================================================
+
+Only after all required gates pass:
+
+SYSTEM STATUS:
+
+PRODUCTION READY
+
+If any critical gate fails:
+
+SYSTEM STATUS:
+
+NOT PRODUCTION READY
+
+The agent MUST report the exact failing gate.
+
+============================================================
+225. FINAL AGENT REPORT
+============================================================
+
+At the end of implementation, generate a final report containing:
+
+1. Architecture
+2. Technology Stack
+3. Repository Structure
+4. Control Plane
+5. Tenant Plane
+6. Database Architecture
+7. Tenant Isolation
+8. Authentication
+9. Authorization
+10. Provisioning
+11. Trial
+12. Subscription
+13. Reservation
+14. Table Layout
+15. Menu
+16. Pre-order
+17. Payment
+18. Branding
+19. Image Management
+20. Web Generation
+21. APK Generation
+22. Docker
+23. Security
+24. Testing
+25. CI/CD
+26. Deployment
+27. Monitoring
+28. Documentation
+29. Code Quality
+30. Known Limitations
+31. Remaining Tasks
+32. Production Readiness
+
+============================================================
+226. FINAL RULE
+============================================================
+
+DO NOT DECLARE THE PROJECT COMPLETE BECAUSE THE UI LOOKS GOOD.
+
+DO NOT DECLARE THE PROJECT COMPLETE BECAUSE THE PROJECT BUILDS.
+
+DO NOT DECLARE THE PROJECT COMPLETE BECAUSE THE API EXISTS.
+
+DO NOT DECLARE THE PROJECT COMPLETE BECAUSE MOCK DATA WORKS.
+
+DO NOT DECLARE THE PROJECT COMPLETE BECAUSE UNIT TESTS PASS.
+
+THE COMPLETE SYSTEM MUST BE VERIFIED END-TO-END.
+
+============================================================
+227. MASTER PRINCIPLE
+============================================================
+
+SiBangku must be:
+
+FUNCTIONALLY COMPLETE
+
+SECURE
+
+ISOLATED
+
+SCALABLE
+
+MAINTAINABLE
+
+READABLE
+
+TESTABLE
+
+DEBUGGABLE
+
+DOCUMENTED
+
+AI-READABLE
+
+DEVELOPER-READABLE
+
+AND
+
+PRODUCTION-READY.
+
+============================================================
+END OF MASTER PRD
 ============================================================
