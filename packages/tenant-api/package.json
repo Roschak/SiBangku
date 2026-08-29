@@ -15,7 +15,7 @@
     "@sibangku/db": "workspace:*",
     "@sibangku/shared": "workspace:*",
     "bcrypt": "^5.1.0",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "^0.39.3",
     "hono": "^4.6.0",
     "jsonwebtoken": "^9.0.0",
     "nanoid": "^5.0.0",
