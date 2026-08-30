@@ -1,0 +1,6 @@
+{
+  "SiBangku.ControlApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\sertifikat\\Apk_SiBangku\\src\\SiBangku.ControlApi",
+  "SiBangku.Db, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\sertifikat\\Apk_SiBangku\\src\\SiBangku.Db",
+  "SiBangku.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\sertifikat\\Apk_SiBangku\\src\\SiBangku.Shared",
+  "SiBangku.TenantApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\sertifikat\\Apk_SiBangku\\src\\SiBangku.TenantApi"
+}

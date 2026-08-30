@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SiBangku.Cli")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+856f31190aa7c15f1acd955e1e36389f5e78314d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+281091b955e786d36b8ee2ad2b0dce1eb725d76b")]
 [assembly: System.Reflection.AssemblyProductAttribute("SiBangku.Cli")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SiBangku.Cli")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
