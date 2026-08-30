@@ -1,0 +1,315 @@
+@page "/control-admin"
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using SiBangku.Shared.Models
+@inject IHttpClientFactory ClientFactory
+
+<PageTitle>Portal Control Plane Admin - SiBangku</PageTitle>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2 class="fw-bold text-primary">Control Plane Admin</h2>
+        @if (IsLoggedIn)
+        {
+            <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Logout</button>
+        }
+    </div>
+
+    @if (!IsLoggedIn)
+    {
+        <div class="row justify-content-center py-5">
+            <div class="col-md-5">
+                <div class="card shadow border-0">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold text-center mb-4">Admin Login</h4>
+                        
+                        @if (!string.IsNullOrEmpty(LoginError))
+                        {
+                            <div class="alert alert-danger">@LoginError</div>
+                        }
+
+                        <form @onsubmit="HandleLogin">
+                            <div class="mb-3">
+                                <label class="form-label">Email / Username</label>
+                                <input type="text" class="form-control" @bind="Email" required placeholder="admin" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" @bind="Password" required placeholder="admin" />
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2">Masuk</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                @Message
+                <button type="button" class="btn-close" @onclick="() => Message = null"></button>
+            </div>
+        }
+
+        <div class="row g-4">
+            <!-- Provision Form -->
+            <div class="col-lg-4">
+                <div class="card shadow border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-secondary">Provisioning Tenant Baru</h5>
+                        <form @onsubmit="HandleCreateTenant">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Perusahaan / Tenant</label>
+                                <input type="text" class="form-control" @bind="NewTenant.TenantName" required placeholder="Avenue Co" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nama Restoran</label>
+                                <input type="text" class="form-control" @bind="NewTenant.RestaurantName" required placeholder="Avenue Resto" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email Admin Tenant</label>
+                                <input type="email" class="form-control" @bind="NewTenant.AdminEmail" required placeholder="owner@avenue.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Durasi Trial (Hari)</label>
+                                <input type="number" class="form-control" @bind="NewTenant.TrialDays" required min="1" />
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2" disabled="@IsSubmitting">
+                                @if (IsSubmitting)
+                                {
+                                    <span>Memproses...</span>
+                                }
+                                else
+                                {
+                                    <span>Provision Tenant</span>
+                                }
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tenants List -->
+            <div class="col-lg-8">
+                <div class="card shadow border-0">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-secondary">Daftar Tenant Terdaftar</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Resto</th>
+                                        <th>Kode</th>
+                                        <th>Status</th>
+                                        <th>Trial Selesai</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (TenantsList == null || !TenantsList.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-4">Belum ada tenant terdaftar.</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var tenant in TenantsList)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@tenant.RestaurantName</strong><br/>
+                                                    <small class="text-muted">@tenant.TenantName</small>
+                                                </td>
+                                                <td><span class="badge bg-secondary">@tenant.TenantCode</span></td>
+                                                <td>
+                                                    <span class="badge @(tenant.Status == "ACTIVE" ? "bg-success" : "bg-warning")">
+                                                        @tenant.Status
+                                                    </span>
+                                                </td>
+                                                <td>@(tenant.TrialEnd?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary" @onclick="() => HandleExtendTrial(tenant.TenantId)">+30 Hari</button>
+                                                        <button class="btn btn-danger" @onclick="() => HandleDeleteTenant(tenant.TenantId)">Hapus</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool IsLoggedIn = false;
+    private string Email = "";
+    private string Password = "";
+    private string? LoginError;
+    private string? Message;
+    private string Token = "";
+    private bool IsSubmitting = false;
+
+    private class ProvisionModel
+    {
+        public string TenantName { get; set; } = "";
+        public string RestaurantName { get; set; } = "";
+        public string AdminEmail { get; set; } = "";
+        public int TrialDays { get; set; } = 60;
+    }
+
+    private ProvisionModel NewTenant = new ProvisionModel();
+    private List<Tenant> TenantsList = new List<Tenant>();
+
+    private HttpClient GetClient()
+    {
+        var client = ClientFactory.CreateClient("ControlApi");
+        if (!string.IsNullOrEmpty(Token))
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+        }
+        return client;
+    }
+
+    private async Task HandleLogin()
+    {
+        LoginError = null;
+        try
+        {
+            var client = GetClient();
+            var response = await client.PostAsJsonAsync("/api/v1/auth/login", new { email = Email, password = Password });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                Token = doc.GetProperty("data").GetProperty("token").GetString() ?? "";
+                IsLoggedIn = true;
+                await RefreshTenants();
+            }
+            else
+            {
+                LoginError = "Login Gagal. Pastikan kredensial benar.";
+            }
+        }
+        catch (Exception ex)
+        {
+            LoginError = $"Exception: {ex.Message}";
+        }
+    }
+
+    private void HandleLogout()
+    {
+        IsLoggedIn = false;
+        Token = "";
+        TenantsList.Clear();
+    }
+
+    private async Task RefreshTenants()
+    {
+        try
+        {
+            var client = GetClient();
+            var response = await client.GetAsync("/api/v1/tenants");
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var dataString = doc.GetProperty("data").GetRawText();
+                TenantsList = JsonSerializer.Deserialize<List<Tenant>>(dataString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Tenant>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Gagal mengambil data tenant: {ex.Message}";
+        }
+    }
+
+    private async Task HandleCreateTenant()
+    {
+        IsSubmitting = true;
+        Message = null;
+        try
+        {
+            var client = GetClient();
+            var response = await client.PostAsJsonAsync("/api/v1/tenants", NewTenant);
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var data = doc.GetProperty("data");
+                var pwd = data.GetProperty("temporaryPassword").GetString();
+                
+                Message = $"Tenant baru berhasil dibuat! Password admin sementara: {pwd}";
+                NewTenant = new ProvisionModel();
+                await RefreshTenants();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Message = $"Gagal membuat tenant: {body}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Gagal membuat tenant: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private async Task HandleExtendTrial(string tenantId)
+    {
+        Message = null;
+        try
+        {
+            var client = GetClient();
+            var response = await client.PatchAsJsonAsync($"/api/v1/tenants/{tenantId}/extend-trial", new { days = 30 });
+            if (response.IsSuccessStatusCode)
+            {
+                Message = "Masa aktif trial berhasil diperpanjang 30 hari.";
+                await RefreshTenants();
+            }
+            else
+            {
+                Message = "Gagal memperpanjang masa aktif trial.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task HandleDeleteTenant(string tenantId)
+    {
+        Message = null;
+        try
+        {
+            var client = GetClient();
+            var response = await client.DeleteAsync($"/api/v1/tenants/{tenantId}");
+            if (response.IsSuccessStatusCode)
+            {
+                Message = "Tenant dan database fisiknya berhasil dihapus.";
+                await RefreshTenants();
+            }
+            else
+            {
+                Message = "Gagal menghapus tenant.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Error: {ex.Message}";
+        }
+    }
+}
