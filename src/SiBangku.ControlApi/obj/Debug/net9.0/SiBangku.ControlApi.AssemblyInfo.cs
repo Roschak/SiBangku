@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SiBangku.ControlApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54c73bd6d40c13150f15485cf13d71896b4c59c2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d5750f70eedf60909d7c8ba87bd83c135187bc54")]
 [assembly: System.Reflection.AssemblyProductAttribute("SiBangku.ControlApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SiBangku.ControlApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

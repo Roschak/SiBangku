@@ -1,103 +1,79 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: sibangku-postgres
-    restart: unless-stopped
+    image: postgres:15-alpine
+    container_name: sibangku-postgres-csharp
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
       POSTGRES_USER: sibangku
       POSTGRES_PASSWORD: sibangku_dev
       POSTGRES_DB: sibangku_control
     volumes:
-      - ./docker-data/postgres:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U sibangku']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: sibangku-redis
+      - pgdata-csharp:/var/lib/postgresql/data
     restart: unless-stopped
-    ports:
-      - '6379:6379'
-    volumes:
-      - ./docker-data/redis:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U sibangku -d sibangku_control"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
   control-api:
     build:
       context: .
-      dockerfile: packages/control-api/Dockerfile
-    container_name: sibangku-control-api
-    restart: unless-stopped
+      dockerfile: src/SiBangku.ControlApi/Dockerfile
+    container_name: sibangku-control-api-csharp
     ports:
-      - '3001:3001'
+      - "3001:8080"
     environment:
-      PORT_CONTROL_API: 3001
-      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
-      JWT_SECRET: super_secret_jwt_key_platform_admin_2026
-      JWT_EXPIRES_IN: 24h
-      BCRYPT_ROUNDS: 10
+      - CONTROL_DATABASE_URL=Host=postgres;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev
+      - JWT_SECRET=super_secret_jwt_key_platform_admin_2026
     depends_on:
       postgres:
         condition: service_healthy
+    restart: unless-stopped
 
   tenant-api:
     build:
       context: .
-      dockerfile: packages/tenant-api/Dockerfile
-    container_name: sibangku-tenant-api
-    restart: unless-stopped
+      dockerfile: src/SiBangku.TenantApi/Dockerfile
+    container_name: sibangku-tenant-api-csharp
     ports:
-      - '3002:3002'
+      - "3002:8080"
     environment:
-      PORT_TENANT_API: 3002
-      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
-      JWT_SECRET: super_secret_jwt_key_platform_admin_2026
-      JWT_EXPIRES_IN: 24h
-      BCRYPT_ROUNDS: 10
+      - CONTROL_DATABASE_URL=Host=postgres;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev
+      - JWT_SECRET=super_secret_jwt_key_platform_admin_2026
     depends_on:
       postgres:
         condition: service_healthy
+    restart: unless-stopped
 
   worker:
     build:
       context: .
-      dockerfile: packages/worker/Dockerfile
-    container_name: sibangku-worker
-    restart: unless-stopped
+      dockerfile: src/SiBangku.Worker/Dockerfile
+    container_name: sibangku-worker-csharp
     environment:
-      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
+      - CONTROL_DATABASE_URL=Host=postgres;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev
+      - WorkerCheckIntervalSeconds=60
     depends_on:
       postgres:
         condition: service_healthy
+    restart: unless-stopped
 
   web:
     build:
       context: .
-      dockerfile: packages/web/Dockerfile
-    container_name: sibangku-web
-    restart: unless-stopped
+      dockerfile: src/SiBangku.Web/Dockerfile
+    container_name: sibangku-web-csharp
     ports:
-      - '3000:3000'
+      - "3000:8080"
     environment:
-      PORT: 3000
-      NEXT_PUBLIC_CONTROL_API_URL: http://localhost:3001
-      NEXT_PUBLIC_TENANT_API_URL: http://localhost:3002
+      - CONTROL_API_URL=http://control-api:8080
+      - TENANT_API_URL=http://tenant-api:8080
     depends_on:
       - control-api
       - tenant-api
+    restart: unless-stopped
 
 volumes:
-  postgres-data:
-  redis-data:
+  pgdata-csharp:
