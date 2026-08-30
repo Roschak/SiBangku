@@ -1,0 +1,6 @@
+@SiBangku.ControlApi_HostAddress = http://localhost:5069
+
+GET {{SiBangku.ControlApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

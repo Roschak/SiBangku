@@ -1,0 +1,6 @@
+@SiBangku.TenantApi_HostAddress = http://localhost:5271
+
+GET {{SiBangku.TenantApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

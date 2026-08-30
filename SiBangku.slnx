@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SiBangku.Cli/SiBangku.Cli.csproj" />
+    <Project Path="src/SiBangku.ControlApi/SiBangku.ControlApi.csproj" />
+    <Project Path="src/SiBangku.Db/SiBangku.Db.csproj" />
+    <Project Path="src/SiBangku.Shared/SiBangku.Shared.csproj" />
+    <Project Path="src/SiBangku.TenantApi/SiBangku.TenantApi.csproj" />
+    <Project Path="src/SiBangku.Tests/SiBangku.Tests.csproj" />
+    <Project Path="src/SiBangku.Web/SiBangku.Web.csproj" />
+    <Project Path="src/SiBangku.Worker/SiBangku.Worker.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,12 @@
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\bin\Debug\net9.0\SiBangku.Shared.deps.json
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\bin\Debug\net9.0\SiBangku.Shared.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\bin\Debug\net9.0\SiBangku.Shared.pdb
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.AssemblyInfoInputs.cache
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.AssemblyInfo.cs
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.csproj.CoreCompileInputs.cache
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.sourcelink.json
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\refint\SiBangku.Shared.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\SiBangku.Shared.pdb
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Shared\obj\Debug\net9.0\ref\SiBangku.Shared.dll
