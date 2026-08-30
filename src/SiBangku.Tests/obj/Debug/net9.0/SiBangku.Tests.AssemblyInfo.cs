@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SiBangku.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d0b7ba94273258a68c286c00d77f2b2d45b6ec7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+705ab98b474af9e655c0495853a258a8aa740f12")]
 [assembly: System.Reflection.AssemblyProductAttribute("SiBangku.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SiBangku.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
