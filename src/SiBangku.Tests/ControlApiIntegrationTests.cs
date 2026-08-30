@@ -13,11 +13,11 @@ using Xunit;
 
 namespace SiBangku.Tests
 {
-    public class ControlApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class ControlApiIntegrationTests : IClassFixture<WebApplicationFactory<SiBangku.ControlApi.Program>>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly WebApplicationFactory<SiBangku.ControlApi.Program> _factory;
 
-        public ControlApiIntegrationTests(WebApplicationFactory<Program> factory)
+        public ControlApiIntegrationTests(WebApplicationFactory<SiBangku.ControlApi.Program> factory)
         {
             _factory = factory.WithWebHostBuilder(builder =>
             {

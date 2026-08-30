@@ -395,5 +395,8 @@ app.MapGet("/api/v1/audit", [Authorize(Roles = "SUPER_ADMIN")] async (ControlDbC
 
 app.Run();
 
-public partial class Program { }
+namespace SiBangku.ControlApi
+{
+    public partial class Program { }
+}
 

@@ -1429,6 +1429,8 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v9.0",
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.0",
+          "Microsoft.EntityFrameworkCore.InMemory": "9.0.0",
           "SiBangku.Db": "1.0.0"
         },
         "compile": {

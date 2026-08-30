@@ -122,3 +122,12 @@ D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\ru\Microsoft.
 D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.TenantApi\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.InMemory.dll
