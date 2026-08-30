@@ -15,5 +15,10 @@ export function getTenantCode(): string {
 }
 
 export function getTenantApiUrl(): string {
-  return 'http://localhost:3002/api/v1';
+  return process.env.NEXT_PUBLIC_TENANT_API_URL || 'http://localhost:3002/api/v1';
 }
+
+export function getControlApiUrl(): string {
+  return process.env.NEXT_PUBLIC_CONTROL_API_URL || 'http://localhost:3001/api/v1';
+}
+

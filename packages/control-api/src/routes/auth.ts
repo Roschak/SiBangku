@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { db } from '../services/db.js';
 import { platformUsers } from '@sibangku/db';
 import { eq } from 'drizzle-orm';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const authRoutes = new Hono();

@@ -34,6 +34,70 @@ services:
       timeout: 5s
       retries: 5
 
+  control-api:
+    build:
+      context: .
+      dockerfile: packages/control-api/Dockerfile
+    container_name: sibangku-control-api
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      PORT_CONTROL_API: 3001
+      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
+      JWT_SECRET: super_secret_jwt_key_platform_admin_2026
+      JWT_EXPIRES_IN: 24h
+      BCRYPT_ROUNDS: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  tenant-api:
+    build:
+      context: .
+      dockerfile: packages/tenant-api/Dockerfile
+    container_name: sibangku-tenant-api
+    restart: unless-stopped
+    ports:
+      - '3002:3002'
+    environment:
+      PORT_TENANT_API: 3002
+      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
+      JWT_SECRET: super_secret_jwt_key_platform_admin_2026
+      JWT_EXPIRES_IN: 24h
+      BCRYPT_ROUNDS: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: packages/worker/Dockerfile
+    container_name: sibangku-worker
+    restart: unless-stopped
+    environment:
+      CONTROL_DATABASE_URL: postgresql://sibangku:sibangku_dev@postgres:5432/sibangku_control
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+    container_name: sibangku-web
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      NEXT_PUBLIC_CONTROL_API_URL: http://localhost:3001
+      NEXT_PUBLIC_TENANT_API_URL: http://localhost:3002
+    depends_on:
+      - control-api
+      - tenant-api
+
 volumes:
   postgres-data:
   redis-data:

@@ -24,9 +24,14 @@
     "pnpm": ">=9.0.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "@typescript-eslint/parser": "^8.68.0",
     "eslint": "^9.39.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3"
   }
 }

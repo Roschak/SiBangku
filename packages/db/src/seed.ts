@@ -1,6 +1,6 @@
 import { createControlPlaneDb } from './connection.js';
 import { platformUsers } from './schema/control/platform-users.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
 const connectionString =

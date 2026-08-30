@@ -1,7 +1,7 @@
 packages:
   - "packages/*"
 allowBuilds:
-  bcrypt: false
+  bcrypt: true
   esbuild: false
   msgpackr-extract: false
   unrs-resolver: false
