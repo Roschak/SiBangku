@@ -117,3 +117,9 @@ D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\obj\Debug\net9.0\refint\SiBangku.T
 D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\obj\Debug\net9.0\SiBangku.Tests.pdb
 D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\obj\Debug\net9.0\SiBangku.Tests.genruntimeconfig.cache
 D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\obj\Debug\net9.0\ref\SiBangku.Tests.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\BCrypt.Net-Next.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\Npgsql.dll
+D:\sertifikat\Apk_SiBangku\src\SiBangku.Tests\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

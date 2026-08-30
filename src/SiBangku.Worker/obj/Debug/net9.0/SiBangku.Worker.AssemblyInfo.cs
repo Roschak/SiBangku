@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SiBangku.Worker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73438762314915f92e6cbc5ab906828a0b52f5ca")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+856f31190aa7c15f1acd955e1e36389f5e78314d")]
 [assembly: System.Reflection.AssemblyProductAttribute("SiBangku.Worker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SiBangku.Worker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
