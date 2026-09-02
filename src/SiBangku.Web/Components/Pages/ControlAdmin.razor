@@ -1,142 +1,454 @@
 @page "/control-admin"
+@rendermode InteractiveServer
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using SiBangku.Shared.Models
 @inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigation
 
-<PageTitle>Portal Control Plane Admin - SiBangku</PageTitle>
+<PageTitle>Portal Control Panel Super Admin - SiBangku SaaS Platform</PageTitle>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <h2 class="fw-bold text-primary">Control Plane Admin</h2>
-        @if (IsLoggedIn)
-        {
-            <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Logout</button>
-        }
-    </div>
+@if (!IsLoggedIn)
+{
+    <!-- Platform Super Admin Login Screen -->
+    <div class="min-vh-100 d-flex flex-column justify-content-center py-5" style="background: linear-gradient(135deg, #090d16 0%, #0f172a 100%);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5 col-xl-4">
+                    <div class="text-center mb-4">
+                        <a href="/" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-3 p-2 shadow-sm" style="width: 44px; height: 44px; font-size: 1.3rem; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+                                <i class="bi bi-sliders2"></i>
+                            </span>
+                            <span class="fs-4 fw-extrabold tracking-tight">SiBangku</span>
+                        </a>
+                        <h4 class="fw-bold text-white mb-1">Control Panel Platform</h4>
+                        <p class="text-white-50 small mb-0">Platform Owner & Super Admin Authentication</p>
+                    </div>
 
-    @if (!IsLoggedIn)
-    {
-        <div class="row justify-content-center py-5">
-            <div class="col-md-5">
-                <div class="card shadow border-0">
-                    <div class="card-body p-4">
-                        <h4 class="card-title fw-bold text-center mb-4">Admin Login</h4>
-                        
+                    <div class="ms-card border-0 shadow-xl p-4 p-md-5 bg-white" style="border-radius: var(--ms-radius-2xl);">
                         @if (!string.IsNullOrEmpty(LoginError))
                         {
-                            <div class="alert alert-danger">@LoginError</div>
+                            <div class="ms-alert ms-alert-danger mb-4 shadow-sm">
+                                <i class="bi bi-shield-x ms-alert-icon"></i>
+                                <div class="ms-alert-content">
+                                    <div class="ms-alert-title">Gagal Masuk</div>
+                                    <div>@LoginError</div>
+                                </div>
+                                <button type="button" class="ms-alert-close" @onclick="() => LoginError = null">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(LoginSuccessMessage))
+                        {
+                            <div class="ms-alert ms-alert-success mb-4 shadow-sm">
+                                <i class="bi bi-check-circle-fill ms-alert-icon"></i>
+                                <div class="ms-alert-content">
+                                    <div class="ms-alert-title">Sukses</div>
+                                    <div>@LoginSuccessMessage</div>
+                                </div>
+                                <button type="button" class="ms-alert-close" @onclick="() => LoginSuccessMessage = null">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
                         }
 
                         <form @onsubmit="HandleLogin">
-                            <div class="mb-3">
-                                <label class="form-label">Email / Username</label>
-                                <input type="text" class="form-control" @bind="Email" required placeholder="admin" />
+                            <div class="ms-form-group">
+                                <label class="ms-form-label" for="loginUsername">
+                                    <i class="bi bi-person-badge me-1 text-primary"></i> Username / Email Super Admin <span class="text-danger">*</span>
+                                </label>
+                                <div class="ms-input-group">
+                                    <i class="bi bi-person ms-input-icon"></i>
+                                    <input type="text" class="ms-form-control has-icon-left fw-semibold @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
+                                           id="loginUsername" name="username" autocomplete="username" @bind="Email" placeholder="Masukkan username / email" />
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" class="form-control" @bind="Password" required placeholder="admin" />
+
+                            <div class="ms-form-group mb-4">
+                                <label class="ms-form-label" for="loginPassword">
+                                    <i class="bi bi-shield-lock me-1 text-primary"></i> Kata Sandi Platform <span class="text-danger">*</span>
+                                </label>
+                                <div class="ms-input-group">
+                                    <i class="bi bi-lock ms-input-icon"></i>
+                                    <input type="password" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
+                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" placeholder="Masukkan kata sandi" />
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2">Masuk</button>
+
+                            <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg w-100 fw-bold shadow-sm" disabled="@IsSubmitting">
+                                @if (IsSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Mengautentikasi...</span>
+                                }
+                                else
+                                {
+                                    <span>Masuk ke Control Plane</span>
+                                    <i class="bi bi-box-arrow-in-right ms-1"></i>
+                                }
+                            </button>
                         </form>
+
+                        <div class="mt-4 pt-3 border-top text-center">
+                            <a href="/" class="small text-muted text-decoration-none">
+                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    }
-    else
-    {
-        @if (!string.IsNullOrEmpty(Message))
-        {
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                @Message
-                <button type="button" class="btn-close" @onclick="() => Message = null"></button>
-            </div>
-        }
-
-        <div class="row g-4">
-            <!-- Provision Form -->
-            <div class="col-lg-4">
-                <div class="card shadow border-0 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3 text-secondary">Provisioning Tenant Baru</h5>
-                        <form @onsubmit="HandleCreateTenant">
-                            <div class="mb-3">
-                                <label class="form-label">Nama Perusahaan / Tenant</label>
-                                <input type="text" class="form-control" @bind="NewTenant.TenantName" required placeholder="Avenue Co" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Nama Restoran</label>
-                                <input type="text" class="form-control" @bind="NewTenant.RestaurantName" required placeholder="Avenue Resto" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email Admin Tenant</label>
-                                <input type="email" class="form-control" @bind="NewTenant.AdminEmail" required placeholder="owner@avenue.com" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Durasi Trial (Hari)</label>
-                                <input type="number" class="form-control" @bind="NewTenant.TrialDays" required min="1" />
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 py-2" disabled="@IsSubmitting">
-                                @if (IsSubmitting)
-                                {
-                                    <span>Memproses...</span>
-                                }
-                                else
-                                {
-                                    <span>Provision Tenant</span>
-                                }
-                            </button>
-                        </form>
-                    </div>
+    </div>
+}
+else
+{
+    <!-- Platform Super Admin Workspace Layout -->
+    <div class="ms-admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="ms-sidebar">
+            <div class="ms-sidebar-brand">
+                <div class="ms-sidebar-brand-icon" style="background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+                    <i class="bi bi-sliders2"></i>
+                </div>
+                <div>
+                    <h6 class="ms-sidebar-brand-title">SiBangku Control</h6>
+                    <span class="ms-sidebar-brand-subtitle">Platform Super Admin</span>
                 </div>
             </div>
 
-            <!-- Tenants List -->
-            <div class="col-lg-8">
-                <div class="card shadow border-0">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3 text-secondary">Daftar Tenant Terdaftar</h5>
-                        
+            <div class="ms-sidebar-nav">
+                <div class="ms-sidebar-section-title">Manajemen Platform</div>
+                
+                <button class="ms-sidebar-item @(ActiveTab == "tenants" ? "active" : "")" @onclick='() => SwitchTab("tenants")'>
+                    <i class="bi bi-building"></i>
+                    <span>Tenant & Provisioning</span>
+                </button>
+
+                <button class="ms-sidebar-item @(ActiveTab == "audit" ? "active" : "")" @onclick='() => SwitchTab("audit")'>
+                    <i class="bi bi-journal-text"></i>
+                    <span>Log Audit Platform</span>
+                </button>
+
+                <div class="ms-sidebar-section-title">Keamanan & Sistem</div>
+
+                <button class="ms-sidebar-item @(ActiveTab == "security" ? "active" : "")" @onclick='() => SwitchTab("security")'>
+                    <i class="bi bi-person-gear"></i>
+                    <span>Profil & Kata Sandi</span>
+                </button>
+            </div>
+
+            <div class="ms-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                        <div class="bg-info text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                            SA
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="text-white small fw-bold text-truncate">@AdminName</div>
+                            <div class="text-white-50 text-truncate" style="font-size: 0.68rem;">@Email (Super Admin)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                    <a href="/" class="ms-btn ms-btn-secondary ms-btn-sm w-100" title="Ke Beranda Tamu">
+                        <i class="bi bi-house"></i>
+                    </a>
+                    <button class="ms-btn ms-btn-danger ms-btn-sm w-100" @onclick="HandleLogout" title="Logout">
+                        <i class="bi bi-box-arrow-right"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ms-admin-main">
+            <!-- Topbar -->
+            <header class="ms-admin-topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        @if (ActiveTab == "tenants") { <span>Manajemen Tenant & Database Terisolasi</span> }
+                        else if (ActiveTab == "audit") { <span>Log Audit Aktivitas Sistem</span> }
+                        else if (ActiveTab == "security") { <span>Pengaturan Profil & Keamanan Super Admin</span> }
+                    </h5>
+                    <span class="ms-badge ms-badge-primary">
+                        <span class="ms-badge-dot"></span> PostgreSQL Cluster Connected
+                    </span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <button class="ms-btn ms-btn-outline ms-btn-sm" @onclick="RefreshTenants">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                    </button>
+                </div>
+            </header>
+
+            <div class="ms-admin-content">
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="ms-alert ms-alert-info mb-4 shadow-sm">
+                        <i class="bi bi-info-circle-fill ms-alert-icon"></i>
+                        <div class="ms-alert-content">@Message</div>
+                        <button type="button" class="ms-alert-close" @onclick="() => Message = null">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                }
+
+                <!-- Global SaaS Platform Stat Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="ms-stat-card">
+                            <div class="ms-stat-header">
+                                <span class="ms-stat-title">Total Tenant Mitra</span>
+                                <div class="ms-stat-icon bg-primary-subtle text-primary">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                            </div>
+                            <div class="ms-stat-value text-primary">@TenantsList.Count</div>
+                            <p class="ms-stat-hint text-muted">Restoran terdaftar di platform</p>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="ms-stat-card">
+                            <div class="ms-stat-header">
+                                <span class="ms-stat-title">Masa Uji Coba (Trial)</span>
+                                <div class="ms-stat-icon bg-warning-subtle text-warning">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                            </div>
+                            <div class="ms-stat-value text-warning">@TenantsList.Count(t => t.Status == "TRIAL")</div>
+                            <p class="ms-stat-hint text-warning-emphasis">Tenant dalam evaluasi trial</p>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="ms-stat-card">
+                            <div class="ms-stat-header">
+                                <span class="ms-stat-title">Aktif Berlangganan</span>
+                                <div class="ms-stat-icon bg-success-subtle text-success">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </div>
+                            </div>
+                            <div class="ms-stat-value text-success">@TenantsList.Count(t => t.Status == "ACTIVE")</div>
+                            <p class="ms-stat-hint text-success-emphasis">Pelanggan berbayar aktif</p>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="ms-stat-card">
+                            <div class="ms-stat-header">
+                                <span class="ms-stat-title">Database Terisolasi</span>
+                                <div class="ms-stat-icon bg-info-subtle text-info">
+                                    <i class="bi bi-database-lock"></i>
+                                </div>
+                            </div>
+                            <div class="ms-stat-value text-dark font-mono">@TenantsList.Count</div>
+                            <p class="ms-stat-hint text-muted">Basis data fisik PostgreSQL mandiri</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if (ActiveTab == "tenants")
+                {
+                    <div class="row g-4">
+                        <!-- Provisioning Form Drawer -->
+                        <div class="col-lg-4">
+                            <div class="ms-card p-4">
+                                <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                                    <i class="bi bi-plus-circle-fill text-primary me-1"></i> Provisioning Tenant Baru
+                                </h6>
+                                <p class="text-muted small mb-3">
+                                    Secara otomatis membuat database PostgreSQL fisik baru, menerapkan skema EF Core, dan mendaftarkan kredensial admin restoran.
+                                </p>
+
+                                <form @onsubmit="HandleCreateTenant">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="tenantName">Nama Perusahaan / Organisasi</label>
+                                        <input type="text" class="ms-form-control" id="tenantName" @bind="NewTenant.TenantName" required placeholder="Contoh: PT. Kuliner Nusantara" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="restoName">Nama Restoran (Branding)</label>
+                                        <input type="text" class="ms-form-control" id="restoName" @bind="NewTenant.RestaurantName" required placeholder="Contoh: Resto Nusantara" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="adminEmail">Email Admin Resto</label>
+                                        <input type="email" class="ms-form-control" id="adminEmail" @bind="NewTenant.AdminEmail" required placeholder="admin@restonusantara.com" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="trialDays">Durasi Uji Coba (Hari)</label>
+                                        <input type="number" class="ms-form-control" id="trialDays" @bind="NewTenant.TrialDays" required min="1" max="365" />
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100 fw-bold mt-2" disabled="@IsSubmitting">
+                                        @if (IsSubmitting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            <span>Membuat DB & Provisioning...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Eksekusi Provisioning</span>
+                                            <i class="bi bi-cpu ms-1"></i>
+                                        }
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Tenants Directory -->
+                        <div class="col-lg-8">
+                            <div class="ms-card">
+                                <div class="ms-card-header flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-buildings text-primary fs-5"></i>
+                                        <h6 class="ms-card-title">Direktori Tenant Terdaftar (@TenantsList.Count)</h6>
+                                    </div>
+
+                                    <div class="ms-input-group">
+                                        <i class="bi bi-search ms-input-icon"></i>
+                                        <input type="text" class="ms-form-control ms-form-control-sm has-icon-left" 
+                                               @bind="SearchQuery" @bind:event="oninput" 
+                                               placeholder="Cari nama / kode tenant..." style="max-width: 220px;" />
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="ms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Restoran / Outlet</th>
+                                                <th>Kode Tenant</th>
+                                                <th>Status</th>
+                                                <th>Batas Trial</th>
+                                                <th class="text-end">Aksi Kontrol</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                var filtered = TenantsList
+                                                    .Where(t => string.IsNullOrEmpty(SearchQuery) || 
+                                                                t.RestaurantName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) || 
+                                                                t.TenantName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) || 
+                                                                t.TenantCode.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+                                                    .ToList();
+                                            }
+
+                                            @if (!filtered.Any())
+                                            {
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-5">
+                                                        <i class="bi bi-search fs-2 d-block mb-2 text-muted"></i>
+                                                        <span>Tidak ada tenant yang cocok dengan pencarian.</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var tenant in filtered)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong class="text-dark fs-6">@tenant.RestaurantName</strong>
+                                                            <small class="text-muted d-block">Perusahaan: @tenant.TenantName</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="ms-badge ms-badge-primary font-mono">@tenant.TenantCode</span>
+                                                        </td>
+                                                        <td>
+                                                            @if (tenant.Status == "ACTIVE")
+                                                            {
+                                                                <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> AKTIF</span>
+                                                            }
+                                                            else if (tenant.Status == "TRIAL")
+                                                            {
+                                                                <span class="ms-badge ms-badge-warning"><span class="ms-badge-dot"></span> TRIAL</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="ms-badge ms-badge-danger">@tenant.Status</span>
+                                                            }
+                                                        </td>
+                                                        <td class="small fw-semibold text-muted">
+                                                            @(tenant.TrialEnd?.ToString("yyyy-MM-dd") ?? "Tidak Terbatas")
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <div class="d-inline-flex gap-1">
+                                                                <button class="ms-btn ms-btn-outline ms-btn-sm" @onclick="() => HandleExtendTrial(tenant.TenantId)" title="Perpanjang 30 Hari">
+                                                                    <i class="bi bi-calendar-plus text-primary"></i> +30 Hari
+                                                                </button>
+                                                                <button class="ms-btn ms-btn-outline ms-btn-sm text-danger" @onclick="() => HandleDeleteTenant(tenant.TenantId)" title="Hapus Tenant & DB">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (ActiveTab == "audit")
+                {
+                    <!-- Audit Logs Viewer -->
+                    <div class="ms-card">
+                        <div class="ms-card-header flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-journal-check text-primary fs-5"></i>
+                                <h6 class="ms-card-title">Log Audit Platform (100 Aktivitas Terakhir)</h6>
+                            </div>
+                            <button class="ms-btn ms-btn-outline ms-btn-sm" @onclick="RefreshAuditLogs">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh Log
+                            </button>
+                        </div>
+
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle">
+                            <table class="ms-table">
                                 <thead>
                                     <tr>
-                                        <th>Nama Resto</th>
-                                        <th>Kode</th>
-                                        <th>Status</th>
-                                        <th>Trial Selesai</th>
-                                        <th>Aksi</th>
+                                        <th>Waktu (UTC)</th>
+                                        <th>Tenant ID</th>
+                                        <th>Aksi / Modul</th>
+                                        <th>User</th>
+                                        <th>Rincian Parameter</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (TenantsList == null || !TenantsList.Any())
+                                    @if (AuditLogsList == null || !AuditLogsList.Any())
                                     {
                                         <tr>
-                                            <td colspan="5" class="text-center text-muted py-4">Belum ada tenant terdaftar.</td>
+                                            <td colspan="5" class="text-center text-muted py-5">Belum ada log aktivitas tercatat.</td>
                                         </tr>
                                     }
                                     else
                                     {
-                                        @foreach (var tenant in TenantsList)
+                                        @foreach (var log in AuditLogsList)
                                         {
                                             <tr>
-                                                <td>
-                                                    <strong>@tenant.RestaurantName</strong><br/>
-                                                    <small class="text-muted">@tenant.TenantName</small>
+                                                <td class="text-nowrap text-muted font-mono small">
+                                                    @log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
                                                 </td>
-                                                <td><span class="badge bg-secondary">@tenant.TenantCode</span></td>
                                                 <td>
-                                                    <span class="badge @(tenant.Status == "ACTIVE" ? "bg-success" : "bg-warning")">
-                                                        @tenant.Status
-                                                    </span>
+                                                    <span class="ms-badge ms-badge-neutral font-mono">@log.TenantId</span>
                                                 </td>
-                                                <td>@(tenant.TrialEnd?.ToString("yyyy-MM-dd") ?? "-")</td>
                                                 <td>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <button class="btn btn-outline-primary" @onclick="() => HandleExtendTrial(tenant.TenantId)">+30 Hari</button>
-                                                        <button class="btn btn-danger" @onclick="() => HandleDeleteTenant(tenant.TenantId)">Hapus</button>
-                                                    </div>
+                                                    <span class="ms-badge ms-badge-primary">@log.Action.ToUpperInvariant()</span>
+                                                </td>
+                                                <td class="font-mono text-muted small">
+                                                    @log.UserId
+                                                </td>
+                                                <td class="font-mono small text-truncate" style="max-width: 320px;" title="@log.Details">
+                                                    @log.Details
                                                 </td>
                                             </tr>
                                         }
@@ -145,20 +457,132 @@
                             </table>
                         </div>
                     </div>
-                </div>
+                }
+                else if (ActiveTab == "security")
+                {
+                    <!-- Security & Profile Management Tab -->
+                    <div class="row g-4 justify-content-center">
+                        <!-- Profile Card (Change Name & Email) -->
+                        <div class="col-lg-6">
+                            <div class="ms-card p-4 p-md-5 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                                    <i class="bi bi-person-gear text-primary fs-4"></i>
+                                    <h5 class="fw-bold text-dark mb-0">Profil Super Admin Platform</h5>
+                                </div>
+                                <p class="text-muted small mb-4">
+                                    Ubah nama tampilan administrator dan email / username yang digunakan untuk login ke Control Panel.
+                                </p>
+
+                                <form @onsubmit="HandleUpdateProfile">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="profileName">
+                                            <i class="bi bi-person-badge me-1 text-primary"></i> Nama Lengkap / Tampilan Administrator
+                                        </label>
+                                        <div class="ms-input-group">
+                                            <i class="bi bi-person ms-input-icon"></i>
+                                            <input type="text" class="ms-form-control has-icon-left fw-semibold" 
+                                                   id="profileName" @bind="ProfileName" required placeholder="Contoh: Platform Owner" />
+                                        </div>
+                                    </div>
+
+                                    <div class="ms-form-group mb-4">
+                                        <label class="ms-form-label" for="profileEmail">
+                                            <i class="bi bi-envelope me-1 text-primary"></i> Email / Username Login
+                                        </label>
+                                        <div class="ms-input-group">
+                                            <i class="bi bi-at ms-input-icon"></i>
+                                            <input type="text" class="ms-form-control has-icon-left" 
+                                                   id="profileEmail" @bind="ProfileEmail" required placeholder="admin atau email Anda" />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg w-100 fw-bold shadow-sm" disabled="@IsSubmitting">
+                                        @if (IsSubmitting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            <span>Menyimpan Profil...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Simpan Perubahan Nama & Profil</span>
+                                            <i class="bi bi-check2-circle ms-1"></i>
+                                        }
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Change Password Card -->
+                        <div class="col-lg-6">
+                            <div class="ms-card p-4 p-md-5 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                                    <i class="bi bi-shield-lock text-primary fs-4"></i>
+                                    <h5 class="fw-bold text-dark mb-0">Ganti Kata Sandi (Password)</h5>
+                                </div>
+                                <p class="text-muted small mb-4">
+                                    Gunakan kombinasi kata sandi yang aman minimal 5 karakter untuk menjaga keamanan cluster multi-tenant.
+                                </p>
+
+                                <form @onsubmit="ChangeAdminPassword">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="newPassword">
+                                            <i class="bi bi-key me-1 text-primary"></i> Kata Sandi Baru
+                                        </label>
+                                        <div class="ms-input-group">
+                                            <i class="bi bi-lock ms-input-icon"></i>
+                                            <input type="password" class="ms-form-control has-icon-left" 
+                                                   id="newPassword" @bind="NewPassword" required minlength="5" placeholder="Minimal 5 karakter" />
+                                        </div>
+                                    </div>
+
+                                    <div class="ms-form-group mb-4">
+                                        <label class="ms-form-label" for="confirmPassword">
+                                            <i class="bi bi-shield-check me-1 text-primary"></i> Konfirmasi Kata Sandi Baru
+                                        </label>
+                                        <div class="ms-input-group">
+                                            <i class="bi bi-lock-fill ms-input-icon"></i>
+                                            <input type="password" class="ms-form-control has-icon-left" 
+                                                   id="confirmPassword" @bind="ConfirmPassword" required minlength="5" placeholder="Ulangi kata sandi baru" />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg w-100 fw-bold shadow-sm" disabled="@IsSubmitting">
+                                        @if (IsSubmitting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            <span>Menyimpan Password...</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Perbarui Kata Sandi Super Admin</span>
+                                            <i class="bi bi-arrow-repeat ms-1"></i>
+                                        }
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-        </div>
-    }
-</div>
+        </main>
+    </div>
+}
 
 @code {
     private bool IsLoggedIn = false;
     private string Email = "";
     private string Password = "";
+    private string AdminName = "Super Admin";
+    private string ProfileName = "Super Admin";
+    private string ProfileEmail = "";
     private string? LoginError;
+    private string? LoginSuccessMessage;
     private string? Message;
     private string Token = "";
     private bool IsSubmitting = false;
+    private bool HasAttemptedLogin = false;
+    private string ActiveTab = "tenants";
+    private string SearchQuery = "";
 
     private class ProvisionModel
     {
@@ -170,6 +594,7 @@
 
     private ProvisionModel NewTenant = new ProvisionModel();
     private List<Tenant> TenantsList = new List<Tenant>();
+    private List<AuditLog> AuditLogsList = new List<AuditLog>();
 
     private HttpClient GetClient()
     {
@@ -181,29 +606,96 @@
         return client;
     }
 
+    private void SwitchTab(string tab)
+    {
+        ActiveTab = tab;
+        if (tab == "audit")
+        {
+            _ = RefreshAuditLogs();
+        }
+        else if (tab == "security")
+        {
+            _ = RefreshProfile();
+        }
+    }
+
     private async Task HandleLogin()
     {
+        HasAttemptedLogin = true;
         LoginError = null;
+        LoginSuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+        {
+            LoginError = "Username/Email dan kata sandi wajib diisi.";
+            return;
+        }
+
+        IsSubmitting = true;
         try
         {
             var client = GetClient();
-            var response = await client.PostAsJsonAsync("/api/v1/auth/login", new { email = Email, password = Password });
+            var response = await client.PostAsJsonAsync("/api/v1/auth/login", new 
+            { 
+                email = Email?.Trim(), 
+                password = Password 
+            });
             
             if (response.IsSuccessStatusCode)
             {
                 var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
-                Token = doc.GetProperty("data").GetProperty("token").GetString() ?? "";
+                var data = doc.GetProperty("data");
+                Token = data.GetProperty("token").GetString() ?? "";
+                
+                if (data.TryGetProperty("user", out var userProp))
+                {
+                    var rawName = userProp.TryGetProperty("name", out var np) ? np.GetString() : null;
+                    var rawEmail = userProp.TryGetProperty("email", out var ep) ? ep.GetString() : null;
+                    AdminName = !string.IsNullOrEmpty(rawName) ? rawName : "Super Admin";
+                    Email = (!string.IsNullOrEmpty(rawEmail) ? rawEmail : Email) ?? "";
+                    ProfileName = AdminName;
+                    ProfileEmail = Email;
+                }
+
                 IsLoggedIn = true;
                 await RefreshTenants();
+                await RefreshAuditLogs();
             }
             else
             {
-                LoginError = "Login Gagal. Pastikan kredensial benar.";
+                try
+                {
+                    var errDoc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                    if (errDoc.TryGetProperty("error", out var ep) && ep.TryGetProperty("message", out var mp))
+                    {
+                        LoginError = mp.GetString() ?? "Kredensial tidak valid.";
+                    }
+                    else
+                    {
+                        LoginError = "Kredensial Super Admin tidak valid. Periksa username dan password Anda.";
+                    }
+                }
+                catch
+                {
+                    LoginError = "Kredensial Super Admin tidak valid. Periksa username dan password Anda.";
+                }
             }
         }
         catch (Exception ex)
         {
-            LoginError = $"Exception: {ex.Message}";
+            if (ex is HttpRequestException || ex.Message.Contains("refused") || ex.Message.Contains("connection"))
+            {
+                LoginError = "Gagal terhubung ke Backend Control API (http://localhost:3001). Pastikan service SiBangku.ControlApi sudah dijalankan.";
+            }
+            else
+            {
+                LoginError = $"Terjadi kendala koneksi: {ex.Message}";
+            }
+        }
+        finally
+        {
+            IsSubmitting = false;
+            StateHasChanged();
         }
     }
 
@@ -212,6 +704,64 @@
         IsLoggedIn = false;
         Token = "";
         TenantsList.Clear();
+        AuditLogsList.Clear();
+    }
+
+    private async Task RefreshProfile()
+    {
+        try
+        {
+            var client = GetClient();
+            var response = await client.GetAsync("/api/v1/auth/profile");
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var data = doc.GetProperty("data");
+                AdminName = data.TryGetProperty("name", out var np) ? np.GetString() ?? AdminName : AdminName;
+                Email = data.TryGetProperty("email", out var ep) ? ep.GetString() ?? Email : Email;
+                ProfileName = AdminName;
+                ProfileEmail = Email;
+            }
+        }
+        catch { }
+    }
+
+    private async Task HandleUpdateProfile()
+    {
+        if (string.IsNullOrWhiteSpace(ProfileName) || string.IsNullOrWhiteSpace(ProfileEmail))
+        {
+            Message = "Nama dan Email tidak boleh kosong.";
+            return;
+        }
+
+        IsSubmitting = true;
+        Message = null;
+
+        try
+        {
+            var client = GetClient();
+            var response = await client.PutAsJsonAsync("/api/v1/auth/profile", new { name = ProfileName.Trim(), email = ProfileEmail.Trim() });
+            if (response.IsSuccessStatusCode)
+            {
+                AdminName = ProfileName;
+                Email = ProfileEmail;
+                Message = "Profil Administrator (Nama & Email) berhasil diperbarui!";
+                await RefreshAuditLogs();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Message = $"Gagal memperbarui profil: {body}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
     }
 
     private async Task RefreshTenants()
@@ -233,6 +783,25 @@
         }
     }
 
+    private async Task RefreshAuditLogs()
+    {
+        try
+        {
+            var client = GetClient();
+            var response = await client.GetAsync("/api/v1/audit");
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var dataString = doc.GetProperty("data").GetRawText();
+                AuditLogsList = JsonSerializer.Deserialize<List<AuditLog>>(dataString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<AuditLog>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Gagal mengambil log audit: {ex.Message}";
+        }
+    }
+
     private async Task HandleCreateTenant()
     {
         IsSubmitting = true;
@@ -250,6 +819,7 @@
                 Message = $"Tenant baru berhasil dibuat! Password admin sementara: {pwd}";
                 NewTenant = new ProvisionModel();
                 await RefreshTenants();
+                await RefreshAuditLogs();
             }
             else
             {
@@ -278,6 +848,7 @@
             {
                 Message = "Masa aktif trial berhasil diperpanjang 30 hari.";
                 await RefreshTenants();
+                await RefreshAuditLogs();
             }
             else
             {
@@ -301,6 +872,7 @@
             {
                 Message = "Tenant dan database fisiknya berhasil dihapus.";
                 await RefreshTenants();
+                await RefreshAuditLogs();
             }
             else
             {
@@ -310,6 +882,53 @@
         catch (Exception ex)
         {
             Message = $"Error: {ex.Message}";
+        }
+    }
+
+    private string NewPassword = "";
+    private string ConfirmPassword = "";
+
+    private async Task ChangeAdminPassword()
+    {
+        if (NewPassword != ConfirmPassword)
+        {
+            Message = "Konfirmasi kata sandi tidak cocok.";
+            return;
+        }
+
+        if (NewPassword.Length < 5)
+        {
+            Message = "Password baru minimal 5 karakter.";
+            return;
+        }
+
+        IsSubmitting = true;
+        Message = null;
+
+        try
+        {
+            var client = GetClient();
+            var response = await client.PostAsJsonAsync("/api/v1/auth/change-password", new { newPassword = NewPassword });
+
+            if (response.IsSuccessStatusCode)
+            {
+                Message = "Kata sandi Platform Super Admin berhasil diperbarui!";
+                NewPassword = "";
+                ConfirmPassword = "";
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Message = $"Gagal mengubah kata sandi: {body}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
         }
     }
 }

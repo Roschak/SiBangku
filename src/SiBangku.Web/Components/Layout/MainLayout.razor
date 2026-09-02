@@ -1,23 +1,35 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="d-flex flex-column min-vh-100">
+    <header class="ms-public-navbar py-2 px-3 px-lg-4">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+            <a href="/" class="ms-public-brand">
+                <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                </span>
+                <span>SiBangku</span>
+                <span class="ms-public-brand-badge">SaaS Platform</span>
+            </a>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="/" class="ms-btn ms-btn-outline ms-btn-sm">
+                    <i class="bi bi-house"></i> Beranda
+                </a>
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm">
+                    <i class="bi bi-calendar-check"></i> Pesan Meja
+                </a>
+            </div>
         </div>
+    </header>
 
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="flex-grow-1">
+        @Body
     </main>
+
+    <div id="blazor-error-ui" data-nosnippet>
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss"><i class="bi bi-x"></i></span>
+    </div>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>

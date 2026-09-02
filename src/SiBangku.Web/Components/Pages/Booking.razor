@@ -1,153 +1,362 @@
 @page "/booking"
+@rendermode InteractiveServer
 @using System.Text.Json
 @using SiBangku.Shared.Models
 @inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigation
 
-<PageTitle>Portal Reservasi Meja Restoran - SiBangku</PageTitle>
+<PageTitle>Portal Reservasi Meja - @(ActiveTenant?.RestaurantName ?? "SiBangku")</PageTitle>
 
-<div class="container py-4">
-    <!-- Tenant Selection Header -->
-    <div class="card shadow-sm border-0 mb-4 bg-light">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div>
-                <h5 class="fw-bold mb-0">Portal Reservasi Pelanggan</h5>
-                <small class="text-muted">Masukkan Kode Restoran untuk memuat branding & tata letak meja.</small>
+<div class="container py-4 py-lg-5" style="--ms-primary: @Branding.PrimaryColor; --ms-primary-hover: @Branding.SecondaryColor; --ms-secondary: @Branding.SecondaryColor;">
+    <!-- Restaurant Selector & Brand Banner -->
+    <div class="ms-card p-3 p-md-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: var(--ms-radius-xl);">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-inline-flex align-items-center justify-content-center text-white rounded-4 shadow-sm" 
+                     style="width: 52px; height: 52px; font-size: 1.4rem; background: linear-gradient(135deg, @Branding.PrimaryColor, @Branding.SecondaryColor);">
+                    <i class="bi bi-shop"></i>
+                </div>
+                <div>
+                    @if (ActiveTenant != null)
+                    {
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="fw-extrabold mb-0 text-dark" style="font-weight: 800;">@ActiveTenant.RestaurantName</h4>
+                            <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Outlet Aktif</span>
+                        </div>
+                        <small class="text-muted d-block mt-0.5">
+                            <i class="bi bi-clock me-1 text-primary"></i> Jam Operasional: <strong class="text-dark">@TimeSlots.OpeningTime - @TimeSlots.ClosingTime WIB</strong> • Durasi Slot: <strong>@TimeSlots.SlotDuration Menit</strong>
+                        </small>
+                    }
+                    else
+                    {
+                        <h4 class="fw-bold mb-0 text-dark">Portal Pemesanan Meja Mandiri</h4>
+                        <small class="text-muted">Masukkan kode unik restoran tujuan Anda untuk melihat meja dan slot waktu yang tersedia</small>
+                    }
+                </div>
             </div>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="text" class="form-control form-control-sm" @bind="TenantCode" placeholder="DISTRO-AVENUE" style="max-width: 150px;" />
-                <button class="btn btn-primary btn-sm px-3" @onclick="LoadTenantBranding">Muat Restoran</button>
+
+            <!-- Code Search input -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="ms-input-group">
+                    <i class="bi bi-geo-alt ms-input-icon"></i>
+                    <input type="text" class="ms-form-control has-icon-left fw-bold text-uppercase" 
+                           @bind="TenantCode" placeholder="KODE RESTORAN" style="max-width: 190px; letter-spacing: 0.5px;" />
+                </div>
+                <button class="ms-btn ms-btn-primary fw-bold text-nowrap" @onclick="LoadTenantBranding" disabled="@IsLoading">
+                    @if (IsLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-search"></i>
+                    }
+                    <span>Cari Resto</span>
+                </button>
             </div>
         </div>
     </div>
 
-    @if (IsLoading)
+    @if (string.IsNullOrWhiteSpace(TenantCode) && ActiveTenant == null && !IsLoading)
     {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <!-- Prompt to enter restaurant code -->
+        <div class="ms-card p-5 text-center my-4 border-0 shadow-sm" style="border-radius: var(--ms-radius-xl);">
+            <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                <i class="bi bi-qr-code-scan"></i>
             </div>
+            <h5 class="fw-bold text-dark mb-2">Masukkan Kode Restoran Mitra</h5>
+            <p class="text-muted small mb-4" style="max-width: 480px; margin: 0 auto;">
+                Silakan ketik kode restoran pada kolom di kanan atas atau buka halaman melalui tautan QR Code yang ada di meja restoran.
+            </p>
         </div>
     }
-    else if (ActiveTenant == null)
+    else if (IsLoading)
     {
-        <div class="text-center py-5 text-muted border rounded shadow-sm">
-            <h5 class="fw-bold">Selamat Datang di Portal Booking SiBangku</h5>
-            <p>Masukkan Kode Restoran di atas untuk melihat meja dan membuat reservasi.</p>
+        <div class="ms-card p-5 text-center my-4 border-0 shadow-sm">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3.5rem; height: 3.5rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Menghubungkan ke Database Restoran...</h5>
+            <p class="text-muted small">Memuat daftar meja, layout, dan slot waktu yang tersedia secara real-time.</p>
+        </div>
+    }
+    else if (ShowSuccessCard && ConfirmedReservation != null)
+    {
+        <!-- Confirmation Ticket View -->
+        <div class="row justify-content-center py-2">
+            <div class="col-lg-7 col-md-9">
+                <div class="ms-alert ms-alert-success mb-4 shadow-sm">
+                    <i class="bi bi-check-circle-fill ms-alert-icon"></i>
+                    <div class="ms-alert-content">
+                        <div class="ms-alert-title">Reservasi Meja Berhasil Dibuat!</div>
+                        <div>Nomor kode booking Anda adalah <strong class="font-mono">@ConfirmedReservation.ReservationNumber</strong>. Simpan atau cetak tiket digital ini.</div>
+                    </div>
+                </div>
+
+                <div class="ms-card border-0 shadow-lg overflow-hidden" style="border-radius: var(--ms-radius-2xl);">
+                    <!-- Ticket Header -->
+                    <div class="p-4 text-center text-white position-relative" 
+                         style="background: linear-gradient(135deg, @Branding.PrimaryColor, @Branding.SecondaryColor);">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white text-success rounded-circle shadow-sm mb-2" style="width: 54px; height: 54px; font-size: 1.6rem;">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <h4 class="fw-extrabold mb-1">Tiket Reservasi Digital</h4>
+                        <p class="small text-white-50 mb-0">Tunjukkan tiket ini kepada resepsionis saat tiba di restoran.</p>
+                    </div>
+
+                    <!-- Ticket Details -->
+                    <div class="p-4 p-md-5 bg-white">
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded-4 bg-light mb-4 border">
+                            <div>
+                                <span class="text-muted small d-block">NOMOR KODE BOOKING</span>
+                                <span class="fs-4 fw-extrabold text-primary font-mono">@ConfirmedReservation.ReservationNumber</span>
+                            </div>
+                            <span class="ms-badge ms-badge-warning fs-6 py-1.5 px-3">
+                                <span class="ms-badge-dot"></span> Menunggu Kedatangan
+                            </span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded-3 border bg-white">
+                                    <span class="text-muted small d-block"><i class="bi bi-shop me-1 text-primary"></i> Restoran Tujuan</span>
+                                    <strong class="text-dark">@(ActiveTenant?.RestaurantName ?? TenantCode)</strong>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded-3 border bg-white">
+                                    <span class="text-muted small d-block"><i class="bi bi-person me-1 text-primary"></i> Nama Pemesan</span>
+                                    <strong class="text-dark">@BookingName</strong>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded-3 border bg-white">
+                                    <span class="text-muted small d-block"><i class="bi bi-calendar3 me-1 text-primary"></i> Tanggal & Waktu</span>
+                                    <strong class="text-dark">@ConfirmedReservation.Date.ToString("dd MMMM yyyy")</strong>
+                                    <div class="small text-primary fw-bold">@ConfirmedReservation.StartTime.ToString(@"hh\:mm") - @ConfirmedReservation.EndTime.ToString(@"hh\:mm") WIB</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded-3 border bg-white">
+                                    <span class="text-muted small d-block"><i class="bi bi-people me-1 text-primary"></i> Jumlah Tamu</span>
+                                    <strong class="text-dark">@ConfirmedReservation.GuestCount Orang</strong>
+                                    <div class="small text-muted">Kontak: @BookingPhone</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ConfirmedReservation.Notes))
+                        {
+                            <div class="p-3 rounded-3 border bg-light mb-4">
+                                <span class="text-muted small d-block"><i class="bi bi-chat-left-text me-1 text-primary"></i> Catatan Khusus:</span>
+                                <div class="text-dark small">@ConfirmedReservation.Notes</div>
+                            </div>
+                        }
+
+                        <!-- Actions -->
+                        <div class="d-flex flex-wrap gap-2 justify-content-end pt-3 border-top">
+                            <button class="ms-btn ms-btn-outline fw-semibold" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Cetak Tiket
+                            </button>
+                            <button class="ms-btn ms-btn-secondary fw-semibold" @onclick="ResetForm">
+                                <i class="bi bi-plus-circle"></i> Reservasi Baru
+                            </button>
+                            <button class="ms-btn ms-btn-primary fw-bold" @onclick="() => ShowSuccessCard = false">
+                                <span>Kembali ke Menu</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     }
     else
     {
-        <!-- White label branding container -->
-        <div class="border rounded p-4 shadow-sm mb-4" style="border-top: 5px solid @Branding.PrimaryColor !important;">
-            <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
-                <div class="bg-dark text-white rounded p-2 fw-bold" style="font-size: 1.25rem;">
-                    🍽️
+        <!-- Booking Form Wizard -->
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="ms-alert ms-alert-danger mb-4 shadow-sm">
+                <i class="bi bi-exclamation-octagon-fill ms-alert-icon"></i>
+                <div class="ms-alert-content">
+                    <div class="ms-alert-title">Perhatian</div>
+                    <div>@Message</div>
                 </div>
-                <div>
-                    <h3 class="fw-bold mb-0">@ActiveTenant.RestaurantName</h3>
-                    <span class="badge bg-outline-secondary" style="border: 1px solid @Branding.PrimaryColor; color: @Branding.PrimaryColor;">
-                        Subdomain: @ActiveTenant.WebIdentifier
-                    </span>
-                </div>
+                <button type="button" class="ms-alert-close" @onclick="() => Message = null">
+                    <i class="bi bi-x"></i>
+                </button>
             </div>
+        }
 
-            @if (!string.IsNullOrEmpty(Message))
-            {
-                <div class="alert alert-success">@Message</div>
-            }
+        <div class="row g-4">
+            <!-- Left Column: Parameters & Slots -->
+            <div class="col-lg-5">
+                <div class="ms-card border-0 shadow-sm p-4 h-100" style="border-radius: var(--ms-radius-xl);">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold" style="width: 28px; height: 28px; font-size: 0.85rem;">1</span>
+                        <h5 class="fw-bold text-dark mb-0">Tentukan Tanggal & Tamu</h5>
+                    </div>
 
-            <div class="row g-4">
-                <!-- Seating Map Grid -->
-                <div class="col-lg-8">
-                    <div class="card border-0 bg-light p-3">
-                        <h5 class="fw-bold mb-3 text-secondary text-center">Peta Tata Letak Meja (Pilih Meja)</h5>
-                        
-                        <!-- Visual seating builder grid boundary box -->
-                        <div class="position-relative border rounded bg-white shadow-inner overflow-hidden" 
-                             style="height: 400px; border: 2px dashed #ccc !important;">
-                            
-                            @if (Tables == null || !Tables.Any())
-                            {
-                                <div class="position-absolute top-50 start-50 translate-middle text-muted">
-                                    Belum ada layout meja diatur oleh admin restoran.
-                                </div>
-                            }
-                            else
-                            {
-                                @foreach (var tbl in Tables)
-                                {
-                                    var isSelected = SelectedTableId == tbl.TableId;
-                                    <!-- Dynamic absolute inline position styling mapping coordinates -->
-                                    <div class="position-absolute d-flex flex-column align-items-center justify-content-center rounded shadow-sm cursor-pointer border"
-                                         style="left: @(tbl.PosX)px; top: @(tbl.PosY)px; width: 60px; height: 60px; 
-                                                transform: rotate(@(tbl.Rotation)deg); cursor: pointer; transition: all 0.2s;
-                                                background-color: @(isSelected ? Branding.PrimaryColor : "#e2e8f0"); 
-                                                color: @(isSelected ? "#fff" : "#1e293b");
-                                                border-color: @(isSelected ? Branding.SecondaryColor : "#cbd5e1");"
-                                         @onclick="() => SelectTable(tbl.TableId, tbl.TableNumber)">
-                                        
-                                        <span class="fw-bold">#@tbl.TableNumber</span>
-                                        <small style="font-size: 0.65rem;">Kps: @tbl.Capacity</small>
-                                    </div>
-                                }
-                            }
-                        </div>
-                        <div class="d-flex justify-content-center gap-3 mt-3">
-                            <small class="text-muted">⬜ Tersedia</small>
-                            <small class="text-muted" style="color: @Branding.PrimaryColor;">🟦 Dipilih</small>
+                    <!-- Date picker -->
+                    <div class="ms-form-group">
+                        <label class="ms-form-label" for="bookingDate">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Tanggal Kunjungan <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="ms-form-control fw-semibold" id="bookingDate" @value="BookingDate" 
+                               @onchange="OnDateChanged" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <!-- Guest Stepper -->
+                    <div class="ms-form-group">
+                        <label class="ms-form-label">
+                            <i class="bi bi-people me-1 text-primary"></i> Jumlah Tamu <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="ms-btn ms-btn-outline px-3 fs-5 fw-bold" @onclick="DecrementGuests">-</button>
+                            <input type="number" class="ms-form-control text-center fw-extrabold fs-5 text-primary" 
+                                   @value="GuestCount" @onchange="OnGuestsChanged" min="1" max="20" style="max-width: 100px;" />
+                            <button type="button" class="ms-btn ms-btn-outline px-3 fs-5 fw-bold" @onclick="IncrementGuests">+</button>
+                            <span class="text-muted small ms-2">Orang</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Reservation Form -->
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm p-4 bg-white">
-                        <h5 class="fw-bold mb-3">Formulir Pemesanan</h5>
-                        
-                        @if (string.IsNullOrEmpty(SelectedTableId))
+                    <!-- Time Slots Selector -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 class="fw-bold text-dark mb-0">
+                                <i class="bi bi-clock me-1 text-primary"></i> Pilihan Slot Waktu: <span class="text-danger">*</span>
+                            </h6>
+                            <span class="ms-badge ms-badge-neutral">@Slots.Count Slot</span>
+                        </div>
+
+                        @if (Slots == null || !Slots.Any())
                         {
-                            <div class="alert alert-warning py-2 text-center" style="font-size: 0.85rem;">
-                                Silakan pilih meja pada peta terlebih dahulu.
+                            <div class="text-center py-4 text-muted small bg-light rounded-3">
+                                <span>Tidak ada slot waktu tersedia atau restoran belum dimuat.</span>
                             </div>
                         }
                         else
                         {
-                            <div class="alert alert-info py-2" style="font-size: 0.85rem;">
-                                Meja Terpilih: <strong>#@SelectedTableNumber</strong>
+                            <div class="row g-2">
+                                @foreach (var slot in Slots)
+                                {
+                                    var isSelected = SelectedStartTime == slot.StartTime;
+                                    var isSlotDisabled = !slot.IsAvailable;
+                                    
+                                    <div class="col-6">
+                                        <div class="ms-slot-card @(isSelected ? "selected" : "") @(isSlotDisabled ? "disabled" : "")"
+                                             @onclick="() => SelectSlot(slot)">
+                                            <div class="fw-bold text-dark fs-6">@slot.StartTime</div>
+                                            <div class="small text-muted mb-1">s/d @slot.EndTime WIB</div>
+                                            @if (slot.IsAvailable)
+                                            {
+                                                <span class="ms-badge ms-badge-success" style="font-size: 0.7rem;">
+                                                    <span class="ms-badge-dot"></span> @slot.AvailableTablesCount Meja Tersedia
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="ms-badge ms-badge-danger" style="font-size: 0.7rem;">
+                                                    <span class="ms-badge-dot"></span> Penuh
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
+                    </div>
+                </div>
+            </div>
 
-                        <form @onsubmit="SubmitBooking">
-                            <div class="mb-3">
-                                <label class="form-label small">Nama Lengkap</label>
-                                <input type="text" class="form-control form-control-sm" @bind="BookingName" required placeholder="Budi Santoso" />
+            <!-- Right Column: Guest Information & Confirmation -->
+            <div class="col-lg-7">
+                <div class="ms-card border-0 shadow-sm p-4 h-100" style="border-radius: var(--ms-radius-xl);">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold" style="width: 28px; height: 28px; font-size: 0.85rem;">2</span>
+                        <h5 class="fw-bold text-dark mb-0">Informasi Kontak & Reservasi</h5>
+                    </div>
+
+                    @if (string.IsNullOrEmpty(SelectedStartTime))
+                    {
+                        <div class="ms-alert ms-alert-warning mb-4">
+                            <i class="bi bi-info-circle-fill ms-alert-icon"></i>
+                            <div class="ms-alert-content">
+                                <div class="ms-alert-title">Pilih Slot Waktu</div>
+                                <div class="small">Silakan tentukan tanggal dan klik salah satu slot waktu yang tersedia pada kolom sebelah kiri.</div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Email</label>
-                                <input type="email" class="form-control form-control-sm" @bind="BookingEmail" required placeholder="budi@email.com" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-3 rounded-3 mb-4 d-flex align-items-center justify-content-between border" style="background-color: var(--ms-primary-light); border-color: var(--ms-primary-border) !important;">
+                            <div>
+                                <span class="text-muted small d-block">Slot Terpilih:</span>
+                                <strong class="text-primary fs-5">
+                                    <i class="bi bi-clock-fill me-1"></i> @SelectedStartTime - @SelectedEndTime WIB
+                                </strong>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Telepon</label>
-                                <input type="text" class="form-control form-control-sm" @bind="BookingPhone" required placeholder="08123456789" />
+                            <span class="ms-badge ms-badge-primary fs-6">
+                                <i class="bi bi-people-fill me-1"></i> @GuestCount Orang
+                            </span>
+                        </div>
+                    }
+
+                    <form @onsubmit="SubmitBooking">
+                        <div class="ms-form-group">
+                            <label class="ms-form-label" for="guestName">
+                                <i class="bi bi-person me-1 text-primary"></i> Nama Lengkap Pemesan <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingName) && HasAttemptedSubmit ? "is-invalid" : "")" 
+                                   id="guestName" name="name" autocomplete="name" @bind="BookingName" required placeholder="Nama Lengkap Anda" />
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="ms-form-group">
+                                    <label class="ms-form-label" for="guestEmail">
+                                        <i class="bi bi-envelope me-1 text-primary"></i> Alamat Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingEmail) && HasAttemptedSubmit ? "is-invalid" : "")" 
+                                           id="guestEmail" name="email" autocomplete="email" @bind="BookingEmail" required placeholder="alamat@email.com" />
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Jumlah Tamu</label>
-                                <input type="number" class="form-control form-control-sm" @bind="GuestCount" required min="1" />
+                            <div class="col-md-6">
+                                <div class="ms-form-group">
+                                    <label class="ms-form-label" for="guestPhone">
+                                        <i class="bi bi-telephone me-1 text-primary"></i> No. WhatsApp / Telepon <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingPhone) && HasAttemptedSubmit ? "is-invalid" : "")" 
+                                           id="guestPhone" name="tel" autocomplete="tel" @bind="BookingPhone" required placeholder="08xxxxxxxxxx" />
+                                </div>
                             </div>
-                            <button type="submit" class="btn w-100 mt-2 py-2" 
-                                    style="background-color: @Branding.PrimaryColor; color: #fff;"
-                                    disabled="@(string.IsNullOrEmpty(SelectedTableId) || IsSubmitting)">
+                        </div>
+
+                        <div class="ms-form-group">
+                            <label class="ms-form-label" for="guestNotes">
+                                <i class="bi bi-chat-text me-1 text-primary"></i> Catatan Khusus (Opsional)
+                            </label>
+                            <textarea class="ms-form-control" id="guestNotes" @bind="BookingNotes" rows="3" placeholder="Permintaan khusus: dekat jendela, kursi bayi, acara ulang tahun, dll."></textarea>
+                        </div>
+
+                        <div class="pt-3 border-top mt-4">
+                            <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg w-100 fw-bold shadow-sm" 
+                                    disabled="@IsSubmitting">
                                 @if (IsSubmitting)
                                 {
-                                    <span>Mengirim...</span>
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Memproses Reservasi Anda...</span>
                                 }
                                 else
                                 {
-                                    <span>Buat Reservasi Sekarang</span>
+                                    <span>Konfirmasi & Buat Reservasi Sekarang</span>
+                                    <i class="bi bi-check-circle-fill ms-1"></i>
                                 }
                             </button>
-                        </form>
-                    </div>
+                            <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">
+                                Data reservasi Anda langsung tersimpan dengan enkripsi pada sistem manajemen restoran.
+                            </small>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -155,54 +364,98 @@
 </div>
 
 @code {
-    private string TenantCode = "DISTRO-AVENUE";
+    private string TenantCode = "";
     private bool IsLoading = false;
     private bool IsSubmitting = false;
+    private bool HasAttemptedSubmit = false;
     private string? Message;
 
-    // Tenant info & tables data
     private Tenant? ActiveTenant;
     private List<Table> Tables = new List<Table>();
-    
-    // Booking Form State
-    private string SelectedTableId = "";
-    private string SelectedTableNumber = "";
+    private List<Reservation> ExistingReservations = new List<Reservation>();
+
     private string BookingName = "";
     private string BookingEmail = "";
     private string BookingPhone = "";
+    private DateTime BookingDate = DateTime.Today.AddDays(1);
     private int GuestCount = 2;
+    private string SelectedStartTime = "";
+    private string SelectedEndTime = "";
+    private string BookingNotes = "";
 
-    // Branding Properties Schema (PRD §21)
+    private List<TimeSlotInfo> Slots = new List<TimeSlotInfo>();
+    private bool ShowSuccessCard = false;
+    private Reservation? ConfirmedReservation;
+
     public class BrandingConfig
     {
-        public string PrimaryColor { get; set; } = "#3b82f6";
-        public string SecondaryColor { get; set; } = "#1e3a8a";
+        public string PrimaryColor { get; set; } = "#4f46e5";
+        public string SecondaryColor { get; set; } = "#312e81";
         public string Font { get; set; } = "Inter";
     }
 
+    public class TimeSlotsConfig
+    {
+        public int SlotDuration { get; set; } = 60;
+        public int MaxConcurrentCovers { get; set; } = 30;
+        public string OpeningTime { get; set; } = "08:00";
+        public string ClosingTime { get; set; } = "22:00";
+    }
+
+    public class TimeSlotInfo
+    {
+        public string StartTime { get; set; } = "";
+        public string EndTime { get; set; } = "";
+        public bool IsAvailable { get; set; }
+        public int AvailableTablesCount { get; set; }
+    }
+
     private BrandingConfig Branding = new BrandingConfig();
+    private TimeSlotsConfig TimeSlots = new TimeSlotsConfig();
 
     private HttpClient GetClient()
     {
         var client = ClientFactory.CreateClient("TenantApi");
         client.DefaultRequestHeaders.Clear();
-        client.DefaultRequestHeaders.Add("x-tenant-code", TenantCode);
+        if (!string.IsNullOrWhiteSpace(TenantCode))
+        {
+            client.DefaultRequestHeaders.Add("x-tenant-code", TenantCode.Trim().ToUpperInvariant());
+        }
         return client;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("tenant", out var code))
+        {
+            TenantCode = code.ToString().ToUpperInvariant();
+            await LoadTenantBranding();
+        }
     }
 
     private async Task LoadTenantBranding()
     {
+        if (string.IsNullOrWhiteSpace(TenantCode))
+        {
+            Message = "Harap masukkan kode restoran terlebih dahulu.";
+            return;
+        }
+
         IsLoading = true;
         Message = null;
         ActiveTenant = null;
         Tables.Clear();
-        SelectedTableId = "";
+        ExistingReservations.Clear();
+        SelectedStartTime = "";
+        SelectedEndTime = "";
+        ShowSuccessCard = false;
 
         try
         {
             var client = GetClient();
             
-            // 1. Fetch Branding Settings
+            // 1. Fetch Branding
             var brandResponse = await client.GetAsync("/api/v1/settings/branding");
             if (brandResponse.IsSuccessStatusCode)
             {
@@ -211,7 +464,16 @@
                 Branding = JsonSerializer.Deserialize<BrandingConfig>(rawBranding, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new BrandingConfig();
             }
 
-            // 2. Fetch Tables List
+            // 2. Fetch Time Slots
+            var slotsResponse = await client.GetAsync("/api/v1/settings/time_slots");
+            if (slotsResponse.IsSuccessStatusCode)
+            {
+                var doc = await slotsResponse.Content.ReadFromJsonAsync<JsonElement>();
+                var rawSlots = doc.GetProperty("data").GetRawText();
+                TimeSlots = JsonSerializer.Deserialize<TimeSlotsConfig>(rawSlots, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new TimeSlotsConfig();
+            }
+
+            // 3. Fetch Tables List
             var tablesResponse = await client.GetAsync("/api/v1/tables");
             if (tablesResponse.IsSuccessStatusCode)
             {
@@ -220,16 +482,21 @@
                 Tables = JsonSerializer.Deserialize<List<Table>>(rawTables, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Table>();
             }
 
-            // 3. Set Active Tenant (mock resolved from default control db check)
+            // 4. Fetch Existing reservations for selected date
+            await LoadReservations();
+
+            // 5. Set Active Tenant Name
             ActiveTenant = new Tenant
             {
-                RestaurantName = TenantCode == "DISTRO-AVENUE" ? "Distro Resto" : $"{TenantCode} Eats",
-                WebIdentifier = $"{TenantCode.ToLower()}.sibangku.example"
+                RestaurantName = $"{TenantCode.ToUpperInvariant()} Resto",
+                WebIdentifier = $"{TenantCode.ToLowerInvariant()}.sibangku.example"
             };
+
+            UpdateAvailableSlots();
         }
         catch (Exception ex)
         {
-            Message = $"Gagal memuat detail restoran: {ex.Message}";
+            Message = $"Gagal memuat informasi restoran: {ex.Message}";
         }
         finally
         {
@@ -237,40 +504,228 @@
         }
     }
 
-    private void SelectTable(string tableId, string number)
+    private async Task LoadReservations()
     {
-        SelectedTableId = tableId;
-        SelectedTableNumber = number;
+        try
+        {
+            var client = GetClient();
+            var response = await client.GetAsync($"/api/v1/reservations?date={BookingDate:yyyy-MM-dd}");
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var raw = doc.GetProperty("data").GetRawText();
+                ExistingReservations = JsonSerializer.Deserialize<List<Reservation>>(raw, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Reservation>();
+            }
+        }
+        catch
+        {
+            ExistingReservations = new List<Reservation>();
+        }
+    }
+
+    private void UpdateAvailableSlots()
+    {
+        Slots.Clear();
+        if (Tables == null || !Tables.Any())
+        {
+            return;
+        }
+
+        int openHour = 8;
+        int closeHour = 22;
+        
+        if (!string.IsNullOrEmpty(TimeSlots.OpeningTime) && TimeSlots.OpeningTime.Contains(":"))
+            int.TryParse(TimeSlots.OpeningTime.Split(':')[0], out openHour);
+            
+        if (!string.IsNullOrEmpty(TimeSlots.ClosingTime) && TimeSlots.ClosingTime.Contains(":"))
+            int.TryParse(TimeSlots.ClosingTime.Split(':')[0], out closeHour);
+
+        for (int hour = openHour; hour < closeHour; hour += 2)
+        {
+            var startStr = $"{hour:D2}:00";
+            var endStr = $"{(hour + 2):D2}:00";
+
+            var slotStart = TimeSpan.Parse(startStr);
+            var slotEnd = TimeSpan.Parse(endStr);
+
+            var matchingTables = Tables.Where(t => t.IsActive && t.Capacity >= GuestCount).ToList();
+            int freeTablesCount = 0;
+
+            foreach (var tbl in matchingTables)
+            {
+                var hasConflict = ExistingReservations.Any(r => 
+                    r.TableId == tbl.TableId && 
+                    (r.StartTime < slotEnd && r.EndTime > slotStart)
+                );
+
+                if (!hasConflict)
+                {
+                    freeTablesCount++;
+                }
+            }
+
+            Slots.Add(new TimeSlotInfo
+            {
+                StartTime = startStr,
+                EndTime = endStr,
+                IsAvailable = freeTablesCount > 0,
+                AvailableTablesCount = freeTablesCount
+            });
+        }
+    }
+
+    private async Task OnDateChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var parsedDate))
+        {
+            BookingDate = parsedDate;
+            SelectedStartTime = "";
+            SelectedEndTime = "";
+            await LoadReservations();
+            UpdateAvailableSlots();
+        }
+    }
+
+    private void IncrementGuests()
+    {
+        if (GuestCount < 20)
+        {
+            GuestCount++;
+            SelectedStartTime = "";
+            SelectedEndTime = "";
+            UpdateAvailableSlots();
+        }
+    }
+
+    private void DecrementGuests()
+    {
+        if (GuestCount > 1)
+        {
+            GuestCount--;
+            SelectedStartTime = "";
+            SelectedEndTime = "";
+            UpdateAvailableSlots();
+        }
+    }
+
+    private void OnGuestsChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var val) && val >= 1 && val <= 20)
+        {
+            GuestCount = val;
+            SelectedStartTime = "";
+            SelectedEndTime = "";
+            UpdateAvailableSlots();
+        }
+    }
+
+    private void SelectSlot(TimeSlotInfo slot)
+    {
+        if (!slot.IsAvailable) return;
+        SelectedStartTime = slot.StartTime;
+        SelectedEndTime = slot.EndTime;
+        Message = null;
     }
 
     private async Task SubmitBooking()
     {
-        if (string.IsNullOrEmpty(SelectedTableId)) return;
-        IsSubmitting = true;
+        HasAttemptedSubmit = true;
         Message = null;
+
+        // Validation Checks
+        if (string.IsNullOrWhiteSpace(SelectedStartTime) || string.IsNullOrWhiteSpace(SelectedEndTime))
+        {
+            Message = "Harap pilih slot jam kunjungan terlebih dahulu pada kolom sebelah kiri.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(BookingName))
+        {
+            Message = "Nama pemesan wajib diisi.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(BookingEmail) || !BookingEmail.Contains("@"))
+        {
+            Message = "Alamat email pemesan tidak valid atau belum diisi.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(BookingPhone) || BookingPhone.Length < 6)
+        {
+            Message = "Nomor WhatsApp / telepon pemesan wajib diisi (minimal 6 digit).";
+            return;
+        }
+
+        if (BookingDate.Date < DateTime.Today)
+        {
+            Message = "Tanggal kunjungan tidak boleh di masa lampau.";
+            return;
+        }
+
+        IsSubmitting = true;
 
         try
         {
-            // Simulate reservation post - since we are showing white label booking behavior
-            // we simulate a 1-second delay and report success.
-            await Task.Delay(1000);
+            var client = GetClient();
             
-            Message = $"Reservasi Sukses! Kode Booking Anda: RSV-{DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString().Substring(6)}";
+            var payload = new
+            {
+                name = BookingName.Trim(),
+                email = BookingEmail.Trim(),
+                phone = BookingPhone.Trim(),
+                date = BookingDate,
+                startTime = SelectedStartTime,
+                endTime = SelectedEndTime,
+                guestCount = GuestCount,
+                notes = BookingNotes?.Trim() ?? string.Empty
+            };
+
+            var response = await client.PostAsJsonAsync("/api/v1/reservations", payload);
             
-            // Reset fields
-            BookingName = "";
-            BookingEmail = "";
-            BookingPhone = "";
-            SelectedTableId = "";
-            SelectedTableNumber = "";
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var rawData = doc.GetProperty("data").GetRawText();
+                ConfirmedReservation = JsonSerializer.Deserialize<Reservation>(rawData, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                ShowSuccessCard = true;
+                Message = null;
+            }
+            else
+            {
+                var errorObj = await response.Content.ReadFromJsonAsync<JsonElement>();
+                if (errorObj.TryGetProperty("error", out var errorDetail) && errorDetail.TryGetProperty("message", out var errMsg))
+                {
+                    Message = errMsg.GetString();
+                }
+                else
+                {
+                    Message = $"Gagal mengajukan reservasi. Kode status: {response.StatusCode}";
+                }
+            }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            Message = $"Terjadi kendala koneksi: {ex.Message}";
         }
         finally
         {
             IsSubmitting = false;
         }
+    }
+
+    private void ResetForm()
+    {
+        BookingName = "";
+        BookingEmail = "";
+        BookingPhone = "";
+        BookingNotes = "";
+        SelectedStartTime = "";
+        SelectedEndTime = "";
+        ConfirmedReservation = null;
+        ShowSuccessCard = false;
+        HasAttemptedSubmit = false;
+        _ = LoadTenantBranding();
     }
 }

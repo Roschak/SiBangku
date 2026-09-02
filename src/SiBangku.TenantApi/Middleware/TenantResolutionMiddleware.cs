@@ -69,12 +69,6 @@ namespace SiBangku.TenantApi.Middleware
                 tenant = await controlDb.Tenants.FirstOrDefaultAsync(t => t.TenantCode == tenantCode.ToUpperInvariant());
             }
 
-            // Fallback default for local development if unresolved (PRD default)
-            if (tenant == null)
-            {
-                tenant = await controlDb.Tenants.FirstOrDefaultAsync(t => t.TenantCode == "DISTRO-AVENUE");
-            }
-
             if (tenant == null)
             {
                 context.Response.StatusCode = 400;
@@ -82,7 +76,7 @@ namespace SiBangku.TenantApi.Middleware
                 await context.Response.WriteAsync(JsonSerializer.Serialize(new
                 {
                     success = false,
-                    error = new { code = "INVALID_TENANT", message = "Could not resolve active restaurant tenant." }
+                    error = new { code = "INVALID_TENANT", message = "Kode atau identitas restoran tidak valid atau belum terdaftar." }
                 }));
                 return;
             }

@@ -125,19 +125,29 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, ControlDbContext d
     using var document = await JsonDocument.ParseAsync(context.Request.Body);
     var root = document.RootElement;
     
-    var email = root.GetProperty("email").GetString();
-    var password = root.GetProperty("password").GetString();
+    var email = root.GetProperty("email").GetString()?.Trim() ?? string.Empty;
+    var password = root.GetProperty("password").GetString() ?? string.Empty;
 
     if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
     {
-        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Email and password are required" } }, statusCode: 400);
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Email/Username dan password wajib diisi." } }, statusCode: 400);
     }
 
-    // Verify platform owner user
-    var user = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email == email);
+    // Check if platform admin is initialized
+    if (!await db.PlatformUsers.AnyAsync())
+    {
+        return Results.Json(new { success = false, error = new { code = "NO_ADMIN_CONFIGURED", message = "Belum ada akun Administrator. Silakan klik 'Atur Ulang / Buat Akun Sendiri' untuk membuat akun baru." } }, statusCode: 400);
+    }
+
+    // Case-insensitive lookup by Email, UserId, or Name
+    var user = await db.PlatformUsers.FirstOrDefaultAsync(u => 
+        u.Email.ToLower() == email.ToLower() || 
+        u.UserId.ToLower() == email.ToLower() || 
+        u.Name.ToLower() == email.ToLower());
+
     if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
     {
-        return Results.Json(new { success = false, error = new { code = "AUTH_FAILED", message = "Invalid email or password" } }, statusCode: 401);
+        return Results.Json(new { success = false, error = new { code = "AUTH_FAILED", message = "Kredensial tidak valid. Pastikan username dan password benar." } }, statusCode: 401);
     }
 
     // Generate JWT token
@@ -172,6 +182,200 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, ControlDbContext d
             }
         }
     });
+});
+
+app.MapGet("/api/v1/auth/profile", [Authorize(Roles = "SUPER_ADMIN")] async (HttpContext context, ControlDbContext db) =>
+{
+    var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var user = await db.PlatformUsers.FindAsync(userId);
+    if (user == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "User admin tidak ditemukan." } }, statusCode: 404);
+    }
+
+    return Results.Ok(new
+    {
+        success = true,
+        data = new
+        {
+            userId = user.UserId,
+            email = user.Email,
+            name = user.Name,
+            role = user.Role
+        }
+    });
+});
+
+app.MapPut("/api/v1/auth/profile", [Authorize(Roles = "SUPER_ADMIN")] async (HttpContext context, ControlDbContext db) =>
+{
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+    
+    var name = root.TryGetProperty("name", out var nameProp) ? nameProp.GetString() : null;
+    var email = root.TryGetProperty("email", out var emailProp) ? emailProp.GetString() : null;
+
+    var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var user = await db.PlatformUsers.FindAsync(userId);
+    if (user == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "User admin tidak ditemukan." } }, statusCode: 404);
+    }
+
+    if (!string.IsNullOrWhiteSpace(name))
+    {
+        user.Name = name.Trim();
+    }
+    if (!string.IsNullOrWhiteSpace(email))
+    {
+        user.Email = email.Trim();
+    }
+
+    var audit = new AuditLog
+    {
+        Id = $"audit-prof-{userId}-{DateTime.UtcNow.Ticks}",
+        TenantId = "platform",
+        Action = "update platform profile",
+        UserId = user.Email,
+        Details = $"{{\"name\":\"{user.Name}\",\"email\":\"{user.Email}\"}}",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        success = true,
+        message = "Profil Super Admin berhasil diperbarui.",
+        data = new
+        {
+            userId = user.UserId,
+            email = user.Email,
+            name = user.Name,
+            role = user.Role
+        }
+    });
+});
+
+app.MapPost("/api/v1/auth/change-password", [Authorize(Roles = "SUPER_ADMIN")] async (HttpContext context, ControlDbContext db) =>
+{
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+    var newPassword = root.GetProperty("newPassword").GetString();
+
+    if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 5)
+    {
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Password baru minimal harus 5 karakter." } }, statusCode: 400);
+    }
+
+    var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var user = await db.PlatformUsers.FindAsync(userId);
+    if (user == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "User admin tidak ditemukan." } }, statusCode: 404);
+    }
+
+    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+    
+    var audit = new AuditLog
+    {
+        Id = $"audit-pw-{userId}-{DateTime.UtcNow.Ticks}",
+        TenantId = "platform",
+        Action = "change platform password",
+        UserId = user.Email,
+        Details = "{\"message\":\"Super Admin password updated successfully.\"}",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, message = "Password berhasil diubah." });
+});
+
+// --- Internal Secure Admin Management for Host CLI (Protected by Master Key) ---
+app.MapPost("/api/v1/internal/admin/create-or-reset", async (HttpContext context, ControlDbContext db, IConfiguration config) =>
+{
+    var expectedKey = config["JWT_SECRET"] ?? "super_secret_jwt_key_platform_admin_2026";
+    var providedKey = context.Request.Headers["X-Master-Key"].FirstOrDefault();
+
+    if (string.IsNullOrWhiteSpace(providedKey) || providedKey != expectedKey)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Akses ditolak. Master Key tidak valid." } }, statusCode: 403);
+    }
+
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+    
+    var username = root.TryGetProperty("username", out var uProp) ? uProp.GetString()?.Trim() : null;
+    var password = root.TryGetProperty("password", out var pProp) ? pProp.GetString() : null;
+    var name = root.TryGetProperty("name", out var nProp) ? nProp.GetString()?.Trim() : "Super Admin";
+
+    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+    {
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Username dan password wajib diisi." } }, statusCode: 400);
+    }
+
+    if (password.Length < 5)
+    {
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Password minimal harus 5 karakter." } }, statusCode: 400);
+    }
+
+    var user = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == username.ToLower());
+    var hash = BCrypt.Net.BCrypt.HashPassword(password, 10);
+
+    if (user == null)
+    {
+        user = new PlatformUser
+        {
+            UserId = "admin-" + Guid.NewGuid().ToString("n").Substring(0, 8),
+            Email = username,
+            PasswordHash = hash,
+            Name = !string.IsNullOrWhiteSpace(name) ? name : "Super Admin",
+            Role = "SUPER_ADMIN",
+            CreatedAt = DateTime.UtcNow
+        };
+        await db.PlatformUsers.AddAsync(user);
+    }
+    else
+    {
+        user.PasswordHash = hash;
+        if (!string.IsNullOrWhiteSpace(name)) user.Name = name;
+    }
+
+    var audit = new AuditLog
+    {
+        Id = $"audit-master-{DateTime.UtcNow.Ticks}",
+        TenantId = "platform",
+        Action = "master key create/update admin",
+        UserId = username,
+        Details = $"{{\"username\":\"{username}\",\"name\":\"{user.Name}\"}}",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new 
+    { 
+        success = true, 
+        message = $"Akun Super Admin '{username}' berhasil disimpan.",
+        data = new { username = user.Email, name = user.Name }
+    });
+});
+
+app.MapGet("/api/v1/internal/admin/list", async (HttpContext context, ControlDbContext db, IConfiguration config) =>
+{
+    var expectedKey = config["JWT_SECRET"] ?? "super_secret_jwt_key_platform_admin_2026";
+    var providedKey = context.Request.Headers["X-Master-Key"].FirstOrDefault();
+
+    if (string.IsNullOrWhiteSpace(providedKey) || providedKey != expectedKey)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Akses ditolak. Master Key tidak valid." } }, statusCode: 403);
+    }
+
+    var list = await db.PlatformUsers.OrderByDescending(u => u.CreatedAt).ToListAsync();
+    return Results.Ok(new { success = true, data = list });
 });
 
 // --- Tenant Management Routes (Admin protected) ---
@@ -303,8 +507,13 @@ app.MapDelete("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (
                 await termCmd.ExecuteNonQueryAsync();
             }
 
-            // Drop database
-            var dropQuery = $"DROP DATABASE IF EXISTS {dbName}";
+            // Drop database with strict identifier validation to prevent SQL injection
+            if (!System.Text.RegularExpressions.Regex.IsMatch(dbName, @"^[a-zA-Z0-9_]+$"))
+            {
+                return Results.Json(new { success = false, error = new { code = "INVALID_DB_NAME", message = "Nama database tidak aman atau tidak valid." } }, statusCode: 400);
+            }
+
+            var dropQuery = $"DROP DATABASE IF EXISTS \"{dbName}\"";
             await using (var dropCmd = new NpgsqlCommand(dropQuery, conn))
             {
                 await dropCmd.ExecuteNonQueryAsync();

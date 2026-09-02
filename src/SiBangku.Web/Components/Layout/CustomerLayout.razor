@@ -1,0 +1,78 @@
+@inherits LayoutComponentBase
+
+<div class="d-flex flex-column min-vh-100">
+    <!-- Clean Customer / Visitor Header -->
+    <header class="ms-public-navbar py-2 px-3 px-lg-4">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-4">
+                <a href="/" class="ms-public-brand">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                    </span>
+                    <span>SiBangku</span>
+                    <span class="ms-public-brand-badge">Reservasi Meja</span>
+                </a>
+
+                <nav class="d-none d-md-flex align-items-center gap-2">
+                    <NavLink class="ms-public-nav-link" href="" Match="NavLinkMatch.All">
+                        <i class="bi bi-house-door"></i> Beranda
+                    </NavLink>
+                    <NavLink class="ms-public-nav-link" href="booking">
+                        <i class="bi bi-calendar2-check"></i> Pesan Meja
+                    </NavLink>
+                </nav>
+            </div>
+
+            <!-- Customer Fast Action -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap shadow-sm">
+                    <i class="bi bi-calendar-plus"></i>
+                    <span>Pesan Meja Sekarang</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1">
+        @Body
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="bg-white border-top py-4 mt-auto">
+        <div class="container py-2">
+            <div class="row g-4 align-items-center justify-content-between">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-2">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-2 me-1" style="width: 24px; height: 24px; font-size: 0.85rem;">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                        </span>
+                        <span class="fw-bold text-dark fs-5">SiBangku</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Portal Pelanggan</span>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Platform reservasi meja restoran instan dan manajemen multi-tenant modern.
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small text-muted mb-2">
+                        <a href="/" class="text-secondary text-decoration-none">Beranda</a>
+                        <span>•</span>
+                        <a href="/booking" class="text-secondary text-decoration-none">Pesan Meja</a>
+                    </div>
+                    <!-- Discreet portal links for clients & owner -->
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2" style="font-size: 0.72rem;">
+                        <span class="text-muted">Akses Khusus:</span>
+                        <a href="/admin" class="text-muted text-decoration-none fw-semibold" title="Khusus Mitra Restoran">Login Mitra Resto</a>
+                        <span class="text-muted">•</span>
+                        <a href="/control-admin" class="text-muted text-decoration-none fw-semibold" title="Khusus Super Admin Platform">Platform Control Panel</a>
+                    </div>
+                    <div class="small text-muted mt-2" style="font-size: 0.72rem;">
+                        &copy; 2026 SiBangku SaaS Platform. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+

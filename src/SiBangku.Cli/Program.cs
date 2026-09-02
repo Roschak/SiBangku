@@ -1,11 +1,15 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SiBangku.Db;
+using SiBangku.Shared.Models;
 
 namespace SiBangku.Cli
 {
@@ -17,7 +21,17 @@ namespace SiBangku.Cli
         );
 
         private static string ControlApiUrl = Environment.GetEnvironmentVariable("CONTROL_API_URL") ?? "http://localhost:3001";
+        private static string ControlDbUrl = Environment.GetEnvironmentVariable("CONTROL_DATABASE_URL") ?? "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+        private static string MasterKey = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_jwt_key_platform_admin_2026";
         private static readonly HttpClient Client = new HttpClient();
+
+        private static ControlDbContext CreateControlDbContext()
+        {
+            var options = new DbContextOptionsBuilder<ControlDbContext>()
+                .UseNpgsql(ControlDbUrl)
+                .Options;
+            return new ControlDbContext(options);
+        }
 
         static async Task<int> Main(string[] args)
         {
@@ -31,30 +45,53 @@ namespace SiBangku.Cli
 
             try
             {
-                // Ensure auth token is loaded for commands other than login/help
-                if (command != "login" && command != "help")
+                // Commands that do not require Web API Bearer token
+                if (command == "admin")
                 {
-                    var token = LoadToken();
-                    if (string.IsNullOrEmpty(token))
+                    if (args.Length < 2)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Error: Anda belum login. Silakan jalankan perintah: sibangku-cli login <email> <password>");
-                        Console.ResetColor();
+                        Console.WriteLine("Penggunaan: sibangku-cli admin <create|reset-password|list>");
                         return 1;
                     }
-                    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    var adminSub = args[1].ToLowerInvariant();
+                    return adminSub switch
+                    {
+                        "create" => await HandleAdminCreateAsync(args),
+                        "reset-password" => await HandleAdminResetPasswordAsync(args),
+                        "list" => await HandleAdminListAsync(),
+                        _ => UnknownCommand()
+                    };
                 }
+
+                if (command == "login")
+                {
+                    if (args.Length < 3)
+                    {
+                        Console.WriteLine("Penggunaan: sibangku-cli login <email> <password>");
+                        return 1;
+                    }
+                    return await HandleLoginAsync(args[1], args[2]);
+                }
+
+                if (command == "help")
+                {
+                    PrintHelp();
+                    return 0;
+                }
+
+                // Ensure auth token is loaded for Web API remote management commands
+                var token = LoadToken();
+                if (string.IsNullOrEmpty(token))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Anda belum login ke API. Silakan jalankan: sibangku-cli login <email> <password>");
+                    Console.ResetColor();
+                    return 1;
+                }
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 switch (command)
                 {
-                    case "login":
-                        if (args.Length < 3)
-                        {
-                            Console.WriteLine("Penggunaan: sibangku-cli login <email> <password>");
-                            return 1;
-                        }
-                        return await HandleLoginAsync(args[1], args[2]);
-
                     case "tenant":
                         if (args.Length < 2)
                         {
@@ -73,10 +110,6 @@ namespace SiBangku.Cli
 
                     case "audit":
                         return await HandleAuditListAsync();
-
-                    case "help":
-                        PrintHelp();
-                        return 0;
 
                     default:
                         return UnknownCommand();
@@ -102,19 +135,285 @@ namespace SiBangku.Cli
 
         private static void PrintHelp()
         {
-            Console.WriteLine("====================================================");
-            Console.WriteLine(" SiBangku Administrative CLI Tool (C# v2.0.0)");
-            Console.WriteLine("====================================================");
-            Console.WriteLine("Daftar Perintah:");
-            Console.WriteLine("  login <email> <password>           Autentikasi sesi administratif.");
-            Console.WriteLine("  tenant list                       Menampilkan seluruh penyewa/tenant.");
-            Console.WriteLine("  tenant create <name> <resto> <email> [days]");
-            Console.WriteLine("                                    Membuat/provisioning tenant baru.");
-            Console.WriteLine("  tenant extend <tenantId> <days>   Memperpanjang masa trial tenant.");
-            Console.WriteLine("  tenant delete <tenantId>          Menghapus data & DB tenant.");
-            Console.WriteLine("  audit                             Menampilkan log aktivitas platform.");
-            Console.WriteLine("  help                              Menampilkan menu bantuan ini.");
-            Console.WriteLine("====================================================");
+            Console.WriteLine("=========================================================================");
+            Console.WriteLine(" SiBangku SaaS Platform - Secure Administrative CLI Tool (v3.0.0)");
+            Console.WriteLine("=========================================================================");
+            Console.WriteLine("Manajemen Akun Super Admin Platform (Host / Server-Only):");
+            Console.WriteLine("  admin create <username> <password> [displayName]");
+            Console.WriteLine("      -> Membuat akun Super Admin baru langsung di basis data platform.");
+            Console.WriteLine("  admin reset-password <username> <newPassword>");
+            Console.WriteLine("      -> Mengatur ulang kata sandi Super Admin secara aman.");
+            Console.WriteLine("  admin list");
+            Console.WriteLine("      -> Menampilkan daftar akun Administrator platform.");
+            Console.WriteLine("");
+            Console.WriteLine("Manajemen Tenant & Operasional (API Protected):");
+            Console.WriteLine("  login <email> <password>          -> Autentikasi sesi administratif.");
+            Console.WriteLine("  tenant list                      -> Menampilkan seluruh tenant.");
+            Console.WriteLine("  tenant create <name> <resto> <email> [days] -> Provisioning tenant baru.");
+            Console.WriteLine("  tenant extend <tenantId> <days>  -> Memperpanjang masa trial.");
+            Console.WriteLine("  tenant delete <tenantId>         -> Menghapus data & DB tenant.");
+            Console.WriteLine("  audit                            -> Menampilkan log aktivitas platform.");
+            Console.WriteLine("  help                             -> Menampilkan panduan bantuan ini.");
+            Console.WriteLine("=========================================================================");
+        }
+
+        private static async Task<int> HandleAdminCreateAsync(string[] args)
+        {
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Penggunaan: sibangku-cli admin create <username> <password> [displayName]");
+                return 1;
+            }
+
+            var username = args[2].Trim();
+            var password = args[3];
+            var displayName = args.Length > 4 ? args[4].Trim() : "Super Admin";
+
+            if (password.Length < 5)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Kata sandi minimal harus 5 karakter.");
+                Console.ResetColor();
+                return 1;
+            }
+
+            Console.WriteLine($"Membuat akun Super Admin '{username}'...");
+
+            // 1. Try ControlApi internal master endpoint
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Post, $"{ControlApiUrl}/api/v1/internal/admin/create-or-reset");
+                req.Headers.Add("X-Master-Key", MasterKey);
+                req.Content = JsonContent.Create(new { username, password, name = displayName });
+
+                var resp = await Client.SendAsync(req);
+                if (resp.IsSuccessStatusCode)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\n[Sukses] Akun Super Admin berhasil dibuat & disimpan via Control Service!");
+                    Console.WriteLine($"Username/Email : {username}");
+                    Console.WriteLine($"Nama Tampilan  : {displayName}");
+                    Console.WriteLine("Anda sekarang dapat login ke portal /control-admin menggunakan kredensial ini.\n");
+                    Console.ResetColor();
+                    return 0;
+                }
+            }
+            catch
+            {
+                // Fallback to direct DB
+            }
+
+            // 2. Direct database connection fallback
+            try
+            {
+                await using var db = CreateControlDbContext();
+                await db.Database.EnsureCreatedAsync();
+                
+                var existing = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == username.ToLower());
+                if (existing != null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Akun dengan username/email '{username}' sudah ada. Memperbarui password...");
+                    Console.ResetColor();
+
+                    existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password, 10);
+                    if (!string.IsNullOrWhiteSpace(displayName)) existing.Name = displayName;
+                }
+                else
+                {
+                    var newUser = new PlatformUser
+                    {
+                        UserId = "admin-" + Guid.NewGuid().ToString("n").Substring(0, 8),
+                        Email = username,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(password, 10),
+                        Name = displayName,
+                        Role = "SUPER_ADMIN",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await db.PlatformUsers.AddAsync(newUser);
+                }
+
+                var audit = new AuditLog
+                {
+                    Id = $"audit-cli-admin-{DateTime.UtcNow.Ticks}",
+                    TenantId = "platform",
+                    Action = "cli create/update platform admin",
+                    UserId = username,
+                    Details = $"{{\"username\":\"{username}\",\"name\":\"{displayName}\"}}",
+                    CreatedAt = DateTime.UtcNow
+                };
+                await db.AuditLogs.AddAsync(audit);
+
+                await db.SaveChangesAsync();
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\n[Sukses] Akun Super Admin berhasil disimpan dengan enkripsi BCrypt!");
+                Console.WriteLine($"Username/Email : {username}");
+                Console.WriteLine($"Nama Tampilan  : {displayName}");
+                Console.WriteLine("Anda sekarang dapat login ke portal /control-admin menggunakan kredensial ini.\n");
+                Console.ResetColor();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: Gagal menyimpan akun ke basis data. {ex.Message}");
+                Console.ResetColor();
+                return 1;
+            }
+        }
+
+        private static async Task<int> HandleAdminResetPasswordAsync(string[] args)
+        {
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Penggunaan: sibangku-cli admin reset-password <username> <newPassword>");
+                return 1;
+            }
+
+            var username = args[2].Trim();
+            var newPassword = args[3];
+
+            if (newPassword.Length < 5)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Kata sandi baru minimal harus 5 karakter.");
+                Console.ResetColor();
+                return 1;
+            }
+
+            Console.WriteLine($"Mereset kata sandi akun '{username}'...");
+
+            // 1. Try ControlApi internal master endpoint
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Post, $"{ControlApiUrl}/api/v1/internal/admin/create-or-reset");
+                req.Headers.Add("X-Master-Key", MasterKey);
+                req.Content = JsonContent.Create(new { username, password = newPassword });
+
+                var resp = await Client.SendAsync(req);
+                if (resp.IsSuccessStatusCode)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"\n[Sukses] Kata sandi untuk '{username}' telah berhasil diperbarui!");
+                    Console.ResetColor();
+                    return 0;
+                }
+            }
+            catch
+            {
+                // Fallback to direct DB
+            }
+
+            // 2. Direct database connection fallback
+            try
+            {
+                await using var db = CreateControlDbContext();
+                await db.Database.EnsureCreatedAsync();
+                var user = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == username.ToLower() || u.UserId.ToLower() == username.ToLower());
+                
+                if (user == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error: Akun dengan username/email '{username}' tidak ditemukan.");
+                    Console.ResetColor();
+                    return 1;
+                }
+
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+
+                var audit = new AuditLog
+                {
+                    Id = $"audit-cli-reset-{DateTime.UtcNow.Ticks}",
+                    TenantId = "platform",
+                    Action = "cli reset platform password",
+                    UserId = username,
+                    Details = $"{{\"username\":\"{username}\"}}",
+                    CreatedAt = DateTime.UtcNow
+                };
+                await db.AuditLogs.AddAsync(audit);
+
+                await db.SaveChangesAsync();
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n[Sukses] Kata sandi untuk '{username}' telah berhasil diperbarui!");
+                Console.ResetColor();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: Gagal mereset kata sandi. {ex.Message}");
+                Console.ResetColor();
+                return 1;
+            }
+        }
+
+        private static async Task<int> HandleAdminListAsync()
+        {
+            Console.WriteLine("Mengambil data Administrator platform...");
+
+            // 1. Try ControlApi internal master endpoint
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, $"{ControlApiUrl}/api/v1/internal/admin/list");
+                req.Headers.Add("X-Master-Key", MasterKey);
+
+                var resp = await Client.SendAsync(req);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var doc = await resp.Content.ReadFromJsonAsync<JsonElement>();
+                    var users = doc.GetProperty("data");
+
+                    Console.WriteLine("\n------------------------------------------------------------------------------------------------------------");
+                    Console.WriteLine(string.Format("| {0,-20} | {1,-30} | {2,-25} | {3,-12} |", "User ID", "Email / Username", "Nama", "Role"));
+                    Console.WriteLine("------------------------------------------------------------------------------------------------------------");
+
+                    foreach (var u in users.EnumerateArray())
+                    {
+                        var userId = u.GetProperty("userId").GetString();
+                        var email = u.GetProperty("email").GetString();
+                        var name = u.GetProperty("name").GetString();
+                        var role = u.GetProperty("role").GetString();
+                        Console.WriteLine(string.Format("| {0,-20} | {1,-30} | {2,-25} | {3,-12} |", userId, email, name, role));
+                    }
+                    Console.WriteLine("------------------------------------------------------------------------------------------------------------\n");
+                    return 0;
+                }
+            }
+            catch
+            {
+                // Fallback to direct DB
+            }
+
+            // 2. Direct database connection fallback
+            try
+            {
+                await using var db = CreateControlDbContext();
+                await db.Database.EnsureCreatedAsync();
+                var users = await db.PlatformUsers.OrderByDescending(u => u.CreatedAt).ToListAsync();
+
+                Console.WriteLine("\n------------------------------------------------------------------------------------------------------------");
+                Console.WriteLine(string.Format("| {0,-20} | {1,-30} | {2,-25} | {3,-12} |", "User ID", "Email / Username", "Nama", "Role"));
+                Console.WriteLine("------------------------------------------------------------------------------------------------------------");
+
+                foreach (var u in users)
+                {
+                    Console.WriteLine(string.Format("| {0,-20} | {1,-30} | {2,-25} | {3,-12} |", u.UserId, u.Email, u.Name, u.Role));
+                }
+                Console.WriteLine("------------------------------------------------------------------------------------------------------------\n");
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: Gagal mengambil data admin. {ex.Message}");
+                Console.ResetColor();
+                return 1;
+            }
         }
 
         private static string? LoadToken()
@@ -166,7 +465,7 @@ namespace SiBangku.Cli
             SaveToken(token);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Login Berhasil! Token disimpan di user profile.");
+            Console.WriteLine("Login Berhasil! Sesi CLI tersimpan.");
             Console.ResetColor();
             return 0;
         }

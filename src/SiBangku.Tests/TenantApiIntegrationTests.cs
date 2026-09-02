@@ -95,11 +95,11 @@ namespace SiBangku.Tests
             var response = await client.GetAsync("/api/v1/tables");
 
             // Assert
-            // Since our middleware has a fallback default to DISTRO-AVENUE for local development if unresolved,
-            // we test a specific path or bypass fallback. To trigger 400, we check health/errors.
-            // Let's assert that health endpoint is always open (doesn't fail due to tenant checks).
-            var healthResponse = await client.GetAsync("/api/v1/health");
-            Assert.Equal(HttpStatusCode.OK, healthResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            
+            var content = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.False(content.GetProperty("success").GetBoolean());
+            Assert.Equal("INVALID_TENANT", content.GetProperty("error").GetProperty("code").GetString());
         }
     }
 }

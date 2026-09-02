@@ -151,9 +151,19 @@ namespace SiBangku.ControlApi.Services
                     Value = "{\"slotDuration\":60,\"maxConcurrentCovers\":30,\"openingTime\":\"08:00\",\"closingTime\":\"22:00\"}"
                 };
 
+                // Seed default tables for visual layout
+                var defaultTables = new System.Collections.Generic.List<Table>
+                {
+                    new Table { TableId = $"tbl-1-{tenantId}", TableNumber = "1", Shape = "SQUARE", Capacity = 2, PosX = 80, PosY = 60, Rotation = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Table { TableId = $"tbl-2-{tenantId}", TableNumber = "2", Shape = "SQUARE", Capacity = 4, PosX = 280, PosY = 60, Rotation = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Table { TableId = $"tbl-3-{tenantId}", TableNumber = "3", Shape = "ROUND", Capacity = 4, PosX = 80, PosY = 220, Rotation = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Table { TableId = $"tbl-4-{tenantId}", TableNumber = "4", Shape = "RECTANGLE", Capacity = 6, PosX = 280, PosY = 220, Rotation = 0, IsActive = true, CreatedAt = DateTime.UtcNow }
+                };
+
                 await tenantContext.Settings.AddRangeAsync(brandingSetting, slotsSetting);
+                await tenantContext.Tables.AddRangeAsync(defaultTables);
                 await tenantContext.SaveChangesAsync();
-                Console.WriteLine($"[Provisioner] Seeding completed for tenant owner admin.");
+                Console.WriteLine($"[Provisioner] Seeding completed for tenant owner admin and default tables.");
             }
 
             // 5. Save tenant record and log audit details in Control Plane

@@ -19,6 +19,7 @@ using SiBangku.Db;
 using SiBangku.Shared.Models;
 using SiBangku.TenantApi.Middleware;
 using SiBangku.TenantApi.Services;
+using SiBangku.TenantApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -385,9 +386,240 @@ app.MapPost("/api/v1/settings/time_slots", [Authorize(Roles = "TENANT_ADMIN")] a
     return Results.Ok(new { success = true, data = JsonSerializer.Deserialize<JsonElement>(body) });
 });
 
+// --- Reservation Routes (Public customer booking endpoints) ---
+app.MapPost("/api/v1/reservations", async (CreateReservationDto dto, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || 
+        string.IsNullOrWhiteSpace(dto.Phone) || string.IsNullOrWhiteSpace(dto.StartTime) || 
+        string.IsNullOrWhiteSpace(dto.EndTime))
+    {
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Semua kolom data diri dan waktu reservasi wajib diisi." } }, statusCode: 400);
+    }
+
+    // 1. Parse times
+    if (!TimeSpan.TryParse(dto.StartTime, out var startTime) || !TimeSpan.TryParse(dto.EndTime, out var endTime))
+    {
+        return Results.Json(new { success = false, error = new { code = "BAD_REQUEST", message = "Format jam mulai dan jam selesai tidak valid." } }, statusCode: 400);
+    }
+
+    var rsvDate = dto.Date.Date;
+
+    // 2. Verify and assign Table
+    Table? table = null;
+    if (!string.IsNullOrEmpty(dto.TableId))
+    {
+        table = await tenantDb.Tables.FirstOrDefaultAsync(t => t.TableId == dto.TableId && t.IsActive);
+        if (table == null)
+        {
+            return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Meja yang dipilih tidak valid atau tidak aktif." } }, statusCode: 404);
+        }
+
+        // Check for specific reservation conflict
+        var specificConflict = await tenantDb.Reservations.AnyAsync(r => 
+            r.TableId == dto.TableId && 
+            r.Date == rsvDate && 
+            r.Status != "CANCELLED" && 
+            r.Status != "REJECTED" && 
+            (r.StartTime < endTime && r.EndTime > startTime)
+        );
+
+        if (specificConflict)
+        {
+            return Results.Json(new { success = false, error = new { code = "CONFLICT", message = "Meja ini sudah dipesan untuk slot waktu yang dipilih." } }, statusCode: 409);
+        }
+    }
+    else
+    {
+        // Auto-assign available table matching capacity (slot-based allocation)
+        var availableTables = await tenantDb.Tables
+            .Where(t => t.IsActive && t.Capacity >= dto.GuestCount)
+            .OrderBy(t => t.Capacity)
+            .ToListAsync();
+
+        foreach (var tbl in availableTables)
+        {
+            var conflict = await tenantDb.Reservations.AnyAsync(r => 
+                r.TableId == tbl.TableId && 
+                r.Date == rsvDate && 
+                r.Status != "CANCELLED" && 
+                r.Status != "REJECTED" && 
+                (r.StartTime < endTime && r.EndTime > startTime)
+            );
+
+            if (!conflict)
+            {
+                table = tbl;
+                break;
+            }
+        }
+
+        if (table == null)
+        {
+            return Results.Json(new { success = false, error = new { code = "CONFLICT", message = "Semua meja untuk kapasitas tersebut sudah penuh pada jam ini. Silakan pilih jam atau tanggal lain." } }, statusCode: 409);
+        }
+    }
+
+    // 3. Find or Create Customer
+    var customer = await tenantDb.Customers.FirstOrDefaultAsync(c => c.Email == dto.Email);
+    if (customer == null)
+    {
+        customer = new Customer
+        {
+            Id = $"cust-{Guid.NewGuid().ToString("n").Substring(0, 10)}",
+            Name = dto.Name,
+            Email = dto.Email,
+            Phone = dto.Phone,
+            CreatedAt = DateTime.UtcNow
+        };
+        await tenantDb.Customers.AddAsync(customer);
+    }
+    else
+    {
+        customer.Name = dto.Name;
+        customer.Phone = dto.Phone;
+    }
+
+    // 4. Create Reservation
+    var reservationId = $"rsv-{Guid.NewGuid().ToString("n").Substring(0, 10)}";
+    var reservationNumber = SiBangku.Shared.Utils.GenerateReservationNumber();
+
+    var reservation = new Reservation
+    {
+        Id = reservationId,
+        ReservationNumber = reservationNumber,
+        CustomerId = customer.Id,
+        TableId = table.TableId,
+        Date = rsvDate,
+        StartTime = startTime,
+        EndTime = endTime,
+        GuestCount = dto.GuestCount,
+        Status = "PENDING",
+        PaymentStatus = "UNPAID",
+        TotalAmount = 0,
+        Notes = dto.Notes ?? string.Empty,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    await tenantDb.Reservations.AddAsync(reservation);
+    await tenantDb.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, data = reservation });
+});
+
+app.MapGet("/api/v1/reservations", async (string? date, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    IQueryable<Reservation> query = tenantDb.Reservations;
+    if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out var parsedDate))
+    {
+        var dateOnly = parsedDate.Date;
+        query = query.Where(r => r.Date == dateOnly);
+    }
+
+    var list = await query.Where(r => r.Status != "CANCELLED" && r.Status != "REJECTED").ToListAsync();
+    return Results.Ok(new { success = true, data = list });
+});
+
+app.MapGet("/api/v1/reservations/{number}", async (string number, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    var rsv = await tenantDb.Reservations
+        .FirstOrDefaultAsync(r => r.ReservationNumber == number || r.Id == number);
+
+    if (rsv == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Reservasi tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var customer = await tenantDb.Customers.FindAsync(rsv.CustomerId);
+    var table = await tenantDb.Tables.FindAsync(rsv.TableId);
+
+    return Results.Ok(new { 
+        success = true, 
+        data = rsv, 
+        customer = customer, 
+        table = table 
+    });
+});
+
+app.MapPatch("/api/v1/reservations/{id}/status", [Authorize] async (string id, HttpContext context, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    var claimTenantId = context.User.FindFirst("TenantId")?.Value;
+    if (claimTenantId != tenantContext.CurrentTenant?.TenantId)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Cross-tenant access forbidden" } }, statusCode: 403);
+    }
+
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var status = document.RootElement.GetProperty("status").GetString() ?? "PENDING";
+
+    var rsv = await tenantDb.Reservations.FindAsync(id);
+    if (rsv == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Reservasi tidak ditemukan." } }, statusCode: 404);
+    }
+
+    rsv.Status = status.ToUpperInvariant();
+    await tenantDb.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, data = rsv });
+});
+
+app.MapPatch("/api/v1/reservations/{id}/payment", [Authorize] async (string id, HttpContext context, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    var claimTenantId = context.User.FindFirst("TenantId")?.Value;
+    if (claimTenantId != tenantContext.CurrentTenant?.TenantId)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Cross-tenant access forbidden" } }, statusCode: 403);
+    }
+
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var paymentStatus = document.RootElement.GetProperty("paymentStatus").GetString() ?? "UNPAID";
+
+    var rsv = await tenantDb.Reservations.FindAsync(id);
+    if (rsv == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Reservasi tidak ditemukan." } }, statusCode: 404);
+    }
+
+    rsv.PaymentStatus = paymentStatus.ToUpperInvariant();
+    if (rsv.PaymentStatus == "PAID")
+    {
+        rsv.Status = "CONFIRMED"; // auto confirm on payment
+    }
+    await tenantDb.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, data = rsv });
+});
+
 app.Run();
 
 namespace SiBangku.TenantApi
 {
     public partial class Program { }
+
+    public record CreateReservationDto(
+        string? TableId,
+        string Name,
+        string Email,
+        string Phone,
+        DateTime Date,
+        string StartTime,
+        string EndTime,
+        int GuestCount,
+        string Notes
+    );
 }

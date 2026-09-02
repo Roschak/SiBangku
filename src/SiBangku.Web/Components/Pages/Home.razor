@@ -1,27 +1,239 @@
 @page "/"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
 
-<PageTitle>SiBangku - Platform Reservasi Meja Multi-Tenant</PageTitle>
+<PageTitle>SiBangku - Platform Reservasi Meja Restoran Multi-Tenant SaaS</PageTitle>
 
-<div class="container py-5">
-    <div class="row align-items-center g-5 py-5">
-        <div class="col-lg-6">
-            <h1 class="display-4 fw-bold lh-1 mb-3 text-primary">SiBangku</h1>
-            <p class="lead">Platform reservasi meja restoran multi-tenant SaaS yang tangguh, aman, dan dapat disesuaikan untuk bisnis kuliner Anda. Dibuat dengan arsitektur C# .NET 9 modern.</p>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
-                <a href="/booking" class="btn btn-primary btn-lg px-4 me-md-2">Reservasi Meja Resto</a>
-                <a href="/control-admin" class="btn btn-outline-secondary btn-lg px-4">Portal Control Plane</a>
-            </div>
-        </div>
-        <div class="col-10 col-sm-8 col-lg-6">
-            <div class="card shadow p-4 bg-light border-0">
-                <h4 class="fw-bold mb-3">Fitur Utama Platform:</h4>
-                <ul class="list-unstyled">
-                    <li class="mb-2">✔️ **Multi-Tenant Database Isolation**: Setiap restoran memiliki database PostgreSQL sendiri untuk keamanan optimal.</li>
-                    <li class="mb-2">✔️ **Visual Table Builder**: Pengaturan tata letak meja visual yang responsif.</li>
-                    <li class="mb-2">✔️ **Auto-Cancel & Expiry Worker**: Batalkan reservasi tak berbayar dalam 15 menit secara otomatis.</li>
-                    <li class="mb-2">✔️ **White-Label Branding**: Sesuaikan tema warna, logo, dan jam operasional per restoran.</li>
-                </ul>
+<div class="container py-4 py-lg-5">
+    <!-- Hero Banner -->
+    <div class="ms-card border-0 mb-5 overflow-hidden position-relative" 
+         style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 45%, #312e81 100%); color: white; border-radius: var(--ms-radius-2xl); box-shadow: var(--ms-shadow-xl);">
+        
+        <!-- Decorative subtle background accents -->
+        <div style="position: absolute; right: -50px; top: -50px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+        <div style="position: absolute; left: 20%; bottom: -80px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+
+        <div class="p-4 p-md-5 position-relative" style="z-index: 2;">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3" 
+                         style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);">
+                        <span class="badge bg-primary px-2 py-1" style="font-size: 0.75rem;">v3.0.0</span>
+                        <span class="small fw-semibold text-white-50">C# .NET 9 • PostgreSQL Multi-Tenant Isolation</span>
+                    </div>
+
+                    <h1 class="display-5 fw-extrabold text-white mb-3" style="font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;">
+                        Reservasi Meja Restoran Modern & Terintegrasi
+                    </h1>
+                    <p class="lead text-white-50 mb-4" style="font-size: 1.1rem; max-width: 540px;">
+                        Platform reservasi multi-tenant white-label yang memudahkan pelanggan memesan meja secara real-time dan memberikan kontrol operasional penuh bagi pengelola restoran.
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(SearchError))
+                    {
+                        <div class="alert alert-danger border-0 rounded-3 small d-flex align-items-center gap-2 mb-3 py-2 px-3" style="max-width: 540px;">
+                            <i class="bi bi-exclamation-circle-fill fs-5"></i>
+                            <div>@SearchError</div>
+                        </div>
+                    }
+
+                    <!-- Fast Restaurant Code Finder Bar -->
+                    <div class="card p-2 border-0 shadow-lg mb-3" style="background: rgba(255, 255, 255, 0.98); border-radius: var(--ms-radius-xl); max-width: 580px;">
+                        <form @onsubmit="NavigateToBooking" class="d-flex flex-column flex-sm-row gap-2">
+                            <div class="ms-input-group flex-grow-1">
+                                <i class="bi bi-search ms-input-icon text-primary fs-5"></i>
+                                <input type="text" class="ms-form-control has-icon-left border-0 fw-bold text-uppercase fs-6" 
+                                       @bind="SearchTenantCode" 
+                                       placeholder="MASUKKAN KODE RESTORAN" 
+                                       style="background: transparent; letter-spacing: 0.5px;" />
+                            </div>
+                            <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg fw-bold text-nowrap shadow-sm">
+                                <span>Buka Portal Booking</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-white-50 small">
+                        <span>Masukkan kode unik outlet restoran untuk langsung melihat ketersediaan meja.</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-center d-none d-lg-block">
+                    <div class="p-4 rounded-4 text-start" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px);">
+                        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-light pb-2">
+                            <div>
+                                <span class="badge bg-primary px-2.5 py-1">
+                                    <i class="bi bi-shield-check me-1"></i> Multi-Tenant Ready
+                                </span>
+                                <h6 class="fw-bold text-white mt-2 mb-0">Pemesanan Meja Mandiri</h6>
+                                <small class="text-white-50">Sistem Reservasi Real-Time</small>
+                            </div>
+                            <div class="rounded-3 bg-white text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.4rem;">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                        </div>
+
+                        <!-- Info items preview -->
+                        <div class="row g-2 text-start small mb-3">
+                            <div class="col-6">
+                                <div class="p-2.5 rounded-3" style="background: rgba(255, 255, 255, 0.06);">
+                                    <span class="text-white-50 d-block" style="font-size: 0.7rem;">SISTEM BOOKING</span>
+                                    <strong class="text-white">
+                                        <i class="bi bi-calendar-check me-1 text-info"></i> Instan & Mandiri
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2.5 rounded-3" style="background: rgba(255, 255, 255, 0.06);">
+                                    <span class="text-white-50 d-block" style="font-size: 0.7rem;">ALOKASI MEJA</span>
+                                    <strong class="text-white">
+                                        <i class="bi bi-lightning-charge me-1 text-warning"></i> Real-Time Slot
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="/booking" class="ms-btn ms-btn-outline w-100 fw-bold border-0 bg-white text-primary">
+                            <span>Masuk ke Halaman Booking</span>
+                            <i class="bi bi-arrow-right-circle-fill ms-1"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- 3 Simple Steps for Guests -->
+    <div class="mb-5">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark mb-1">Alur Mudah Reservasi Meja Mandiri</h3>
+            <p class="text-muted small">Pesan meja tanpa antre, verifikasi instan dalam hitungan detik.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="ms-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">
+                        1
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Pilih Restoran & Tanggal</h5>
+                    <p class="text-muted small mb-0">
+                        Masukkan kode resto atau scan QR Code standee di restoran mitra. Tentukan tanggal kunjungan dan jumlah tamu Anda.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ms-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">
+                        2
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Pilih Slot Waktu Tersedia</h5>
+                    <p class="text-muted small mb-0">
+                        Sistem secara cerdas memeriksa ketersediaan kapasitas meja secara real-time dan mencegah double-booking.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ms-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle mb-3 fw-bold" style="width: 56px; height: 56px; font-size: 1.25rem;">
+                        3
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Dapatkan Tiket Reservasi</h5>
+                    <p class="text-muted small mb-0">
+                        Terima nomor booking resmi dan konfirmasi instan. Cukup tunjukkan tiket digital kepada resepsionis saat tiba.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Architecture Highlights -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-sm-6">
+            <div class="ms-stat-card h-100">
+                <div class="ms-stat-header">
+                    <h6 class="ms-stat-title">Database Terisolasi</h6>
+                    <div class="ms-stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-database-lock"></i>
+                    </div>
+                </div>
+                <div class="ms-stat-value text-primary fs-3">Multi-Tenant</div>
+                <p class="ms-stat-hint text-muted">Setiap restoran memiliki basis data fisik terpisah demi integritas dan keamanan standar industri.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="ms-stat-card h-100">
+                <div class="ms-stat-header">
+                    <h6 class="ms-stat-title">Peta Visual Meja</h6>
+                    <div class="ms-stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                </div>
+                <div class="ms-stat-value text-success fs-3">Koordinat X,Y</div>
+                <p class="ms-stat-hint text-muted">Dukungan tata letak meja visual absolut dengan rotasi sudut untuk pengalaman operasional staff yang akurat.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="ms-stat-card h-100">
+                <div class="ms-stat-header">
+                    <h6 class="ms-stat-title">Worker Scheduler</h6>
+                    <div class="ms-stat-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+                <div class="ms-stat-value text-warning fs-3">Auto-Release</div>
+                <p class="ms-stat-hint text-muted">Daemon worker .NET 9 membatalkan otomatis reservasi unpaid dalam 15 menit dan mengelola no-show.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="ms-stat-card h-100">
+                <div class="ms-stat-header">
+                    <h6 class="ms-stat-title">White-Label Branding</h6>
+                    <div class="ms-stat-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                </div>
+                <div class="ms-stat-value text-danger fs-3">Kustom Penuh</div>
+                <p class="ms-stat-hint text-muted">Restoran bebas menyesuaikan palet warna primer/sekunder, logo, font, jam buka, dan poster cetak QR.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Call to Action Box -->
+    <div class="ms-card border-0 p-4 p-md-5 text-center text-white" 
+         style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%); border-radius: var(--ms-radius-2xl);">
+        <div class="d-inline-flex align-items-center justify-content-center bg-white text-primary rounded-circle shadow-sm mb-3" style="width: 56px; height: 56px; font-size: 1.6rem;">
+            <i class="bi bi-calendar2-check-fill"></i>
+        </div>
+        <h3 class="fw-extrabold mb-2">Siap Menikmati Hidangan Favorit Anda?</h3>
+        <p class="text-white-50 small mb-4" style="max-width: 520px; margin: 0 auto;">
+            Pilih restoran mitra favorit Anda, tentukan slot jam kedatangan, dan nikmati kemudahan reservasi meja tanpa antre.
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+            <a href="/booking" class="ms-btn ms-btn-primary ms-btn-lg fw-bold shadow-lg">
+                <i class="bi bi-calendar-check-fill me-1"></i> Pesan Meja Sekarang
+            </a>
+        </div>
+    </div>
 </div>
+
+@code {
+    private string SearchTenantCode = "";
+    private string? SearchError;
+
+    private void NavigateToBooking()
+    {
+        SearchError = null;
+        if (string.IsNullOrWhiteSpace(SearchTenantCode))
+        {
+            SearchError = "Harap masukkan kode resto tujuan Anda.";
+            return;
+        }
+
+        Navigation.NavigateTo($"/booking?tenant={SearchTenantCode.Trim().ToUpperInvariant()}");
+    }
+}
