@@ -19,6 +19,7 @@ namespace SiBangku.ControlApi.Services
         public string TenantName { get; set; } = string.Empty;
         public string RestaurantName { get; set; } = string.Empty;
         public string AdminEmail { get; set; } = string.Empty;
+        public string? AdminPassword { get; set; }
         public int TrialDays { get; set; } = 60;
     }
 
@@ -53,7 +54,9 @@ namespace SiBangku.ControlApi.Services
             var packageId = Utils.GeneratePackageId(tenantSlug);
             var webIdentifier = $"{tenantSlug}.sibangku.example";
             var apkIdentifier = packageId;
-            var temporaryPassword = Utils.GenerateTemporaryPassword();
+            var temporaryPassword = !string.IsNullOrWhiteSpace(paramsDto.AdminPassword) && paramsDto.AdminPassword.Trim().Length >= 5
+                ? paramsDto.AdminPassword.Trim()
+                : Utils.GenerateTemporaryPassword();
 
             Console.WriteLine($"[Provisioner] Starting C# provisioning for {paramsDto.TenantName} (ID: {tenantId}, DB: {dbName})");
 
@@ -190,7 +193,7 @@ namespace SiBangku.ControlApi.Services
 
             var audit = new AuditLog
             {
-                Id = $"audit-{tenantId}-{now.Ticks}",
+                Id = $"aud-{Guid.NewGuid():N}",
                 TenantId = tenantId,
                 Action = "provision tenant",
                 UserId = "system-api",

@@ -232,7 +232,7 @@ app.MapPut("/api/v1/auth/profile", [Authorize(Roles = "SUPER_ADMIN")] async (Htt
 
     var audit = new AuditLog
     {
-        Id = $"audit-prof-{userId}-{DateTime.UtcNow.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = "platform",
         Action = "update platform profile",
         UserId = user.Email,
@@ -279,7 +279,7 @@ app.MapPost("/api/v1/auth/change-password", [Authorize(Roles = "SUPER_ADMIN")] a
     
     var audit = new AuditLog
     {
-        Id = $"audit-pw-{userId}-{DateTime.UtcNow.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = "platform",
         Action = "change platform password",
         UserId = user.Email,
@@ -345,7 +345,7 @@ app.MapPost("/api/v1/internal/admin/create-or-reset", async (HttpContext context
 
     var audit = new AuditLog
     {
-        Id = $"audit-master-{DateTime.UtcNow.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = "platform",
         Action = "master key create/update admin",
         UserId = username,
@@ -376,6 +376,49 @@ app.MapGet("/api/v1/internal/admin/list", async (HttpContext context, ControlDbC
 
     var list = await db.PlatformUsers.OrderByDescending(u => u.CreatedAt).ToListAsync();
     return Results.Ok(new { success = true, data = list });
+});
+
+app.MapPost("/api/v1/internal/tenant/reset-password", async (HttpContext context, ControlDbContext db, IConfiguration config) =>
+{
+    var expectedKey = config["JWT_SECRET"] ?? "super_secret_jwt_key_platform_admin_2026";
+    var providedKey = context.Request.Headers["X-Master-Key"].FirstOrDefault();
+
+    if (string.IsNullOrWhiteSpace(providedKey) || providedKey != expectedKey)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Akses ditolak. Master Key tidak valid." } }, statusCode: 403);
+    }
+
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var tenantCode = document.RootElement.TryGetProperty("tenantCode", out var tcp) ? tcp.GetString()?.Trim().ToUpperInvariant() : null;
+    var newPassword = document.RootElement.TryGetProperty("newPassword", out var np) ? np.GetString() : null;
+
+    if (string.IsNullOrWhiteSpace(tenantCode) || string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 5)
+    {
+        return Results.Json(new { success = false, error = new { code = "INVALID_REQUEST", message = "Kode tenant dan kata sandi baru (min 5 karakter) wajib diisi." } }, statusCode: 400);
+    }
+
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantCode == tenantCode);
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = $"Tenant dengan kode '{tenantCode}' tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var controlConn = config["CONTROL_DATABASE_URL"] ?? "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+    var builder = new NpgsqlConnectionStringBuilder(controlConn) { Database = tenant.DatabaseIdentifier };
+    var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(builder.ConnectionString).Options;
+    
+    await using var tenantDb = new TenantDbContext(tenantOptions);
+    var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN");
+    if (adminUser == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "USER_NOT_FOUND", message = "Pengguna admin tidak ditemukan di database tenant." } }, statusCode: 404);
+    }
+
+    adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+    adminUser.MustChangePassword = false;
+    await tenantDb.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, message = $"Kata sandi untuk admin resto '{tenant.RestaurantName}' ({adminUser.Email}) berhasil diperbarui.", adminEmail = adminUser.Email });
 });
 
 // --- Tenant Management Routes (Admin protected) ---
@@ -425,7 +468,7 @@ app.MapPatch("/api/v1/tenants/{id}/status", [Authorize(Roles = "SUPER_ADMIN")] a
 
     var audit = new AuditLog
     {
-        Id = $"audit-status-{id}-{DateTime.UtcNow.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = id,
         Action = "update tenant status",
         UserId = "system-api",
@@ -458,7 +501,7 @@ app.MapPatch("/api/v1/tenants/{id}/extend-trial", [Authorize(Roles = "SUPER_ADMI
 
     var audit = new AuditLog
     {
-        Id = $"audit-trial-{id}-{DateTime.UtcNow.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = id,
         Action = "extend trial",
         UserId = "system-api",
@@ -470,6 +513,70 @@ app.MapPatch("/api/v1/tenants/{id}/extend-trial", [Authorize(Roles = "SUPER_ADMI
     await db.SaveChangesAsync();
 
     return Results.Ok(new { success = true, data = tenant });
+});
+
+app.MapPost("/api/v1/tenants/{id}/reset-password", [Authorize(Roles = "SUPER_ADMIN")] async (string id, HttpContext context, ControlDbContext db, IConfiguration config) =>
+{
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var newPassword = document.RootElement.TryGetProperty("newPassword", out var np) ? np.GetString() : null;
+    if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 5)
+    {
+        return Results.Json(new { success = false, error = new { code = "INVALID_PASSWORD", message = "Kata sandi baru minimal harus 5 karakter." } }, statusCode: 400);
+    }
+
+    var tenant = await db.Tenants.FindAsync(id);
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var controlConn = controlDbUrl;
+    var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(controlConn) { Database = tenant.DatabaseIdentifier };
+    var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(connBuilder.ConnectionString).Options;
+    
+    await using var tenantDb = new TenantDbContext(tenantOptions);
+    var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN");
+    if (adminUser == null)
+    {
+        adminUser = await tenantDb.Users.FirstOrDefaultAsync();
+    }
+    
+    if (adminUser == null)
+    {
+        adminUser = new User
+        {
+            UserId = "tenant-admin-" + Guid.NewGuid().ToString("N")[..8],
+            TenantId = tenant.TenantId,
+            Email = $"admin@{tenant.TenantCode.ToLowerInvariant()}.com",
+            Name = "Restaurant Owner",
+            Role = "TENANT_ADMIN",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10),
+            MustChangePassword = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        await tenantDb.Users.AddAsync(adminUser);
+    }
+    else
+    {
+        adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+        adminUser.MustChangePassword = false;
+    }
+    
+    await tenantDb.SaveChangesAsync();
+
+    var audit = new AuditLog
+    {
+        Id = $"aud-{Guid.NewGuid():N}",
+        TenantId = id,
+        Action = "reset tenant admin password",
+        UserId = "super-admin",
+        Details = $"{{\"tenantCode\":\"{tenant.TenantCode}\",\"adminEmail\":\"{adminUser.Email}\"}}",
+        CreatedAt = DateTime.UtcNow
+    };
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, message = $"Kata sandi untuk admin tenant '{tenant.RestaurantName}' ({adminUser.Email}) berhasil diubah.", adminEmail = adminUser.Email });
 });
 
 app.MapDelete("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (string id, ControlDbContext db) =>
@@ -525,7 +632,7 @@ app.MapDelete("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (
 
         var audit = new AuditLog
         {
-            Id = $"audit-destroy-{id}-{DateTime.UtcNow.Ticks}",
+            Id = $"aud-{Guid.NewGuid():N}",
             TenantId = id,
             Action = "destroy tenant",
             UserId = "system-api",
@@ -564,7 +671,7 @@ app.MapPost("/api/v1/subscriptions", [Authorize(Roles = "SUPER_ADMIN")] async (S
     }
 
     // Save new subscription
-    var subId = $"sub-{tenant.TenantId}-{now.Ticks}";
+    var subId = $"sub-{Guid.NewGuid():N}";
     subDto.Id = subId;
     subDto.Status = "ACTIVE";
     subDto.CreatedAt = now;
@@ -581,7 +688,7 @@ app.MapPost("/api/v1/subscriptions", [Authorize(Roles = "SUPER_ADMIN")] async (S
 
     var audit = new AuditLog
     {
-        Id = $"audit-sub-{tenant.TenantId}-{now.Ticks}",
+        Id = $"aud-{Guid.NewGuid():N}",
         TenantId = tenant.TenantId,
         Action = "activate subscription",
         UserId = "system-api",

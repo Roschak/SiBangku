@@ -1,74 +1,78 @@
 @charset "UTF-8";
 
 /* ==========================================================================
-   SiBangku Management System UI Kit (Enterprise Grade)
-   Polished, modern styling for Multi-Tenant Restaurant Booking Platform
+   SiBangku Management System - Enterprise B2B SaaS & High-End Hospitality
+   Aesthetic Direction: Restraint Luxury, Editorial, Architectural, Data-Dense.
+   Dark-Mode First Design System.
    ========================================================================== */
 
 :root {
     --ms-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --ms-font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
 
-    /* Base Palette */
-    --ms-primary: #4f46e5;
-    --ms-primary-rgb: 79, 70, 229;
-    --ms-primary-hover: #4338ca;
-    --ms-primary-light: #eef2ff;
-    --ms-primary-border: #c7d2fe;
-    
-    --ms-secondary: #0ea5e9;
-    --ms-secondary-light: #f0f9ff;
-    --ms-secondary-border: #bae6fd;
+    /* Surface & Background Tokens */
+    --ms-surface-dark: #0A0D14;
+    --ms-surface-card: #111827;
+    --ms-surface-elevated: #161F30;
+    --ms-surface-input: #0D111C;
+    --ms-surface-hover: #1E293B;
 
-    --ms-success: #10b981;
-    --ms-success-light: #ecfdf5;
-    --ms-success-border: #a7f3d0;
+    /* Border & Divider Tokens */
+    --ms-border: #1F2937;
+    --ms-border-subtle: #192231;
+    --ms-border-focus: #6366F1;
+    --ms-border-gold: #D97706;
 
-    --ms-warning: #f59e0b;
-    --ms-warning-light: #fffbeb;
-    --ms-warning-border: #fde68a;
+    /* Accent Palette */
+    --ms-primary: #6366F1;
+    --ms-primary-hover: #4F46E5;
+    --ms-primary-subtle: rgba(99, 102, 241, 0.12);
+    --ms-primary-border: rgba(99, 102, 241, 0.3);
 
-    --ms-danger: #ef4444;
-    --ms-danger-light: #fef2f2;
-    --ms-danger-border: #fecaca;
+    --ms-gold: #F59E0B;
+    --ms-gold-hover: #D97706;
+    --ms-gold-subtle: rgba(245, 158, 11, 0.12);
+    --ms-gold-border: rgba(245, 158, 11, 0.3);
 
-    --ms-info: #06b6d4;
-    --ms-info-light: #ecfeff;
-    --ms-info-border: #a5f3fc;
+    /* Text Hierarchy */
+    --ms-text-main: #F9FAFB;
+    --ms-text-muted: #9CA3AF;
+    --ms-text-dim: #6B7280;
 
-    --ms-dark: #0f172a;
-    --ms-slate-950: #090d16;
-    --ms-slate-900: #0f172a;
-    --ms-slate-800: #1e293b;
-    --ms-slate-700: #334155;
-    --ms-slate-600: #475569;
-    --ms-slate-500: #64748b;
-    --ms-slate-400: #94a3b8;
-    --ms-slate-300: #cbd5e1;
-    --ms-slate-200: #e2e8f0;
-    --ms-slate-100: #f1f5f9;
-    --ms-slate-50: #f8fafc;
+    /* Status Tokens (Subtle & Muted) */
+    --ms-success: #10B981;
+    --ms-success-subtle: rgba(16, 185, 129, 0.12);
+    --ms-success-border: rgba(16, 185, 129, 0.3);
 
-    --ms-body-bg: #f8fafc;
-    --ms-body-color: #334155;
-    --ms-card-bg: #ffffff;
-    --ms-border-color: #e2e8f0;
+    --ms-warning: #F59E0B;
+    --ms-warning-subtle: rgba(245, 158, 11, 0.12);
+    --ms-warning-border: rgba(245, 158, 11, 0.3);
 
-    /* Shadows */
-    --ms-shadow-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
-    --ms-shadow-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.1), 0 1px 2px 0 rgba(16, 24, 40, 0.06);
-    --ms-shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
-    --ms-shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
-    --ms-shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+    --ms-danger: #EF4444;
+    --ms-danger-subtle: rgba(239, 68, 68, 0.12);
+    --ms-danger-border: rgba(239, 68, 68, 0.3);
 
-    /* Radius */
+    --ms-info: #0EA5E9;
+    --ms-info-subtle: rgba(14, 165, 233, 0.12);
+    --ms-info-border: rgba(14, 165, 233, 0.3);
+
+    /* Architectural Radii */
     --ms-radius-xs: 4px;
-    --ms-radius-sm: 8px;
-    --ms-radius-md: 12px;
-    --ms-radius-lg: 16px;
-    --ms-radius-xl: 22px;
-    --ms-radius-2xl: 28px;
+    --ms-radius-sm: 6px;
+    --ms-radius-md: 8px;
+    --ms-radius-lg: 10px;
+    --ms-radius-xl: 12px;
     --ms-radius-full: 9999px;
+
+    /* Shadows (Flat & Crisp) */
+    --ms-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --ms-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.7);
+
+    /* Global Body variables */
+    --ms-body-bg: var(--ms-surface-dark);
+    --ms-body-color: var(--ms-text-main);
+    --ms-card-bg: var(--ms-surface-card);
+    --ms-border-color: var(--ms-border);
 }
 
 *, *::before, *::after {
@@ -77,10 +81,11 @@
 
 html, body {
     font-family: var(--ms-font-sans);
-    background-color: var(--ms-body-bg);
-    color: var(--ms-body-color);
+    background-color: var(--ms-surface-dark);
+    color: var(--ms-text-main);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -90,84 +95,107 @@ code, pre, .font-mono {
     font-family: var(--ms-font-mono) !important;
 }
 
-/* Links & General */
+/* Links */
 a {
     color: var(--ms-primary);
     text-decoration: none;
-    transition: color 0.15s ease-in-out;
+    transition: color 0.15s ease;
 }
 a:hover {
-    color: var(--ms-primary-hover);
+    color: #818CF8;
 }
 
-/* Public Customer Portal Navbar */
+/* Subtle Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--ms-surface-dark);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--ms-border);
+    border-radius: var(--ms-radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ms-text-dim);
+}
+
+/* ==========================================================================
+   Public Header & Navigation
+   ========================================================================== */
 .ms-public-navbar {
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--ms-border-color);
+    background-color: rgba(10, 13, 20, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--ms-border);
     position: sticky;
     top: 0;
     z-index: 1020;
-    transition: all 0.2s ease;
 }
 
 .ms-public-brand {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-weight: 800;
-    font-size: 1.35rem;
-    color: var(--ms-slate-900);
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--ms-text-main);
     letter-spacing: -0.02em;
     text-decoration: none;
 }
 .ms-public-brand:hover {
-    color: var(--ms-primary);
+    color: var(--ms-text-main);
 }
 .ms-public-brand-badge {
-    font-size: 0.65rem;
-    font-weight: 700;
+    font-family: var(--ms-font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
     padding: 0.2rem 0.5rem;
-    border-radius: var(--ms-radius-full);
-    background: var(--ms-primary-light);
+    border-radius: var(--ms-radius-sm);
+    background: var(--ms-primary-subtle);
     color: var(--ms-primary);
-    text-transform: uppercase;
+    border: 1px solid var(--ms-primary-border);
     letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 .ms-public-nav-link {
-    font-size: 0.925rem;
-    font-weight: 600;
-    color: var(--ms-slate-600);
-    padding: 0.5rem 0.9rem;
-    border-radius: var(--ms-radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ms-text-muted);
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--ms-radius-sm);
     transition: all 0.15s ease;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     text-decoration: none;
 }
 .ms-public-nav-link:hover {
-    color: var(--ms-primary);
-    background-color: var(--ms-primary-light);
+    color: var(--ms-text-main);
+    background-color: var(--ms-surface-elevated);
 }
 .ms-public-nav-link.active {
-    color: var(--ms-primary);
-    background-color: var(--ms-primary-light);
+    color: var(--ms-text-main);
+    background-color: var(--ms-surface-elevated);
+    border: 1px solid var(--ms-border);
 }
 
-/* Admin / Management Layout */
+/* ==========================================================================
+   Admin Workspace Layout (B2B Control & Tenant)
+   ========================================================================== */
 .ms-admin-wrapper {
     display: flex;
     min-height: 100vh;
     width: 100%;
+    background-color: var(--ms-surface-dark);
 }
 
 .ms-sidebar {
-    width: 270px;
-    background-color: var(--ms-slate-900);
-    color: #fff;
+    width: 260px;
+    background-color: #0B0F19;
+    color: var(--ms-text-main);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -175,72 +203,76 @@ a:hover {
     top: 0;
     height: 100vh;
     z-index: 1000;
-    border-right: 1px solid var(--ms-slate-800);
-    transition: width 0.2s ease;
+    border-right: 1px solid var(--ms-border);
 }
 
 .ms-sidebar-brand {
-    padding: 1.5rem 1.25rem;
+    padding: 1.25rem 1.15rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid var(--ms-slate-800);
+    border-bottom: 1px solid var(--ms-border);
 }
 .ms-sidebar-brand-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: var(--ms-radius-md);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--ms-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    background: linear-gradient(135deg, var(--ms-primary), #6366f1);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    font-size: 1.1rem;
+    background: var(--ms-surface-elevated);
+    border: 1px solid var(--ms-border);
+    color: var(--ms-primary);
 }
 .ms-sidebar-brand-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ms-text-main);
     line-height: 1.2;
     margin: 0;
+    letter-spacing: -0.01em;
 }
 .ms-sidebar-brand-subtitle {
-    font-size: 0.725rem;
-    color: var(--ms-slate-400);
+    font-family: var(--ms-font-mono);
+    font-size: 0.68rem;
+    color: var(--ms-text-muted);
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .ms-sidebar-nav {
     flex: 1;
     overflow-y: auto;
-    padding: 1.25rem 0.85rem;
+    padding: 1rem 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.25rem;
 }
 
 .ms-sidebar-section-title {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-family: var(--ms-font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--ms-slate-500);
-    padding: 0.75rem 0.75rem 0.35rem 0.75rem;
-    margin-top: 0.5rem;
+    color: var(--ms-text-dim);
+    padding: 0.65rem 0.65rem 0.25rem 0.65rem;
+    margin-top: 0.4rem;
 }
 
 .ms-sidebar-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.7rem 0.85rem;
-    color: var(--ms-slate-400);
-    font-size: 0.885rem;
-    font-weight: 600;
-    border-radius: var(--ms-radius-md);
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    color: var(--ms-text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: var(--ms-radius-sm);
     cursor: pointer;
-    border: none;
+    border: 1px solid transparent;
     background: transparent;
     width: 100%;
     text-align: left;
@@ -248,24 +280,30 @@ a:hover {
     text-decoration: none;
 }
 .ms-sidebar-item:hover {
-    color: #fff;
-    background-color: var(--ms-slate-800);
+    color: var(--ms-text-main);
+    background-color: var(--ms-surface-elevated);
+    border-color: var(--ms-border);
 }
 .ms-sidebar-item.active {
-    color: #fff;
-    background: linear-gradient(135deg, var(--ms-primary), var(--ms-primary-hover));
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    color: var(--ms-text-main);
+    background-color: var(--ms-surface-elevated);
+    border-color: var(--ms-border);
+    font-weight: 600;
+}
+.ms-sidebar-item.active i {
+    color: var(--ms-primary);
 }
 .ms-sidebar-item i {
-    font-size: 1.15rem;
-    width: 22px;
+    font-size: 1rem;
+    width: 20px;
     text-align: center;
+    color: var(--ms-text-dim);
 }
 
 .ms-sidebar-footer {
-    padding: 1.25rem;
-    border-top: 1px solid var(--ms-slate-800);
-    background-color: rgba(15, 23, 42, 0.6);
+    padding: 1rem 1.15rem;
+    border-top: 1px solid var(--ms-border);
+    background-color: #080B12;
 }
 
 .ms-admin-main {
@@ -273,14 +311,14 @@ a:hover {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background-color: var(--ms-body-bg);
+    background-color: var(--ms-surface-dark);
 }
 
 .ms-admin-topbar {
-    height: 68px;
-    background-color: #fff;
-    border-bottom: 1px solid var(--ms-border-color);
-    padding: 0 2rem;
+    height: 60px;
+    background-color: var(--ms-surface-dark);
+    border-bottom: 1px solid var(--ms-border);
+    padding: 0 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -290,7 +328,7 @@ a:hover {
 }
 
 .ms-admin-content {
-    padding: 2rem;
+    padding: 1.75rem;
     flex: 1;
 }
 
@@ -311,264 +349,276 @@ a:hover {
     }
 }
 
-/* Management System UI Kit Cards */
+/* ==========================================================================
+   Cards & Panels (Architectural & Data-Dense)
+   ========================================================================== */
 .ms-card {
-    background-color: #fff;
-    border-radius: var(--ms-radius-lg);
-    border: 1px solid var(--ms-border-color);
-    box-shadow: var(--ms-shadow-xs);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    background-color: var(--ms-surface-card);
+    border-radius: var(--ms-radius-md);
+    border: 1px solid var(--ms-border);
+    box-shadow: var(--ms-shadow-card);
     overflow: hidden;
-}
-.ms-card:hover {
-    box-shadow: var(--ms-shadow-sm);
+    color: var(--ms-text-main);
 }
 
 .ms-card-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--ms-border-color);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--ms-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff;
+    background-color: var(--ms-surface-card);
 }
 .ms-card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--ms-slate-900);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ms-text-main);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    letter-spacing: -0.01em;
 }
 .ms-card-body {
-    padding: 1.5rem;
+    padding: 1.25rem;
 }
 
-/* Stat Cards */
+/* Stat Cards (Data-Dense) */
 .ms-stat-card {
-    background: #fff;
-    border-radius: var(--ms-radius-lg);
-    border: 1px solid var(--ms-border-color);
-    padding: 1.35rem 1.5rem;
-    box-shadow: var(--ms-shadow-xs);
+    background-color: var(--ms-surface-card);
+    border-radius: var(--ms-radius-md);
+    border: 1px solid var(--ms-border);
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--ms-shadow-card);
     position: relative;
-    overflow: hidden;
-    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: border-color 0.15s ease;
 }
 .ms-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--ms-shadow-md);
-    border-color: var(--ms-slate-300);
+    border-color: var(--ms-text-dim);
 }
 .ms-stat-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 .ms-stat-title {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-family: var(--ms-font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--ms-slate-500);
+    letter-spacing: 0.08em;
+    color: var(--ms-text-muted);
     margin: 0;
 }
 .ms-stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--ms-radius-md);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--ms-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.35rem;
+    font-size: 1.1rem;
+    background: var(--ms-surface-elevated);
+    border: 1px solid var(--ms-border);
+    color: var(--ms-primary);
 }
 .ms-stat-value {
-    font-size: 1.85rem;
-    font-weight: 800;
-    color: var(--ms-slate-900);
+    font-family: var(--ms-font-sans);
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--ms-text-main);
     line-height: 1.1;
-    margin: 0 0 0.4rem 0;
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.02em;
 }
 .ms-stat-hint {
     font-size: 0.775rem;
-    color: var(--ms-slate-500);
+    color: var(--ms-text-dim);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.35rem;
 }
 
-/* Buttons */
+/* ==========================================================================
+   Buttons (Crisp 6px Edges, Solid High-Contrast)
+   ========================================================================== */
 .ms-btn {
     font-family: var(--ms-font-sans);
-    font-size: 0.885rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    padding: 0.625rem 1.25rem;
-    border-radius: var(--ms-radius-md);
+    padding: 0.55rem 1rem;
+    border-radius: var(--ms-radius-sm);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
     cursor: pointer;
     transition: all 0.15s ease;
     border: 1px solid transparent;
     text-decoration: none;
-    line-height: 1.35;
+    line-height: 1.25;
 }
 .ms-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .ms-btn-primary {
     background-color: var(--ms-primary);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+    color: #FFFFFF;
+    border-color: var(--ms-primary);
 }
 .ms-btn-primary:hover:not(:disabled) {
     background-color: var(--ms-primary-hover);
-    color: #fff;
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    border-color: var(--ms-primary-hover);
+    color: #FFFFFF;
+}
+
+.ms-btn-gold {
+    background-color: var(--ms-gold);
+    color: #0A0D14;
+    border-color: var(--ms-gold);
+    font-weight: 700;
+}
+.ms-btn-gold:hover:not(:disabled) {
+    background-color: var(--ms-gold-hover);
+    border-color: var(--ms-gold-hover);
+    color: #0A0D14;
 }
 
 .ms-btn-secondary {
-    background-color: var(--ms-slate-100);
-    color: var(--ms-slate-700);
-    border-color: var(--ms-slate-200);
+    background-color: var(--ms-surface-elevated);
+    color: var(--ms-text-main);
+    border-color: var(--ms-border);
 }
 .ms-btn-secondary:hover:not(:disabled) {
-    background-color: var(--ms-slate-200);
-    color: var(--ms-slate-900);
+    background-color: var(--ms-surface-hover);
+    border-color: var(--ms-text-dim);
+    color: var(--ms-text-main);
 }
 
 .ms-btn-outline {
-    background-color: #fff;
-    color: var(--ms-slate-700);
-    border-color: var(--ms-slate-300);
+    background-color: transparent;
+    color: var(--ms-text-muted);
+    border-color: var(--ms-border);
 }
 .ms-btn-outline:hover:not(:disabled) {
-    background-color: var(--ms-slate-50);
-    border-color: var(--ms-slate-400);
-    color: var(--ms-slate-900);
-}
-
-.ms-btn-success {
-    background-color: var(--ms-success);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-}
-.ms-btn-success:hover:not(:disabled) {
-    background-color: #059669;
-    color: #fff;
+    background-color: var(--ms-surface-elevated);
+    border-color: var(--ms-text-dim);
+    color: var(--ms-text-main);
 }
 
 .ms-btn-danger {
     background-color: var(--ms-danger);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    color: #FFFFFF;
+    border-color: var(--ms-danger);
 }
 .ms-btn-danger:hover:not(:disabled) {
-    background-color: #dc2626;
-    color: #fff;
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: #FFFFFF;
 }
 
 .ms-btn-sm {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.775rem;
     border-radius: var(--ms-radius-sm);
 }
 .ms-btn-lg {
-    padding: 0.85rem 1.75rem;
-    font-size: 1rem;
-    border-radius: var(--ms-radius-lg);
+    padding: 0.75rem 1.4rem;
+    font-size: 0.95rem;
+    border-radius: var(--ms-radius-sm);
 }
 
-/* Badges */
+/* ==========================================================================
+   Badges (Micro Monospace Tags)
+   ========================================================================== */
 .ms-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.3rem 0.65rem;
-    border-radius: var(--ms-radius-full);
+    font-family: var(--ms-font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--ms-radius-xs);
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     line-height: 1;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
 }
 .ms-badge-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     display: inline-block;
 }
 
 .ms-badge-success {
-    background-color: var(--ms-success-light);
-    color: #065f46;
+    background-color: var(--ms-success-subtle);
+    color: #34D399;
     border: 1px solid var(--ms-success-border);
 }
-.ms-badge-success .ms-badge-dot { background-color: var(--ms-success); }
+.ms-badge-success .ms-badge-dot { background-color: #10B981; }
 
 .ms-badge-warning {
-    background-color: var(--ms-warning-light);
-    color: #92400e;
+    background-color: var(--ms-warning-subtle);
+    color: #FBBF24;
     border: 1px solid var(--ms-warning-border);
 }
-.ms-badge-warning .ms-badge-dot { background-color: var(--ms-warning); }
+.ms-badge-warning .ms-badge-dot { background-color: #F59E0B; }
 
 .ms-badge-danger {
-    background-color: var(--ms-danger-light);
-    color: #991b1b;
+    background-color: var(--ms-danger-subtle);
+    color: #F87171;
     border: 1px solid var(--ms-danger-border);
 }
-.ms-badge-danger .ms-badge-dot { background-color: var(--ms-danger); }
+.ms-badge-danger .ms-badge-dot { background-color: #EF4444; }
 
 .ms-badge-primary {
-    background-color: var(--ms-primary-light);
-    color: #3730a3;
+    background-color: var(--ms-primary-subtle);
+    color: #A5B4FC;
     border: 1px solid var(--ms-primary-border);
 }
-.ms-badge-primary .ms-badge-dot { background-color: var(--ms-primary); }
+.ms-badge-primary .ms-badge-dot { background-color: #6366F1; }
 
 .ms-badge-neutral {
-    background-color: var(--ms-slate-100);
-    color: var(--ms-slate-700);
-    border: 1px solid var(--ms-slate-200);
+    background-color: var(--ms-surface-elevated);
+    color: var(--ms-text-muted);
+    border: 1px solid var(--ms-border);
 }
-.ms-badge-neutral .ms-badge-dot { background-color: var(--ms-slate-400); }
+.ms-badge-neutral .ms-badge-dot { background-color: var(--ms-text-dim); }
 
-/* Custom Sleek Alerts */
+/* ==========================================================================
+   Alerts (Dark Editorial Banners)
+   ========================================================================== */
 .ms-alert {
-    padding: 1rem 1.25rem;
+    padding: 0.85rem 1.15rem;
     border-radius: var(--ms-radius-md);
     display: flex;
     align-items: flex-start;
-    gap: 0.85rem;
-    margin-bottom: 1.25rem;
-    position: relative;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
     border: 1px solid transparent;
-    animation: msFadeIn 0.2s ease-out;
+    font-size: 0.85rem;
+    line-height: 1.45;
 }
 .ms-alert-icon {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     line-height: 1;
     flex-shrink: 0;
     margin-top: 1px;
 }
 .ms-alert-content {
     flex: 1;
-    font-size: 0.885rem;
-    line-height: 1.45;
 }
 .ms-alert-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    margin-bottom: 0.2rem;
+    font-weight: 600;
+    font-size: 0.885rem;
+    margin-bottom: 0.15rem;
 }
 .ms-alert-close {
     background: transparent;
@@ -577,7 +627,7 @@ a:hover {
     color: inherit;
     opacity: 0.6;
     padding: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: opacity 0.15s ease;
 }
 .ms-alert-close:hover {
@@ -585,121 +635,120 @@ a:hover {
 }
 
 .ms-alert-danger {
-    background-color: #fff5f5;
-    border-color: #fed7d7;
-    color: #9b2c2c;
+    background-color: rgba(239, 68, 68, 0.08);
+    border-color: var(--ms-danger-border);
+    color: #FCA5A5;
 }
-.ms-alert-danger .ms-alert-icon { color: #e53e3e; }
+.ms-alert-danger .ms-alert-icon { color: var(--ms-danger); }
 
 .ms-alert-success {
-    background-color: #f0fff4;
-    border-color: #c6f6d5;
-    color: #22543d;
+    background-color: rgba(16, 185, 129, 0.08);
+    border-color: var(--ms-success-border);
+    color: #6EE7B7;
 }
-.ms-alert-success .ms-alert-icon { color: #38a169; }
+.ms-alert-success .ms-alert-icon { color: var(--ms-success); }
 
 .ms-alert-warning {
-    background-color: #fffaf0;
-    border-color: #feebc8;
-    color: #7b341e;
+    background-color: rgba(245, 158, 11, 0.08);
+    border-color: var(--ms-warning-border);
+    color: #FCD34D;
 }
-.ms-alert-warning .ms-alert-icon { color: #dd6b20; }
+.ms-alert-warning .ms-alert-icon { color: var(--ms-warning); }
 
 .ms-alert-info {
-    background-color: #ebf8ff;
-    border-color: #bee3f8;
-    color: #2b6cb0;
+    background-color: rgba(14, 165, 233, 0.08);
+    border-color: var(--ms-info-border);
+    color: #7DD3FC;
 }
-.ms-alert-info .ms-alert-icon { color: #3182ce; }
+.ms-alert-info .ms-alert-icon { color: var(--ms-info); }
 
-@keyframes msFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Tables */
+/* ==========================================================================
+   Data Tables (Compact & Monospace Tracking)
+   ========================================================================== */
 .ms-table-container {
-    background: #fff;
-    border-radius: var(--ms-radius-lg);
-    border: 1px solid var(--ms-border-color);
-    box-shadow: var(--ms-shadow-xs);
-    overflow: hidden;
+    background-color: var(--ms-surface-card);
+    border-radius: var(--ms-radius-md);
+    border: 1px solid var(--ms-border);
+    box-shadow: var(--ms-shadow-card);
+    overflow-x: auto;
 }
 
 .ms-table {
     width: 100%;
     margin-bottom: 0;
-    color: var(--ms-slate-700);
+    color: var(--ms-text-main);
     vertical-align: middle;
     border-collapse: collapse;
 }
 .ms-table th {
-    background-color: var(--ms-slate-50);
-    color: var(--ms-slate-600);
-    font-size: 0.75rem;
-    font-weight: 700;
+    background-color: #0E1422;
+    color: var(--ms-text-muted);
+    font-family: var(--ms-font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.9rem 1.25rem;
-    border-bottom: 1px solid var(--ms-border-color);
+    letter-spacing: 0.06em;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--ms-border);
+    white-space: nowrap;
 }
 .ms-table td {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--ms-border-color);
-    font-size: 0.885rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--ms-border);
+    font-size: 0.85rem;
+    color: #E5E7EB;
 }
 .ms-table tbody tr {
-    transition: background-color 0.15s ease;
+    transition: background-color 0.1s ease;
 }
 .ms-table tbody tr:hover {
-    background-color: #fcfdfe;
+    background-color: var(--ms-surface-elevated);
 }
 .ms-table tbody tr:last-child td {
     border-bottom: none;
 }
 
-/* Forms & Inputs */
+/* ==========================================================================
+   Forms & Controls
+   ========================================================================== */
 .ms-form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
 }
 .ms-form-label {
     display: block;
-    font-size: 0.835rem;
-    font-weight: 700;
-    color: var(--ms-slate-700);
-    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ms-text-muted);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.01em;
 }
 .ms-form-control {
     width: 100%;
     font-family: var(--ms-font-sans);
-    font-size: 0.9rem;
-    padding: 0.65rem 0.95rem;
-    border-radius: var(--ms-radius-md);
-    border: 1.5px solid var(--ms-border-color);
-    background-color: #fff;
-    color: var(--ms-slate-800);
-    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--ms-radius-sm);
+    border: 1px solid var(--ms-border);
+    background-color: var(--ms-surface-input);
+    color: var(--ms-text-main);
+    transition: border-color 0.15s ease;
 }
 .ms-form-control:focus {
     border-color: var(--ms-primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 0 0 1px var(--ms-primary);
+    background-color: var(--ms-surface-input);
+    color: var(--ms-text-main);
 }
 .ms-form-control::placeholder {
-    color: var(--ms-slate-400);
+    color: var(--ms-text-dim);
 }
 .ms-form-control.is-invalid {
     border-color: var(--ms-danger);
-    background-color: #fffcfc;
+    background-color: rgba(239, 68, 68, 0.05);
 }
 .ms-form-control.is-invalid:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 0 0 1px var(--ms-danger);
 }
 
 .ms-input-group {
@@ -709,21 +758,21 @@ a:hover {
 }
 .ms-input-icon {
     position: absolute;
-    left: 0.95rem;
-    color: var(--ms-slate-400);
+    left: 0.85rem;
+    color: var(--ms-text-dim);
     pointer-events: none;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 .ms-input-group .ms-form-control.has-icon-left {
-    padding-left: 2.5rem;
+    padding-left: 2.35rem;
 }
 
-/* Time Slot Card */
+/* Time Slot Card (Architectural Grid) */
 .ms-slot-card {
-    border: 1.5px solid var(--ms-border-color);
-    border-radius: var(--ms-radius-md);
-    background-color: #fff;
-    padding: 0.85rem;
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius-sm);
+    background-color: var(--ms-surface-card);
+    padding: 0.75rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -731,60 +780,99 @@ a:hover {
 }
 .ms-slot-card:hover:not(.disabled) {
     border-color: var(--ms-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--ms-shadow-sm);
+    background-color: var(--ms-surface-elevated);
 }
 .ms-slot-card.selected {
     border-color: var(--ms-primary);
-    background-color: var(--ms-primary-light);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    background-color: var(--ms-primary-subtle);
+    box-shadow: 0 0 0 1px var(--ms-primary);
 }
 .ms-slot-card.disabled {
-    opacity: 0.45;
-    background-color: var(--ms-slate-100);
+    opacity: 0.4;
+    background-color: var(--ms-surface-input);
     cursor: not-allowed;
-    border-color: var(--ms-slate-200);
+    border-color: var(--ms-border-subtle);
 }
 
 /* Standee QR Poster */
 .ms-poster-card {
-    max-width: 440px;
-    background: #fff;
-    border-radius: var(--ms-radius-xl);
-    border: 4px solid var(--ms-primary);
-    box-shadow: var(--ms-shadow-xl);
-    padding: 2.5rem 2rem;
+    max-width: 420px;
+    background: #FFFFFF;
+    color: #0A0D14;
+    border-radius: var(--ms-radius-md);
+    border: 2px solid var(--ms-primary);
+    box-shadow: var(--ms-shadow-popover);
+    padding: 2.25rem 1.75rem;
     text-align: center;
     margin: 0 auto;
 }
 
-/* Modal Overlay */
+/* Modals & Dialogs (Dark Architectural System) */
 .ms-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(4px);
+    background: rgba(5, 7, 12, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 2000;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
-    animation: msFadeIn 0.15s ease-out;
+    padding: 1.25rem;
 }
 .ms-modal-card {
-    background: #fff;
-    border-radius: var(--ms-radius-xl);
-    border: 1px solid var(--ms-border-color);
-    box-shadow: var(--ms-shadow-xl);
+    background-color: var(--ms-surface-card);
+    border-radius: var(--ms-radius-lg);
+    border: 1px solid var(--ms-border);
+    box-shadow: var(--ms-shadow-popover);
     width: 100%;
     max-width: 520px;
     overflow: hidden;
+    animation: msModalIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ms-modal-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background-color: var(--ms-surface-elevated);
+}
+.ms-modal-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ms-text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.ms-modal-body {
+    padding: 1.5rem;
+    color: var(--ms-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    background-color: var(--ms-surface-card);
+}
+.ms-modal-footer {
+    padding: 1rem 1.5rem;
+    background-color: var(--ms-surface-elevated);
+    border-top: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+@keyframes msModalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Print Styles */
+/* Print */
 @media print {
     body * {
         visibility: hidden;

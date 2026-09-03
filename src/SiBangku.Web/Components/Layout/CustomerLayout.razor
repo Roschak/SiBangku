@@ -1,33 +1,34 @@
 @inherits LayoutComponentBase
 
-<div class="d-flex flex-column min-vh-100">
-    <!-- Clean Customer / Visitor Header -->
-    <header class="ms-public-navbar py-2 px-3 px-lg-4">
-        <div class="container-fluid d-flex align-items-center justify-content-between">
+<div class="d-flex flex-column min-vh-100" style="background-color: var(--ms-surface-dark);">
+    <!-- Editorial Architectural Navigation Bar -->
+    <header class="ms-public-navbar py-2.5 px-3 px-lg-4">
+        <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-4">
                 <a href="/" class="ms-public-brand">
-                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                        <i class="bi bi-grid-1x2-fill"></i>
+                    <span class="d-inline-flex align-items-center justify-content-center" 
+                          style="width: 32px; height: 32px; font-size: 1rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm); color: var(--ms-primary);">
+                        <i class="bi bi-grid-1x2"></i>
                     </span>
-                    <span>SiBangku</span>
-                    <span class="ms-public-brand-badge">Reservasi Meja</span>
+                    <span class="fw-bold tracking-tight">SiBangku</span>
+                    <span class="ms-public-brand-badge">SaaS</span>
                 </a>
 
-                <nav class="d-none d-md-flex align-items-center gap-2">
+                <nav class="d-none d-md-flex align-items-center gap-1.5">
                     <NavLink class="ms-public-nav-link" href="" Match="NavLinkMatch.All">
-                        <i class="bi bi-house-door"></i> Beranda
+                        <i class="bi bi-house"></i> Beranda
                     </NavLink>
                     <NavLink class="ms-public-nav-link" href="booking">
-                        <i class="bi bi-calendar2-check"></i> Pesan Meja
+                        <i class="bi bi-calendar2-check"></i> Reservasi Meja
                     </NavLink>
                 </nav>
             </div>
 
             <!-- Customer Fast Action -->
             <div class="d-flex align-items-center gap-2">
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap shadow-sm">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap">
                     <i class="bi bi-calendar-plus"></i>
-                    <span>Pesan Meja Sekarang</span>
+                    <span>Pesan Meja</span>
                 </a>
             </div>
         </div>
@@ -38,36 +39,37 @@
         @Body
     </main>
 
-    <!-- Public Footer -->
-    <footer class="bg-white border-top py-4 mt-auto">
+    <!-- High-End Hospitality Footer -->
+    <footer class="py-4 mt-auto" style="background-color: #07090F; border-top: 1px solid var(--ms-border);">
         <div class="container py-2">
             <div class="row g-4 align-items-center justify-content-between">
                 <div class="col-md-6 text-center text-md-start">
-                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-2">
-                        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-2 me-1" style="width: 24px; height: 24px; font-size: 0.85rem;">
-                            <i class="bi bi-grid-1x2-fill"></i>
+                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-1.5">
+                        <span class="d-inline-flex align-items-center justify-content-center text-white me-1" 
+                              style="width: 22px; height: 22px; font-size: 0.75rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs);">
+                            <i class="bi bi-grid-1x2 text-primary"></i>
                         </span>
-                        <span class="fw-bold text-dark fs-5">SiBangku</span>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Portal Pelanggan</span>
+                        <span class="fw-bold text-white fs-6">SiBangku</span>
+                        <span class="ms-badge ms-badge-neutral">Hospitality Engine</span>
                     </div>
-                    <p class="text-muted small mb-0">
-                        Platform reservasi meja restoran instan dan manajemen multi-tenant modern.
+                    <p class="small mb-0" style="color: var(--ms-text-dim);">
+                        Enterprise multi-tenant table reservation and high-density restaurant operations platform.
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small text-muted mb-2">
-                        <a href="/" class="text-secondary text-decoration-none">Beranda</a>
-                        <span>•</span>
-                        <a href="/booking" class="text-secondary text-decoration-none">Pesan Meja</a>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small mb-2" style="color: var(--ms-text-muted);">
+                        <a href="/" class="text-decoration-none" style="color: var(--ms-text-muted);">Beranda</a>
+                        <span style="color: var(--ms-border);">•</span>
+                        <a href="/booking" class="text-decoration-none" style="color: var(--ms-text-muted);">Pesan Meja</a>
                     </div>
                     <!-- Discreet portal links for clients & owner -->
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2" style="font-size: 0.72rem;">
-                        <span class="text-muted">Akses Khusus:</span>
-                        <a href="/admin" class="text-muted text-decoration-none fw-semibold" title="Khusus Mitra Restoran">Login Mitra Resto</a>
-                        <span class="text-muted">•</span>
-                        <a href="/control-admin" class="text-muted text-decoration-none fw-semibold" title="Khusus Super Admin Platform">Platform Control Panel</a>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2 font-mono" style="font-size: 0.72rem;">
+                        <span style="color: var(--ms-text-dim);">Access:</span>
+                        <a href="/admin" class="text-decoration-none" style="color: var(--ms-text-muted);" title="Portal Mitra Restoran">Resto Admin</a>
+                        <span style="color: var(--ms-border);">/</span>
+                        <a href="/control-admin" class="text-decoration-none" style="color: var(--ms-text-muted);" title="Platform Control Panel">Control Plane</a>
                     </div>
-                    <div class="small text-muted mt-2" style="font-size: 0.72rem;">
+                    <div class="font-mono mt-2" style="font-size: 0.7rem; color: var(--ms-text-dim);">
                         &copy; 2026 SiBangku SaaS Platform. All rights reserved.
                     </div>
                 </div>
@@ -75,4 +77,3 @@
         </div>
     </footer>
 </div>
-

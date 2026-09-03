@@ -11,28 +11,28 @@
 @if (!IsLoggedIn)
 {
     <!-- Login Screen for Restaurant Client -->
-    <div class="min-vh-100 d-flex flex-column justify-content-center py-5" style="background-color: var(--ms-slate-900);">
+    <div class="min-vh-100 d-flex flex-column justify-content-center py-5" style="background-color: var(--ms-surface-dark);">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-5 col-xl-4">
                     <div class="text-center mb-4">
                         <a href="/" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2">
-                            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-2 shadow-sm" style="width: 44px; height: 44px; font-size: 1.3rem;">
+                            <span class="d-inline-flex align-items-center justify-content-center text-primary" 
+                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
                                 <i class="bi bi-shop"></i>
                             </span>
-                            <span class="fs-4 fw-extrabold tracking-tight">SiBangku</span>
+                            <span class="fs-5 fw-bold tracking-tight text-white">SiBangku Resto</span>
                         </a>
-                        <h4 class="fw-bold text-white mb-1">Portal Mitra Restoran</h4>
-                        <p class="text-white-50 small mb-0">Masuk untuk mengelola reservasi & operasional outlet</p>
+                        <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Outlet Management & Reservations</div>
                     </div>
 
-                    <div class="ms-card border-0 shadow-xl p-4 p-md-5 bg-white" style="border-radius: var(--ms-radius-2xl);">
+                    <div class="ms-card p-4 p-md-4.5" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
                         @if (!string.IsNullOrEmpty(LoginError))
                         {
-                            <div class="ms-alert ms-alert-danger mb-4 shadow-sm">
+                            <div class="ms-alert ms-alert-danger mb-3">
                                 <i class="bi bi-exclamation-octagon-fill ms-alert-icon"></i>
                                 <div class="ms-alert-content">
-                                    <div class="ms-alert-title">Gagal Masuk</div>
+                                    <div class="ms-alert-title">Autentikasi Gagal</div>
                                     <div>@LoginError</div>
                                 </div>
                                 <button type="button" class="ms-alert-close" @onclick="() => LoginError = null">
@@ -44,23 +44,23 @@
                         <form @onsubmit="HandleLogin">
                             <div class="ms-form-group">
                                 <label class="ms-form-label" for="tenantCode">
-                                    <i class="bi bi-tag me-1 text-primary"></i> Kode Restoran <span class="text-danger">*</span>
+                                    <i class="bi bi-tag me-1 text-primary"></i> Kode Outlet Restoran <span class="text-danger">*</span>
                                 </label>
                                 <div class="ms-input-group">
                                     <i class="bi bi-shop ms-input-icon"></i>
-                                    <input type="text" class="ms-form-control has-icon-left fw-bold text-uppercase @(HasAttemptedLogin && string.IsNullOrWhiteSpace(TenantCode) ? "is-invalid" : "")" 
+                                    <input type="text" class="ms-form-control has-icon-left font-mono fw-bold text-uppercase @(HasAttemptedLogin && string.IsNullOrWhiteSpace(TenantCode) ? "is-invalid" : "")" 
                                            id="tenantCode" name="tenantCode" autocomplete="organization" @bind="TenantCode" placeholder="KODE RESTORAN" />
                                 </div>
                             </div>
 
                             <div class="ms-form-group">
                                 <label class="ms-form-label" for="loginEmail">
-                                    <i class="bi bi-envelope me-1 text-primary"></i> Email Admin Resto <span class="text-danger">*</span>
+                                    <i class="bi bi-envelope me-1 text-primary"></i> Email Administrator <span class="text-danger">*</span>
                                 </label>
                                 <div class="ms-input-group">
                                     <i class="bi bi-person ms-input-icon"></i>
                                     <input type="email" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
-                                           id="loginEmail" name="username" autocomplete="username" @bind="Email" placeholder="admin@resto.com" />
+                                           id="loginEmail" name="username" autocomplete="username" @bind="Email" placeholder="admin@outlet.com" />
                                 </div>
                             </div>
 
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg w-100 fw-bold shadow-sm" disabled="@IsSubmitting">
+                            <button type="submit" class="ms-btn ms-btn-primary w-100" disabled="@IsSubmitting">
                                 @if (IsSubmitting)
                                 {
                                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -84,14 +84,14 @@
                                 else
                                 {
                                     <span>Masuk ke Dashboard Resto</span>
-                                    <i class="bi bi-box-arrow-in-right ms-1"></i>
+                                    <i class="bi bi-arrow-right ms-1"></i>
                                 }
                             </button>
                         </form>
 
-                        <div class="mt-4 pt-3 border-top text-center">
-                            <a href="/" class="small text-muted text-decoration-none">
-                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Halaman Publik
+                        <div class="mt-4 pt-3 text-center" style="border-top: 1px solid var(--ms-border);">
+                            <a href="/" class="small text-decoration-none" style="color: var(--ms-text-muted);">
+                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
                             </a>
                         </div>
                     </div>
@@ -107,8 +107,8 @@ else
         <!-- Left Sidebar -->
         <aside class="ms-sidebar">
             <div class="ms-sidebar-brand">
-                <div class="ms-sidebar-brand-icon" style="background: linear-gradient(135deg, @Branding.PrimaryColor, @Branding.SecondaryColor);">
-                    <i class="bi bi-shop"></i>
+                <div class="ms-sidebar-brand-icon">
+                    <i class="bi bi-shop text-primary"></i>
                 </div>
                 <div class="overflow-hidden">
                     <h6 class="ms-sidebar-brand-title text-truncate">@(ActiveTenant?.RestaurantName ?? "Resto Admin")</h6>
@@ -117,7 +117,7 @@ else
             </div>
 
             <div class="ms-sidebar-nav">
-                <div class="ms-sidebar-section-title">Menu Utama</div>
+                <div class="ms-sidebar-section-title">Operasional</div>
                 
                 <button class="ms-sidebar-item @(ActiveTab == "overview" ? "active" : "")" @onclick='() => SwitchTab("overview")'>
                     <i class="bi bi-grid-1x2"></i>
@@ -131,31 +131,32 @@ else
 
                 <button class="ms-sidebar-item @(ActiveTab == "tables" ? "active" : "")" @onclick='() => SwitchTab("tables")'>
                     <i class="bi bi-layout-wtf"></i>
-                    <span>Manajemen Meja</span>
+                    <span>Katalog Meja</span>
                 </button>
 
-                <div class="ms-sidebar-section-title">Pemasaran & Outlet</div>
+                <div class="ms-sidebar-section-title">Visual & Standee</div>
 
                 <button class="ms-sidebar-item @(ActiveTab == "qrcode" ? "active" : "")" @onclick='() => SwitchTab("qrcode")'>
                     <i class="bi bi-qr-code-scan"></i>
-                    <span>Poster & Standee QR</span>
+                    <span>Standee QR Cetak</span>
                 </button>
 
                 <button class="ms-sidebar-item @(ActiveTab == "branding" ? "active" : "")" @onclick='() => SwitchTab("branding")'>
-                    <i class="bi bi-palette"></i>
-                    <span>Branding & Jam Buka</span>
+                    <i class="bi bi-sliders"></i>
+                    <span>Pengaturan Outlet</span>
                 </button>
             </div>
 
             <div class="ms-sidebar-footer">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2 overflow-hidden">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                            <i class="bi bi-person-fill"></i>
+                        <div class="d-flex align-items-center justify-content-center fw-bold font-mono" 
+                             style="width: 28px; height: 28px; font-size: 0.75rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs); color: var(--ms-primary);">
+                            <i class="bi bi-person"></i>
                         </div>
                         <div class="overflow-hidden">
                             <div class="text-white small fw-bold text-truncate">@Email</div>
-                            <div class="text-white-50" style="font-size: 0.68rem;">Admin Tenant</div>
+                            <div class="font-mono text-truncate" style="font-size: 0.68rem; color: var(--ms-text-dim);">Admin Mitra</div>
                         </div>
                     </div>
                 </div>
@@ -175,34 +176,52 @@ else
             <!-- Topbar -->
             <header class="ms-admin-topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        @if (ActiveTab == "overview") { <span>Ringkasan Operasional</span> }
-                        else if (ActiveTab == "reservations") { <span>Daftar Reservasi Masuk</span> }
-                        else if (ActiveTab == "tables") { <span>Katalog Meja Restoran</span> }
-                        else if (ActiveTab == "qrcode") { <span>Generator Standee & QR Code</span> }
-                        else if (ActiveTab == "branding") { <span>Pengaturan Outlet & Visual</span> }
-                    </h5>
+                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">
+                        @if (ActiveTab == "overview") { <span>Ringkasan Operasional Restoran</span> }
+                        else if (ActiveTab == "reservations") { <span>Daftar Reservasi Meja</span> }
+                        else if (ActiveTab == "tables") { <span>Katalog & Denah Meja Restoran</span> }
+                        else if (ActiveTab == "qrcode") { <span>Generator Standee & QR Code Cetak</span> }
+                        else if (ActiveTab == "branding") { <span>Kustomisasi Tema & Jam Operasional</span> }
+                    </h6>
                     <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Outlet Online</span>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <button class="ms-btn ms-btn-outline ms-btn-sm" @onclick="RefreshReservations">
+                    <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="RefreshReservations">
                         <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
                     <a href="/booking?tenant=@TenantCode" target="_blank" class="ms-btn ms-btn-primary ms-btn-sm">
-                        <i class="bi bi-box-arrow-up-right"></i> Lihat Portal Booking
+                        <i class="bi bi-arrow-up-right"></i> Portal Pelanggan
                     </a>
                 </div>
             </header>
 
             <!-- Body Content Area -->
             <div class="ms-admin-content">
-                @if (!string.IsNullOrEmpty(Message))
+                <!-- Action Alerts -->
+                @if (!string.IsNullOrEmpty(SuccessAlert))
                 {
-                    <div class="ms-alert ms-alert-info mb-4 shadow-sm">
-                        <i class="bi bi-info-circle-fill ms-alert-icon"></i>
-                        <div class="ms-alert-content">@Message</div>
-                        <button type="button" class="ms-alert-close" @onclick="() => Message = null">
+                    <div class="ms-alert ms-alert-success mb-4 shadow-sm">
+                        <i class="bi bi-check-circle-fill ms-alert-icon"></i>
+                        <div class="ms-alert-content">
+                            <div class="ms-alert-title">Berhasil</div>
+                            <div>@SuccessAlert</div>
+                        </div>
+                        <button type="button" class="ms-alert-close" @onclick="() => SuccessAlert = null">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(ErrorAlert))
+                {
+                    <div class="ms-alert ms-alert-danger mb-4 shadow-sm">
+                        <i class="bi bi-exclamation-octagon-fill ms-alert-icon"></i>
+                        <div class="ms-alert-content">
+                            <div class="ms-alert-title">Perhatian</div>
+                            <div>@ErrorAlert</div>
+                        </div>
+                        <button type="button" class="ms-alert-close" @onclick="() => ErrorAlert = null">
                             <i class="bi bi-x"></i>
                         </button>
                     </div>
@@ -216,12 +235,12 @@ else
                             <div class="ms-stat-card">
                                 <div class="ms-stat-header">
                                     <span class="ms-stat-title">Total Pemesanan</span>
-                                    <div class="ms-stat-icon bg-primary-subtle text-primary">
-                                        <i class="bi bi-bar-chart-fill"></i>
+                                    <div class="ms-stat-icon">
+                                        <i class="bi bi-calendar2-range"></i>
                                     </div>
                                 </div>
                                 <div class="ms-stat-value">@ReservationsList.Count</div>
-                                <p class="ms-stat-hint text-muted">Seluruh jadwal tercatat di database</p>
+                                <p class="ms-stat-hint">Seluruh jadwal reservasi</p>
                             </div>
                         </div>
 
@@ -229,12 +248,12 @@ else
                             <div class="ms-stat-card">
                                 <div class="ms-stat-header">
                                     <span class="ms-stat-title">Menunggu Konfirmasi</span>
-                                    <div class="ms-stat-icon bg-warning-subtle text-warning">
+                                    <div class="ms-stat-icon text-warning">
                                         <i class="bi bi-hourglass-split"></i>
                                     </div>
                                 </div>
                                 <div class="ms-stat-value text-warning">@ReservationsList.Count(r => r.Status == "PENDING")</div>
-                                <p class="ms-stat-hint text-warning-emphasis">Perlu tindakan persetujuan staff</p>
+                                <p class="ms-stat-hint">Perlu tindakan verifikasi staff</p>
                             </div>
                         </div>
 
@@ -242,25 +261,25 @@ else
                             <div class="ms-stat-card">
                                 <div class="ms-stat-header">
                                     <span class="ms-stat-title">Terkonfirmasi</span>
-                                    <div class="ms-stat-icon bg-success-subtle text-success">
-                                        <i class="bi bi-check-circle-fill"></i>
+                                    <div class="ms-stat-icon text-success">
+                                        <i class="bi bi-check-circle"></i>
                                     </div>
                                 </div>
                                 <div class="ms-stat-value text-success">@ReservationsList.Count(r => r.Status == "CONFIRMED")</div>
-                                <p class="ms-stat-hint text-success-emphasis">Siap menyambut kedatangan tamu</p>
+                                <p class="ms-stat-hint">Siap menyambut kedatangan tamu</p>
                             </div>
                         </div>
 
                         <div class="col-xl-3 col-sm-6">
                             <div class="ms-stat-card">
                                 <div class="ms-stat-header">
-                                    <span class="ms-stat-title">Batal / Kedaluwarsa</span>
-                                    <div class="ms-stat-icon bg-danger-subtle text-danger">
-                                        <i class="bi bi-x-circle-fill"></i>
+                                    <span class="ms-stat-title">Batal / Timeout</span>
+                                    <div class="ms-stat-icon text-danger">
+                                        <i class="bi bi-x-circle"></i>
                                     </div>
                                 </div>
                                 <div class="ms-stat-value text-danger">@ReservationsList.Count(r => r.Status == "CANCELLED" || r.Status == "EXPIRED")</div>
-                                <p class="ms-stat-hint text-muted">Dibatalkan atau timeout pembayaran</p>
+                                <p class="ms-stat-hint">Dibatalkan atau timeout pembayaran</p>
                             </div>
                         </div>
                     </div>
@@ -272,7 +291,7 @@ else
                     <div class="ms-card">
                         <div class="ms-card-header flex-wrap gap-2">
                             <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-table text-primary fs-5"></i>
+                                <i class="bi bi-table text-primary"></i>
                                 <h6 class="ms-card-title">Jadwal Reservasi Pelanggan</h6>
                             </div>
                             
@@ -280,9 +299,9 @@ else
                             <div class="d-flex align-items-center gap-2">
                                 <div class="ms-input-group">
                                     <i class="bi bi-search ms-input-icon"></i>
-                                    <input type="text" class="ms-form-control ms-form-control-sm has-icon-left" 
+                                    <input type="text" class="ms-form-control ms-form-control-sm has-icon-left font-mono" 
                                            @bind="SearchReservationQuery" @bind:event="oninput" 
-                                           placeholder="Cari kode / catatan..." style="max-width: 220px;" />
+                                           placeholder="Cari kode / tamu..." style="max-width: 220px; font-size: 0.8rem;" />
                                 </div>
                             </div>
                         </div>
@@ -311,8 +330,8 @@ else
                                     @if (!filtered.Any())
                                     {
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-5">
-                                                <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                                            <td colspan="6" class="text-center py-5" style="color: var(--ms-text-dim);">
+                                                <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>
                                                 <span>Belum ada reservasi tercatat untuk filter ini.</span>
                                             </td>
                                         </tr>
@@ -324,36 +343,36 @@ else
                                             <tr>
                                                 <td>
                                                     <strong class="text-primary font-mono fs-6">@rsv.ReservationNumber</strong>
-                                                    <small class="text-muted d-block font-mono" style="font-size: 0.72rem;">@rsv.Id</small>
+                                                    <small class="d-block font-mono" style="font-size: 0.7rem; color: var(--ms-text-dim);">@rsv.Id</small>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-semibold text-dark"><i class="bi bi-people-fill me-1 text-primary"></i> @rsv.GuestCount Orang</div>
-                                                    <small class="text-muted text-truncate d-block" style="max-width: 200px;">
+                                                    <div class="fw-semibold text-white"><i class="bi bi-people me-1 text-primary"></i> @rsv.GuestCount Orang</div>
+                                                    <small class="text-truncate d-block" style="max-width: 200px; color: var(--ms-text-dim);">
                                                         @(string.IsNullOrEmpty(rsv.Notes) ? "Tanpa catatan" : rsv.Notes)
                                                     </small>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-semibold text-dark"><i class="bi bi-calendar3 me-1 text-primary"></i> @rsv.Date.ToString("yyyy-MM-dd")</div>
-                                                    <small class="text-muted"><i class="bi bi-clock me-1"></i> @rsv.StartTime.ToString(@"hh\:mm") - @rsv.EndTime.ToString(@"hh\:mm") WIB</small>
+                                                    <div class="fw-semibold text-white font-mono"><i class="bi bi-calendar3 me-1 text-primary"></i> @rsv.Date.ToString("yyyy-MM-dd")</div>
+                                                    <small class="font-mono" style="color: var(--ms-text-dim);"><i class="bi bi-clock me-1"></i> @rsv.StartTime.ToString(@"hh\:mm") - @rsv.EndTime.ToString(@"hh\:mm") WIB</small>
                                                 </td>
                                                 <td>
                                                     @if (rsv.PaymentStatus == "PAID")
                                                     {
-                                                        <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Lunas</span>
+                                                        <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> LUNAS</span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="ms-badge ms-badge-warning"><span class="ms-badge-dot"></span> Belum Bayar</span>
+                                                        <span class="ms-badge ms-badge-warning"><span class="ms-badge-dot"></span> BELUM BAYAR</span>
                                                     }
                                                 </td>
                                                 <td>
                                                     @if (rsv.Status == "CONFIRMED")
                                                     {
-                                                        <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Confirmed</span>
+                                                        <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> CONFIRMED</span>
                                                     }
                                                     else if (rsv.Status == "PENDING")
                                                     {
-                                                        <span class="ms-badge ms-badge-warning"><span class="ms-badge-dot"></span> Pending</span>
+                                                        <span class="ms-badge ms-badge-warning"><span class="ms-badge-dot"></span> PENDING</span>
                                                     }
                                                     else if (rsv.Status == "CANCELLED" || rsv.Status == "EXPIRED")
                                                     {
@@ -365,23 +384,23 @@ else
                                                     }
                                                 </td>
                                                 <td class="text-end">
-                                                    <div class="d-inline-flex gap-1">
+                                                    <div class="d-inline-flex gap-1.5">
                                                         @if (rsv.PaymentStatus != "PAID")
                                                         {
-                                                            <button class="ms-btn ms-btn-outline ms-btn-sm text-success" title="Tandai Lunas" @onclick='() => UpdatePayment(rsv.Id, "PAID")'>
-                                                                <i class="bi bi-cash-stack"></i>
+                                                            <button class="ms-btn ms-btn-secondary ms-btn-sm text-success font-mono" title="Tandai Lunas" @onclick='() => UpdatePayment(rsv, "PAID")'>
+                                                                <i class="bi bi-cash-stack"></i> Lunas
                                                             </button>
                                                         }
                                                         @if (rsv.Status == "PENDING")
                                                         {
-                                                            <button class="ms-btn ms-btn-success ms-btn-sm" title="Setujui Reservasi" @onclick='() => UpdateStatus(rsv.Id, "CONFIRMED")'>
-                                                                <i class="bi bi-check-lg"></i>
+                                                            <button class="ms-btn ms-btn-primary ms-btn-sm font-mono" title="Setujui Reservasi" @onclick='() => UpdateStatus(rsv, "CONFIRMED")'>
+                                                                <i class="bi bi-check"></i> Setujui
                                                             </button>
                                                         }
                                                         @if (rsv.Status != "CANCELLED")
                                                         {
-                                                            <button class="ms-btn ms-btn-outline ms-btn-sm text-danger" title="Batalkan" @onclick='() => UpdateStatus(rsv.Id, "CANCELLED")'>
-                                                                <i class="bi bi-x-lg"></i>
+                                                            <button class="ms-btn ms-btn-secondary ms-btn-sm text-danger" title="Batalkan Reservasi" @onclick='() => PromptCancelReservation(rsv)'>
+                                                                <i class="bi bi-x"></i>
                                                             </button>
                                                         }
                                                     </div>
@@ -400,23 +419,24 @@ else
                     <div class="row g-4">
                         <!-- Add Table Form -->
                         <div class="col-lg-4">
-                            <div class="ms-card p-4">
-                                <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
-                                    <i class="bi bi-plus-circle-fill text-primary me-1"></i> Tambah Meja Baru
-                                </h6>
+                            <div class="ms-card p-3.5">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <i class="bi bi-plus-circle text-primary"></i>
+                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Meja Baru</h6>
+                                </div>
 
                                 <form @onsubmit="HandleAddTable">
                                     <div class="ms-form-group">
-                                        <label class="ms-form-label" for="tableNo">Nomor / Nama Meja</label>
-                                        <input type="text" class="ms-form-control" id="tableNo" @bind="NewTableNumber" required placeholder="Contoh: T-01, VIP-A" />
+                                        <label class="ms-form-label" for="tableNo">Nomor / Label Meja <span class="text-danger">*</span></label>
+                                        <input type="text" class="ms-form-control font-mono" id="tableNo" @bind="NewTableNumber" required placeholder="Contoh: T-01, VIP-A" />
                                     </div>
 
                                     <div class="ms-form-group">
-                                        <label class="ms-form-label" for="tableCap">Kapasitas Kursi</label>
-                                        <input type="number" class="ms-form-control" id="tableCap" @bind="NewTableCapacity" required min="1" max="50" />
+                                        <label class="ms-form-label" for="tableCap">Kapasitas Kursi <span class="text-danger">*</span></label>
+                                        <input type="number" class="ms-form-control font-mono" id="tableCap" @bind="NewTableCapacity" required min="1" max="50" />
                                     </div>
 
-                                    <button type="submit" class="ms-btn ms-btn-primary w-100 fw-bold mt-2" disabled="@IsSubmitting">
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100 mt-2" disabled="@IsSubmitting">
                                         @if (IsSubmitting)
                                         {
                                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -425,7 +445,7 @@ else
                                         else
                                         {
                                             <span>Simpan Meja</span>
-                                            <i class="bi bi-save ms-1"></i>
+                                            <i class="bi bi-check2 ms-1"></i>
                                         }
                                     </button>
                                 </form>
@@ -436,10 +456,11 @@ else
                         <div class="col-lg-8">
                             <div class="ms-card">
                                 <div class="ms-card-header">
-                                    <h6 class="ms-card-title">
-                                        <i class="bi bi-layout-wtf text-primary"></i> Daftar Meja Restoran (@TablesList.Count)
-                                    </h6>
-                                    <button class="ms-btn ms-btn-outline ms-btn-sm" @onclick="RefreshTables">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-layout-wtf text-primary"></i>
+                                        <h6 class="ms-card-title">Katalog Meja Restoran (@TablesList.Count)</h6>
+                                    </div>
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="RefreshTables">
                                         <i class="bi bi-arrow-clockwise"></i> Refresh
                                     </button>
                                 </div>
@@ -459,7 +480,7 @@ else
                                             @if (!TablesList.Any())
                                             {
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-muted py-5">
+                                                    <td colspan="5" class="text-center py-5" style="color: var(--ms-text-dim);">
                                                         <span>Belum ada meja yang terdaftar. Tambahkan meja pertama Anda di sebelah kiri.</span>
                                                     </td>
                                                 </tr>
@@ -470,29 +491,29 @@ else
                                                 {
                                                     <tr>
                                                         <td>
-                                                            <strong class="text-dark fs-6">@tbl.TableNumber</strong>
-                                                            <small class="text-muted d-block font-mono" style="font-size: 0.72rem;">@tbl.TableId</small>
+                                                            <strong class="text-white font-mono">@tbl.TableNumber</strong>
+                                                            <small class="d-block font-mono" style="font-size: 0.7rem; color: var(--ms-text-dim);">@tbl.TableId</small>
                                                         </td>
                                                         <td>
-                                                            <span class="ms-badge ms-badge-primary">
-                                                                <i class="bi bi-people-fill me-1"></i> @tbl.Capacity Kursi
+                                                            <span class="ms-badge ms-badge-primary font-mono">
+                                                                <i class="bi bi-people me-1"></i> @tbl.Capacity Kursi
                                                             </span>
                                                         </td>
                                                         <td>
                                                             @if (tbl.IsActive)
                                                             {
-                                                                <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Aktif</span>
+                                                                <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> AKTIF</span>
                                                             }
                                                             else
                                                             {
-                                                                <span class="ms-badge ms-badge-neutral">Nonaktif</span>
+                                                                <span class="ms-badge ms-badge-neutral">NONAKTIF</span>
                                                             }
                                                         </td>
-                                                        <td class="font-mono text-muted small">
+                                                        <td class="font-mono small" style="color: var(--ms-text-muted);">
                                                             X: @tbl.PosX, Y: @tbl.PosY (@tbl.Rotation&deg;)
                                                         </td>
                                                         <td class="text-end">
-                                                            <button class="ms-btn ms-btn-outline ms-btn-sm text-danger" @onclick="() => HandleDeleteTable(tbl.TableId)" title="Hapus Meja">
+                                                            <button class="ms-btn ms-btn-secondary ms-btn-sm text-danger" @onclick="() => PromptDeleteTable(tbl)" title="Hapus Meja">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </td>
@@ -509,133 +530,175 @@ else
                 else if (ActiveTab == "qrcode")
                 {
                     <!-- QR Poster Standee Kit -->
-                    <div class="ms-card p-4 p-md-5">
+                    <div class="ms-card p-4">
                         <div class="text-center mb-4">
-                            <span class="ms-badge ms-badge-primary mb-2">Marketing Standee Kit</span>
-                            <h4 class="fw-bold text-dark mb-1">Poster QR Code Reservasi Mandiri</h4>
-                            <p class="text-muted small" style="max-width: 550px; margin: 0 auto;">
-                                Cetak poster ini untuk dipasang pada akrilik meja atau banner pintu masuk. Pelanggan cukup scan untuk langsung memesan meja tanpa perlu mengunduh aplikasi.
+                            <span class="ms-badge ms-badge-primary mb-2">Hospitality Standee Kit</span>
+                            <h5 class="fw-bold text-white mb-1">Poster QR Code Reservasi Mandiri</h5>
+                            <p class="small" style="color: var(--ms-text-dim); max-width: 520px; margin: 0 auto;">
+                                Cetak poster ini untuk akrilik meja atau banner resepsionis. Tamu dapat langsung memindai kamera HP untuk memesan meja secara mandiri.
                             </p>
                         </div>
 
                         <div class="ms-print-area my-4">
-                            <div class="ms-poster-card" style="border-color: @Branding.PrimaryColor;">
-                                <div class="d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm mb-3" 
-                                     style="width: 60px; height: 60px; font-size: 1.8rem; background: linear-gradient(135deg, @Branding.PrimaryColor, @Branding.SecondaryColor);">
+                            <div class="ms-poster-card" style="border: 2px solid var(--ms-border); background-color: #FFFFFF; color: #0A0D14; border-radius: var(--ms-radius-md);">
+                                <div class="d-inline-flex align-items-center justify-content-center text-primary mb-3" 
+                                     style="width: 48px; height: 48px; font-size: 1.4rem; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: var(--ms-radius-sm);">
                                     <i class="bi bi-shop"></i>
                                 </div>
-                                <h3 class="fw-extrabold text-uppercase text-dark mb-1" style="letter-spacing: -0.02em;">
+                                <h4 class="fw-bold text-uppercase mb-1" style="letter-spacing: -0.01em; color: #111827;">
                                     SCAN & PESAN MEJA
-                                </h3>
-                                <p class="text-muted small mb-4">Reservasi Mandiri di @(ActiveTenant?.RestaurantName ?? "Restoran Kami")</p>
+                                </h4>
+                                <p class="small mb-4" style="color: #6B7280;">Reservasi Mandiri di @(ActiveTenant?.RestaurantName ?? "Restoran Kami")</p>
 
-                                <div class="p-3 bg-light rounded-4 d-inline-block border shadow-inner mb-4">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=@(Uri.EscapeDataString(GetBookingUrl()))" 
-                                         alt="QR Code Pemesanan" style="width: 200px; height: 200px;" />
+                                <div class="p-3 bg-white rounded-3 d-inline-block border mb-4" style="border-color: #E5E7EB !important;">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=@(Uri.EscapeDataString(GetBookingUrl()))" 
+                                         alt="QR Code Pemesanan" style="width: 180px; height: 180px;" />
                                 </div>
 
-                                <div class="small fw-semibold text-dark mb-1">Kode Resto: <strong class="text-primary font-mono">@TenantCode</strong></div>
-                                <p class="text-muted small mb-4" style="font-size: 0.78rem;">Arahkan kamera HP Anda ke QR Code untuk melihat ketersediaan meja dan memilih slot jam.</p>
+                                <div class="small fw-semibold mb-1" style="color: #111827;">Kode Outlet: <strong class="font-mono text-primary">@TenantCode</strong></div>
+                                <p class="small mb-4" style="font-size: 0.78rem; color: #6B7280;">Arahkan kamera HP Anda ke QR Code untuk melihat denah meja dan memilih slot waktu.</p>
 
-                                <div class="border-top pt-3 text-muted small font-mono" style="font-size: 0.72rem;">
-                                    Didukung oleh <strong>SiBangku Platform</strong>
+                                <div class="pt-3 font-mono" style="font-size: 0.7rem; color: #9CA3AF; border-top: 1px solid #E5E7EB;">
+                                    Powered by <strong>SiBangku Platform</strong>
                                 </div>
                             </div>
                         </div>
 
                         <div class="text-center mt-4">
-                            <button class="ms-btn ms-btn-primary ms-btn-lg fw-bold" onclick="window.print()">
-                                <i class="bi bi-printer-fill me-1"></i> Cetak / Simpan Format PDF
+                            <button class="ms-btn ms-btn-primary" onclick="window.print()">
+                                <i class="bi bi-printer me-1"></i> Cetak / Simpan PDF
                             </button>
-                            <div class="small text-muted mt-2">Gunakan format kertas A4 Portrait untuk hasil cetak optimal.</div>
                         </div>
                     </div>
                 }
                 else if (ActiveTab == "branding")
                 {
                     <!-- Settings & Branding -->
-                    <div class="ms-card p-4 p-md-5">
-                        <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">
-                            <i class="bi bi-palette text-primary me-2"></i> Kustomisasi Branding & Jam Operasional
-                        </h5>
+                    <div class="ms-card p-4">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <i class="bi bi-sliders text-primary fs-5"></i>
+                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Kustomisasi Tema & Jam Operasional</h6>
+                        </div>
 
                         <form @onsubmit="SaveSettings">
                             <div class="row g-4">
                                 <div class="col-lg-6">
-                                    <h6 class="fw-bold text-dark mb-3">
-                                        <i class="bi bi-paint-bucket text-primary me-1"></i> Palet Warna Visual Restoran:
+                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                        <i class="bi bi-palette text-primary me-1"></i> Palet Warna Visual Restoran:
                                     </h6>
 
                                     <div class="ms-form-group">
-                                        <label class="ms-form-label" for="primaryColor">Warna Utama (Primary Color)</label>
+                                        <label class="ms-form-label" for="primaryColor">Warna Utama (Primary)</label>
                                         <div class="d-flex gap-2 align-items-center">
-                                            <input type="color" class="form-control form-control-color" id="primaryColor" @bind="Branding.PrimaryColor" />
-                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.PrimaryColor" placeholder="#4f46e5" />
+                                            <input type="color" class="form-control form-control-color border-0 p-1" id="primaryColor" @bind="Branding.PrimaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
+                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.PrimaryColor" placeholder="#6366F1" />
                                         </div>
                                     </div>
 
                                     <div class="ms-form-group">
-                                        <label class="ms-form-label" for="secondaryColor">Warna Sekunder (Secondary Color)</label>
+                                        <label class="ms-form-label" for="secondaryColor">Warna Sekunder (Secondary)</label>
                                         <div class="d-flex gap-2 align-items-center">
-                                            <input type="color" class="form-control form-control-color" id="secondaryColor" @bind="Branding.SecondaryColor" />
-                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.SecondaryColor" placeholder="#312e81" />
+                                            <input type="color" class="form-control form-control-color border-0 p-1" id="secondaryColor" @bind="Branding.SecondaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
+                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.SecondaryColor" placeholder="#4F46E5" />
                                         </div>
                                     </div>
 
                                     <div class="ms-form-group">
                                         <label class="ms-form-label" for="fontSelect">Tipografi / Font</label>
                                         <select class="ms-form-control" id="fontSelect" @bind="Branding.Font">
-                                            <option value="Inter">Inter (Modern Sans)</option>
                                             <option value="Plus Jakarta Sans">Plus Jakarta Sans (Rekomendasi)</option>
-                                            <option value="Helvetica">Helvetica</option>
-                                            <option value="Arial">Arial</option>
+                                            <option value="Inter">Inter</option>
+                                            <option value="JetBrains Mono">JetBrains Mono</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6">
-                                    <h6 class="fw-bold text-dark mb-3">
-                                        <i class="bi bi-clock-history text-primary me-1"></i> Pengaturan Jam Operasional & Kuota:
+                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                        <i class="bi bi-clock text-primary me-1"></i> Jam Operasional & Kuota:
                                     </h6>
 
                                     <div class="row g-3">
                                         <div class="col-6">
                                             <div class="ms-form-group">
                                                 <label class="ms-form-label" for="openTime">Jam Buka</label>
-                                                <input type="text" class="ms-form-control" id="openTime" @bind="TimeSlots.OpeningTime" placeholder="08:00" />
+                                                <input type="text" class="ms-form-control font-mono" id="openTime" @bind="TimeSlots.OpeningTime" placeholder="08:00" />
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="ms-form-group">
                                                 <label class="ms-form-label" for="closeTime">Jam Tutup</label>
-                                                <input type="text" class="ms-form-control" id="closeTime" @bind="TimeSlots.ClosingTime" placeholder="22:00" />
+                                                <input type="text" class="ms-form-control font-mono" id="closeTime" @bind="TimeSlots.ClosingTime" placeholder="22:00" />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="ms-form-group">
                                         <label class="ms-form-label" for="durationSlot">Durasi Slot Makan (Menit)</label>
-                                        <input type="number" class="ms-form-control" id="durationSlot" @bind="TimeSlots.SlotDuration" min="30" max="240" />
+                                        <input type="number" class="ms-form-control font-mono" id="durationSlot" @bind="TimeSlots.SlotDuration" min="30" max="240" />
                                     </div>
 
                                     <div class="ms-form-group">
-                                        <label class="ms-form-label" for="maxCovers">Batas Maksimal Kapasitas per Jam</label>
-                                        <input type="number" class="ms-form-control" id="maxCovers" @bind="TimeSlots.MaxConcurrentCovers" min="5" />
+                                        <label class="ms-form-label" for="maxCovers">Batas Maksimal Tamu per Jam</label>
+                                        <input type="number" class="ms-form-control font-mono" id="maxCovers" @bind="TimeSlots.MaxConcurrentCovers" min="5" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-end mt-4 pt-3 border-top">
-                                <button type="submit" class="ms-btn ms-btn-primary ms-btn-lg fw-bold" disabled="@IsSubmitting">
+                            <div class="d-flex justify-content-end mt-4 pt-3" style="border-top: 1px solid var(--ms-border);">
+                                <button type="submit" class="ms-btn ms-btn-primary" disabled="@IsSubmitting">
                                     @if (IsSubmitting)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        <span>Menyimpan Pengaturan...</span>
+                                        <span>Menyimpan...</span>
                                     }
                                     else
                                     {
                                         <span>Simpan Konfigurasi Resto</span>
-                                        <i class="bi bi-check2-circle ms-1"></i>
+                                        <i class="bi bi-check2 ms-1"></i>
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Outlet Admin Password Change Card -->
+                    <div class="ms-card p-4 mt-4">
+                        <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <i class="bi bi-shield-lock text-warning fs-5"></i>
+                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Ganti Kata Sandi Administrator Outlet</h6>
+                        </div>
+                        <p class="small mb-3" style="color: var(--ms-text-dim);">
+                            Perbarui kata sandi akun administrator untuk outlet <strong>@(ActiveTenant?.RestaurantName ?? TenantCode)</strong>. Minimal 5 karakter.
+                        </p>
+
+                        <form @onsubmit="HandleChangeTenantPassword">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="tenantNewPw">Kata Sandi Baru <span class="text-danger">*</span></label>
+                                        <input type="password" class="ms-form-control font-mono" id="tenantNewPw" @bind="TenantNewPassword" required minlength="5" placeholder="Minimal 5 karakter" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label" for="tenantConfirmPw">Konfirmasi Kata Sandi Baru <span class="text-danger">*</span></label>
+                                        <input type="password" class="ms-form-control font-mono" id="tenantConfirmPw" @bind="TenantConfirmPassword" required minlength="5" placeholder="Ulangi kata sandi baru" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-3 pt-2">
+                                <button type="submit" class="ms-btn ms-btn-primary" disabled="@IsSubmitting">
+                                    @if (IsSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Menyimpan Password...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-key me-1"></i>
+                                        <span>Perbarui Kata Sandi Admin Resto</span>
                                     }
                                 </button>
                             </div>
@@ -645,6 +708,83 @@ else
             </div>
         </main>
     </div>
+
+    <!-- MODAL: Delete Table Verification Modal -->
+    @if (DeleteTargetTable != null)
+    {
+        <div class="ms-modal-backdrop" @onclick="() => DeleteTargetTable = null">
+            <div class="ms-modal-card" style="border-color: var(--ms-danger);" @onclick:stopPropagation="true">
+                <div class="ms-modal-header">
+                    <h6 class="ms-modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Konfirmasi Hapus Meja
+                    </h6>
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="() => DeleteTargetTable = null">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="ms-modal-body">
+                    <p class="mb-0">
+                        Apakah Anda yakin ingin menghapus meja <strong>@DeleteTargetTable.TableNumber</strong> (Kapasitas @DeleteTargetTable.Capacity Kursi)?
+                    </p>
+                </div>
+                <div class="ms-modal-footer">
+                    <button type="button" class="ms-btn ms-btn-secondary" @onclick="() => DeleteTargetTable = null">Batal</button>
+                    <button type="button" class="ms-btn ms-btn-danger" @onclick="HandleConfirmDeleteTable" disabled="@IsSubmitting">
+                        @if (IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Menghapus...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-trash-fill me-1"></i>
+                            <span>Hapus Meja</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- MODAL: Cancel Reservation Verification Modal -->
+    @if (CancelTargetReservation != null)
+    {
+        <div class="ms-modal-backdrop" @onclick="() => CancelTargetReservation = null">
+            <div class="ms-modal-card" style="border-color: var(--ms-warning);" @onclick:stopPropagation="true">
+                <div class="ms-modal-header">
+                    <h6 class="ms-modal-title text-warning">
+                        <i class="bi bi-x-circle-fill"></i> Konfirmasi Pembatalan Reservasi
+                    </h6>
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="() => CancelTargetReservation = null">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="ms-modal-body">
+                    <p class="mb-2">
+                        Apakah Anda yakin ingin membatalkan jadwal booking kode <strong class="font-mono text-primary">@CancelTargetReservation.ReservationNumber</strong>?
+                    </p>
+                    <div class="small text-muted font-mono">
+                        Tanggal: @CancelTargetReservation.Date.ToString("yyyy-MM-dd") (@CancelTargetReservation.StartTime.ToString(@"hh\:mm") - @CancelTargetReservation.EndTime.ToString(@"hh\:mm") WIB) • @CancelTargetReservation.GuestCount Tamu
+                    </div>
+                </div>
+                <div class="ms-modal-footer">
+                    <button type="button" class="ms-btn ms-btn-secondary" @onclick="() => CancelTargetReservation = null">Batal</button>
+                    <button type="button" class="ms-btn ms-btn-danger" @onclick="HandleConfirmCancelReservation" disabled="@IsSubmitting">
+                        @if (IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Membatalkan...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-x-lg me-1"></i>
+                            <span>Batalkan Reservasi</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -654,7 +794,11 @@ else
     private string Email = "";
     private string Password = "";
     private string? LoginError;
-    private string? Message;
+    
+    // Global Alerts
+    private string? SuccessAlert;
+    private string? ErrorAlert;
+
     private string Token = "";
     private bool IsSubmitting = false;
     private string ActiveTab = "overview";
@@ -664,15 +808,19 @@ else
     private string NewTableNumber = "";
     private int NewTableCapacity = 4;
 
+    // Interactive Verification Modals
+    private Table? DeleteTargetTable;
+    private Reservation? CancelTargetReservation;
+
     private Tenant? ActiveTenant;
     private List<Reservation> ReservationsList = new List<Reservation>();
     private List<Table> TablesList = new List<Table>();
 
     public class BrandingConfig
     {
-        public string PrimaryColor { get; set; } = "#4f46e5";
-        public string SecondaryColor { get; set; } = "#312e81";
-        public string Font { get; set; } = "Inter";
+        public string PrimaryColor { get; set; } = "#6366F1";
+        public string SecondaryColor { get; set; } = "#4F46E5";
+        public string Font { get; set; } = "Plus Jakarta Sans";
     }
 
     public class TimeSlotsConfig
@@ -709,6 +857,8 @@ else
     private void SwitchTab(string tab)
     {
         ActiveTab = tab;
+        SuccessAlert = null;
+        ErrorAlert = null;
         if (IsLoggedIn)
         {
             if (tab == "reservations" || tab == "overview") _ = RefreshReservations();
@@ -771,35 +921,22 @@ else
         try
         {
             var client = GetClient();
-            
-            var brandResponse = await client.GetAsync("/api/v1/settings/branding");
-            if (brandResponse.IsSuccessStatusCode)
+            var res = await client.GetAsync("/api/v1/branding");
+            if (res.IsSuccessStatusCode)
             {
-                var doc = await brandResponse.Content.ReadFromJsonAsync<JsonElement>();
-                var rawBranding = doc.GetProperty("data").GetRawText();
-                Branding = JsonSerializer.Deserialize<BrandingConfig>(rawBranding, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new BrandingConfig();
+                var doc = await res.Content.ReadFromJsonAsync<JsonElement>();
+                var data = doc.GetProperty("data");
+                ActiveTenant = JsonSerializer.Deserialize<Tenant>(data.GetProperty("tenant").GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                Branding = JsonSerializer.Deserialize<BrandingConfig>(data.GetProperty("branding").GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new BrandingConfig();
+                TimeSlots = JsonSerializer.Deserialize<TimeSlotsConfig>(data.GetProperty("timeSlots").GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new TimeSlotsConfig();
             }
-
-            var slotsResponse = await client.GetAsync("/api/v1/settings/time_slots");
-            if (slotsResponse.IsSuccessStatusCode)
-            {
-                var doc = await slotsResponse.Content.ReadFromJsonAsync<JsonElement>();
-                var rawSlots = doc.GetProperty("data").GetRawText();
-                TimeSlots = JsonSerializer.Deserialize<TimeSlotsConfig>(rawSlots, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new TimeSlotsConfig();
-            }
-
-            ActiveTenant = new Tenant
-            {
-                RestaurantName = $"{TenantCode.ToUpperInvariant()} Resto",
-                WebIdentifier = $"{TenantCode.ToLowerInvariant()}.sibangku.example"
-            };
 
             await RefreshReservations();
             await RefreshTables();
         }
         catch (Exception ex)
         {
-            Message = $"Gagal memuat konfigurasi restoran: {ex.Message}";
+            ErrorAlert = $"Gagal memuat data tenant: {ex.Message}";
         }
     }
 
@@ -808,18 +945,15 @@ else
         try
         {
             var client = GetClient();
-            var response = await client.GetAsync("/api/v1/reservations");
-            if (response.IsSuccessStatusCode)
+            var res = await client.GetAsync("/api/v1/reservations");
+            if (res.IsSuccessStatusCode)
             {
-                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
-                var raw = doc.GetProperty("data").GetRawText();
-                ReservationsList = JsonSerializer.Deserialize<List<Reservation>>(raw, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Reservation>();
+                var doc = await res.Content.ReadFromJsonAsync<JsonElement>();
+                var array = doc.GetProperty("data");
+                ReservationsList = JsonSerializer.Deserialize<List<Reservation>>(array.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Reservation>();
             }
         }
-        catch (Exception ex)
-        {
-            Message = $"Gagal memuat reservasi: {ex.Message}";
-        }
+        catch { }
     }
 
     private async Task RefreshTables()
@@ -827,53 +961,57 @@ else
         try
         {
             var client = GetClient();
-            var response = await client.GetAsync("/api/v1/tables");
-            if (response.IsSuccessStatusCode)
+            var res = await client.GetAsync("/api/v1/tables");
+            if (res.IsSuccessStatusCode)
             {
-                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
-                var raw = doc.GetProperty("data").GetRawText();
-                TablesList = JsonSerializer.Deserialize<List<Table>>(raw, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Table>();
+                var doc = await res.Content.ReadFromJsonAsync<JsonElement>();
+                var array = doc.GetProperty("data");
+                TablesList = JsonSerializer.Deserialize<List<Table>>(array.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Table>();
             }
         }
-        catch (Exception ex)
-        {
-            Message = $"Gagal memuat daftar meja: {ex.Message}";
-        }
+        catch { }
     }
 
     private async Task HandleAddTable()
     {
-        if (string.IsNullOrWhiteSpace(NewTableNumber)) return;
-        IsSubmitting = true;
-        Message = null;
+        SuccessAlert = null;
+        ErrorAlert = null;
 
+        if (string.IsNullOrWhiteSpace(NewTableNumber))
+        {
+            ErrorAlert = "Nomor / Label meja tidak boleh kosong.";
+            return;
+        }
+
+        IsSubmitting = true;
         try
         {
             var client = GetClient();
-            var newTable = new Table
-            {
-                TableNumber = NewTableNumber.Trim().ToUpperInvariant(),
-                Capacity = NewTableCapacity,
-                IsActive = true
+            var payload = new 
+            { 
+                tableNumber = NewTableNumber.Trim().ToUpperInvariant(), 
+                capacity = NewTableCapacity,
+                posX = 50,
+                posY = 50,
+                rotation = 0
             };
-
-            var response = await client.PostAsJsonAsync("/api/v1/tables", newTable);
-            if (response.IsSuccessStatusCode)
+            var res = await client.PostAsJsonAsync("/api/v1/tables", payload);
+            if (res.IsSuccessStatusCode)
             {
-                Message = $"Meja {newTable.TableNumber} berhasil ditambahkan.";
+                SuccessAlert = $"Meja '{NewTableNumber.Trim().ToUpperInvariant()}' (Kapasitas {NewTableCapacity} Kursi) berhasil ditambahkan!";
                 NewTableNumber = "";
                 NewTableCapacity = 4;
                 await RefreshTables();
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync();
-                Message = $"Gagal menambahkan meja: {body}";
+                var body = await res.Content.ReadAsStringAsync();
+                ErrorAlert = $"Gagal menambah meja: {body}";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            ErrorAlert = $"Error: {ex.Message}";
         }
         finally
         {
@@ -881,98 +1019,213 @@ else
         }
     }
 
-    private async Task HandleDeleteTable(string tableId)
+    private void PromptDeleteTable(Table table)
     {
-        Message = null;
+        DeleteTargetTable = table;
+    }
+
+    private async Task HandleConfirmDeleteTable()
+    {
+        if (DeleteTargetTable == null) return;
+        SuccessAlert = null;
+        ErrorAlert = null;
+
+        IsSubmitting = true;
         try
         {
             var client = GetClient();
-            var response = await client.DeleteAsync($"/api/v1/tables/{tableId}");
-            if (response.IsSuccessStatusCode)
+            var res = await client.DeleteAsync($"/api/v1/tables/{DeleteTargetTable.TableId}");
+            if (res.IsSuccessStatusCode)
             {
-                Message = "Meja berhasil dihapus.";
+                SuccessAlert = $"Meja '{DeleteTargetTable.TableNumber}' berhasil dihapus.";
+                DeleteTargetTable = null;
                 await RefreshTables();
             }
             else
             {
-                Message = "Gagal menghapus meja.";
+                var body = await res.Content.ReadAsStringAsync();
+                ErrorAlert = $"Gagal menghapus meja: {body}";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            ErrorAlert = $"Gagal: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
         }
     }
 
-    private async Task UpdateStatus(string id, string status)
+    private async Task UpdatePayment(Reservation rsv, string status)
     {
-        Message = null;
+        SuccessAlert = null;
+        ErrorAlert = null;
         try
         {
             var client = GetClient();
-            var response = await client.PatchAsJsonAsync($"/api/v1/reservations/{id}/status", new { status = status });
-            if (response.IsSuccessStatusCode)
+            var res = await client.PatchAsJsonAsync($"/api/v1/reservations/{rsv.Id}/payment", new { paymentStatus = status });
+            if (res.IsSuccessStatusCode)
             {
-                Message = $"Status reservasi berhasil diubah menjadi: {status}";
+                SuccessAlert = $"Status pembayaran untuk reservasi {rsv.ReservationNumber} berhasil diubah menjadi {status}!";
                 await RefreshReservations();
             }
             else
             {
-                Message = "Gagal memperbarui status reservasi.";
+                ErrorAlert = "Gagal memperbarui status pembayaran.";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            ErrorAlert = $"Gagal: {ex.Message}";
         }
     }
 
-    private async Task UpdatePayment(string id, string paymentStatus)
+    private async Task UpdateStatus(Reservation rsv, string status)
     {
-        Message = null;
+        SuccessAlert = null;
+        ErrorAlert = null;
         try
         {
             var client = GetClient();
-            var response = await client.PatchAsJsonAsync($"/api/v1/reservations/{id}/payment", new { paymentStatus = paymentStatus });
-            if (response.IsSuccessStatusCode)
+            var res = await client.PatchAsJsonAsync($"/api/v1/reservations/{rsv.Id}/status", new { status = status });
+            if (res.IsSuccessStatusCode)
             {
-                Message = $"Pembayaran berhasil diperbarui menjadi: {paymentStatus}";
+                SuccessAlert = $"Reservasi {rsv.ReservationNumber} berhasil disetujui & status diubah menjadi {status}!";
                 await RefreshReservations();
             }
             else
             {
-                Message = "Gagal memperbarui pembayaran.";
+                ErrorAlert = "Gagal mengubah status reservasi.";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            ErrorAlert = $"Gagal: {ex.Message}";
+        }
+    }
+
+    private void PromptCancelReservation(Reservation rsv)
+    {
+        CancelTargetReservation = rsv;
+    }
+
+    private async Task HandleConfirmCancelReservation()
+    {
+        if (CancelTargetReservation == null) return;
+        SuccessAlert = null;
+        ErrorAlert = null;
+
+        IsSubmitting = true;
+        try
+        {
+            var client = GetClient();
+            var res = await client.PatchAsJsonAsync($"/api/v1/reservations/{CancelTargetReservation.Id}/status", new { status = "CANCELLED" });
+            if (res.IsSuccessStatusCode)
+            {
+                SuccessAlert = $"Reservasi {CancelTargetReservation.ReservationNumber} berhasil dibatalkan.";
+                CancelTargetReservation = null;
+                await RefreshReservations();
+            }
+            else
+            {
+                ErrorAlert = "Gagal membatalkan reservasi.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorAlert = $"Gagal: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
         }
     }
 
     private async Task SaveSettings()
     {
+        SuccessAlert = null;
+        ErrorAlert = null;
         IsSubmitting = true;
-        Message = null;
-
         try
         {
             var client = GetClient();
-            var brandResponse = await client.PostAsJsonAsync("/api/v1/settings/branding", Branding);
-            var slotsResponse = await client.PostAsJsonAsync("/api/v1/settings/time_slots", TimeSlots);
-
-            if (brandResponse.IsSuccessStatusCode && slotsResponse.IsSuccessStatusCode)
+            var payload = new 
+            { 
+                branding = Branding, 
+                timeSlots = TimeSlots 
+            };
+            var res = await client.PutAsJsonAsync("/api/v1/branding", payload);
+            if (res.IsSuccessStatusCode)
             {
-                Message = "Pengaturan branding dan jam operasional berhasil diperbarui.";
+                SuccessAlert = "Pengaturan branding dan jam operasional outlet berhasil disimpan!";
             }
             else
             {
-                Message = "Gagal menyimpan pengaturan.";
+                var body = await res.Content.ReadAsStringAsync();
+                ErrorAlert = $"Gagal menyimpan pengaturan: {body}";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Error: {ex.Message}";
+            ErrorAlert = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private string TenantNewPassword = "";
+    private string TenantConfirmPassword = "";
+
+    private async Task HandleChangeTenantPassword()
+    {
+        SuccessAlert = null;
+        ErrorAlert = null;
+
+        if (string.IsNullOrWhiteSpace(TenantNewPassword) || string.IsNullOrWhiteSpace(TenantConfirmPassword))
+        {
+            ErrorAlert = "Kata sandi baru dan konfirmasi wajib diisi.";
+            return;
+        }
+
+        if (TenantNewPassword != TenantConfirmPassword)
+        {
+            ErrorAlert = "Konfirmasi kata sandi tidak cocok.";
+            return;
+        }
+
+        if (TenantNewPassword.Length < 5)
+        {
+            ErrorAlert = "Kata sandi minimal harus 5 karakter.";
+            return;
+        }
+
+        IsSubmitting = true;
+        try
+        {
+            var client = GetClient();
+            var res = await client.PostAsJsonAsync("/api/v1/auth/change-password", new
+            {
+                newPassword = TenantNewPassword
+            });
+
+            if (res.IsSuccessStatusCode)
+            {
+                SuccessAlert = "Kata sandi administrator restoran berhasil diperbarui!";
+                TenantNewPassword = "";
+                TenantConfirmPassword = "";
+            }
+            else
+            {
+                var body = await res.Content.ReadAsStringAsync();
+                ErrorAlert = $"Gagal memperbarui kata sandi: {body}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorAlert = $"Error: {ex.Message}";
         }
         finally
         {

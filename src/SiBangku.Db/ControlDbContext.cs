@@ -68,10 +68,10 @@ namespace SiBangku.Db
             {
                 entity.ToTable("audit_logs");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasMaxLength(50);
-                entity.Property(e => e.TenantId).HasMaxLength(50);
-                entity.Property(e => e.Action).HasMaxLength(100);
-                entity.Property(e => e.UserId).HasMaxLength(50);
+                entity.Property(e => e.Id).HasMaxLength(128);
+                entity.Property(e => e.TenantId).HasMaxLength(128);
+                entity.Property(e => e.Action).HasMaxLength(128);
+                entity.Property(e => e.UserId).HasMaxLength(128);
                 entity.Property(e => e.Details).HasColumnType("jsonb");
             });
         }
