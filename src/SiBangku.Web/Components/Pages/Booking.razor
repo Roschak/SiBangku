@@ -1,47 +1,56 @@
 @page "/booking"
 @rendermode InteractiveServer
+@implements IDisposable
 @using System.Text.Json
 @using SiBangku.Shared.Models
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager Navigation
+@inject LanguageService Lang
 
-<PageTitle>Portal Reservasi Meja - @(ActiveTenant?.RestaurantName ?? "SiBangku")</PageTitle>
+<PageTitle>@(ActiveTenant?.RestaurantName ?? "SiBangku") - @Lang["Booking_Title_Default"]</PageTitle>
 
 <div class="container py-4 py-lg-5" style="--ms-primary: @Branding.PrimaryColor; --ms-primary-hover: @Branding.SecondaryColor;">
-    <!-- Restaurant Selector & Brand Banner -->
-    <div class="ms-card p-3.5 mb-4" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
+    <!-- Restaurant Selector & Brand Banner (Dark Luxury) -->
+    <div class="ms-card p-3.5 mb-4" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.20); box-shadow: 0 18px 50px -20px rgba(0,0,0,0.8);">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center text-primary" 
-                     style="width: 44px; height: 44px; font-size: 1.25rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                <div class="d-inline-flex align-items-center justify-content-center"
+                     style="width: 50px; height: 50px; font-size: 1.4rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
                     <i class="bi bi-shop"></i>
                 </div>
                 <div>
                     @if (ActiveTenant != null)
                     {
                         <div class="d-flex align-items-center gap-2">
-                            <h5 class="fw-bold mb-0 text-white" style="font-size: 1.15rem;">@ActiveTenant.RestaurantName</h5>
-                            <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Outlet Aktif</span>
+                            <h5 class="ms-serif fw-bold mb-0" style="font-size: 1.3rem; color: #F5F1E8;">@ActiveTenant.RestaurantName</h5>
                         </div>
-                        <div class="font-mono mt-0.5" style="font-size: 0.75rem; color: var(--ms-text-dim);">
-                            <i class="bi bi-clock me-1 text-primary"></i> Jam Buka: <span class="text-white">@TimeSlots.OpeningTime - @TimeSlots.ClosingTime WIB</span> • Durasi Slot: <span class="text-white">@TimeSlots.SlotDuration Menit</span>
+                        <div class="font-mono mt-0.5" style="font-size: 0.78rem; color: #8F8371;">
+                            <i class="bi bi-clock me-1" style="color: #D4AF37;"></i> @Lang["Booking_Hours"]: <strong style="color: #F5F1E8;">@TimeSlots.OpeningTime - @TimeSlots.ClosingTime WIB</strong> • @Lang["Booking_Slot_Duration"]: <strong style="color: #F5F1E8;">@TimeSlots.SlotDuration @Lang["Booking_Minutes"]</strong>
                         </div>
                     }
                     else
                     {
-                        <h5 class="fw-bold mb-0 text-white" style="font-size: 1.15rem;">Portal Reservasi Meja Mandiri</h5>
-                        <small style="color: var(--ms-text-dim);">Masukkan kode outlet restoran tujuan Anda untuk melihat ketersediaan meja real-time</small>
+                        <h5 class="ms-serif fw-bold mb-0" style="font-size: 1.15rem; color: #F5F1E8;">@Lang["Booking_Title_Default"]</h5>
+                        <small style="color: #8F8371;">@Lang["Booking_Subtitle_Default"]</small>
                     }
                 </div>
             </div>
 
-            <!-- Code Search input -->
-            <div class="d-flex align-items-center gap-2">
+            <!-- Code Search & QR Scan Action Bar -->
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm text-nowrap" @onclick="() => IsScannerOpen = true"
+                        title="Scan QR Code Meja via Kamera HP/Laptop">
+                    <i class="bi bi-camera me-1"></i>
+                    <span class="fw-semibold">@Lang["Booking_Scan_Btn"]</span>
+                </button>
+
                 <div class="ms-input-group">
                     <i class="bi bi-geo-alt ms-input-icon"></i>
-                    <input type="text" class="ms-form-control has-icon-left font-mono fw-bold text-uppercase" 
-                           @bind="TenantCode" placeholder="KODE RESTORAN" style="max-width: 180px; font-size: 0.85rem;" />
+                    <input type="text" class="ms-form-control has-icon-left font-mono fw-bold text-uppercase"
+                           @bind="TenantCode" placeholder="@Lang["Booking_Search_Placeholder"]"
+                           style="max-width: 170px; font-size: 0.85rem;" />
                 </div>
+
                 <button class="ms-btn ms-btn-primary ms-btn-sm text-nowrap" @onclick="LoadTenantBranding" disabled="@IsLoading">
                     @if (IsLoading)
                     {
@@ -51,7 +60,7 @@
                     {
                         <i class="bi bi-search"></i>
                     }
-                    <span>Cari Resto</span>
+                    <span>@Lang["Booking_Search_Btn"]</span>
                 </button>
             </div>
         </div>
@@ -59,26 +68,50 @@
 
     @if (string.IsNullOrWhiteSpace(TenantCode) && ActiveTenant == null && !IsLoading)
     {
-        <!-- Prompt to enter restaurant code -->
-        <div class="ms-card p-5 text-center my-4" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
-            <div class="d-inline-flex align-items-center justify-content-center text-primary mb-3" 
-                 style="width: 52px; height: 52px; font-size: 1.5rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+        <!-- Prompt to enter restaurant code or scan QR -->
+        <div class="ms-card p-5 text-center my-4" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.20);">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width: 64px; height: 64px; font-size: 1.8rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-md); color: #D4AF37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);">
                 <i class="bi bi-qr-code-scan"></i>
             </div>
-            <h5 class="fw-bold text-white mb-2">Tentukan Outlet Restoran Mitra</h5>
-            <p class="small mb-4" style="color: var(--ms-text-muted); max-width: 460px; margin: 0 auto; line-height: 1.5;">
-                Silakan masukkan kode restoran pada kolom pencarian di atas atau buka halaman melalui tautan QR Code standee yang tersedia di restoran.
+            <h5 class="ms-serif fw-bold mb-2" style="color: #F5F1E8;">@Lang["Booking_Select_Outlet_Prompt"]</h5>
+            <p class="small mb-4" style="color: #8F8371; max-width: 480px; margin: 0 auto; line-height: 1.7; font-size: 0.92rem;">
+                @Lang["Booking_Select_Outlet_Hint"]
             </p>
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                <button type="button" class="ms-btn ms-btn-primary gold-shimmer-btn" @onclick="() => IsScannerOpen = true">
+                    <i class="bi bi-camera me-1.5"></i>
+                    <span>@Lang["Hero_Btn_ScanQR"]</span>
+                </button>
+            </div>
+
+            <!-- Instant Demo Quick-Select Chips -->
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-1.5">
+                <span class="font-mono text-muted small me-1" style="font-size: 0.72rem; color: #8F8371;">Coba Demo Outlet:</span>
+                <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("DISTRO-AVENUE")'>
+                    <i class="bi bi-stars" style="color: #D4AF37;"></i>
+                    <span>DISTRO-AVENUE (Fine Dining)</span>
+                </button>
+                <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("PADANG-MERDEKA")'>
+                    <i class="bi bi-fire" style="color: #F87171;"></i>
+                    <span>PADANG-MERDEKA</span>
+                </button>
+                <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("KOPI-SENJA")'>
+                    <i class="bi bi-cup-hot" style="color: #FBBF24;"></i>
+                    <span>KOPI-SENJA</span>
+                </button>
+            </div>
         </div>
     }
     else if (IsLoading)
     {
-        <div class="ms-card p-5 text-center my-4" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
-            <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+        <div class="ms-card p-5 text-center my-4" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.20);">
+            <div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem; color: #D4AF37;">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <h6 class="fw-bold text-white mb-1">Menghubungkan ke Basis Data Restoran...</h6>
-            <p class="small" style="color: var(--ms-text-dim);">Memvalidasi slot waktu dan alokasi kapasitas meja secara real-time.</p>
+            <h6 class="ms-serif fw-bold mb-1" style="color: #F5F1E8;">@Lang["Booking_Connecting"]</h6>
+            <p class="small" style="color: #8F8371;">Memvalidasi slot waktu dan alokasi kapasitas meja secara real-time.</p>
         </div>
     }
     else if (ShowSuccessCard && ConfirmedReservation != null)
@@ -89,82 +122,82 @@
                 <div class="ms-alert ms-alert-success mb-4">
                     <i class="bi bi-check-circle ms-alert-icon"></i>
                     <div class="ms-alert-content">
-                        <div class="ms-alert-title">Reservasi Berhasil Dikonfirmasi!</div>
-                        <div>Kode booking resmi Anda adalah <strong class="font-mono">@ConfirmedReservation.ReservationNumber</strong>. Simpan tiket digital ini saat kedatangan.</div>
+                        <div class="ms-alert-title fw-bold">@Lang["Ticket_Success_Title"]</div>
+                        <div>@string.Format(Lang["Ticket_Success_Desc"], ConfirmedReservation.ReservationNumber)</div>
                     </div>
                 </div>
 
-                <div class="ms-card overflow-hidden" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
+                <div class="ms-card overflow-hidden" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.24); box-shadow: 0 30px 80px -28px rgba(0,0,0,0.9);">
                     <!-- Ticket Header -->
-                    <div class="p-4 text-center text-white" style="background: var(--ms-surface-elevated); border-bottom: 1px solid var(--ms-border);">
-                        <div class="d-inline-flex align-items-center justify-content-center text-success mb-2" 
-                             style="width: 44px; height: 44px; font-size: 1.3rem; background: var(--ms-surface-input); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                    <div class="p-4 text-center" style="background: #0E0C0A; border-bottom: 1px solid rgba(201, 169, 110, 0.16);">
+                        <div class="d-inline-flex align-items-center justify-content-center mb-2"
+                             style="width: 50px; height: 50px; font-size: 1.45rem; background: rgba(52, 211, 153, 0.10); border: 1px solid rgba(52, 211, 153, 0.35); border-radius: var(--ms-radius-sm); color: #34D399;">
                             <i class="bi bi-ticket-perforated"></i>
                         </div>
-                        <h5 class="fw-bold mb-1">Tiket Reservasi Meja Digital</h5>
-                        <p class="small mb-0 font-mono" style="color: var(--ms-text-dim);">Tunjukkan tiket ini kepada staf resepsionis restoran.</p>
+                        <h5 class="ms-serif fw-bold mb-1" style="color: #F5F1E8;">@Lang["Ticket_Header_Title"]</h5>
+                        <p class="small mb-0 font-mono" style="color: #8F8371;">@Lang["Ticket_Header_Subtitle"]</p>
                     </div>
 
                     <!-- Ticket Details -->
                     <div class="p-4 p-md-4.5">
-                        <div class="d-flex align-items-center justify-content-between p-3 mb-4 font-mono" 
-                             style="background: var(--ms-surface-input); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                        <div class="d-flex align-items-center justify-content-between p-3 mb-4 font-mono"
+                             style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.30); border-radius: var(--ms-radius-sm);">
                             <div>
-                                <span class="d-block text-uppercase" style="font-size: 0.68rem; color: var(--ms-text-dim); letter-spacing: 0.05em;">KODE BOOKING</span>
-                                <span class="fs-4 fw-bold text-primary font-mono">@ConfirmedReservation.ReservationNumber</span>
+                                <span class="d-block text-uppercase fw-bold" style="font-size: 0.7rem; color: #C4B9A6; letter-spacing: 0.1em;">@Lang["Ticket_Booking_Code"]</span>
+                                <span class="fs-4 fw-bold font-mono" style="color: #D4AF37;">@ConfirmedReservation.ReservationNumber</span>
                             </div>
-                            <span class="ms-badge ms-badge-warning">
-                                <span class="ms-badge-dot"></span> Terdaftar
+                            <span class="ms-badge ms-badge-success">
+                                <span class="ms-badge-dot"></span> @Lang["Ticket_Status_Registered"]
                             </span>
                         </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-sm-6">
-                                <div class="p-3" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
-                                    <span class="small d-block" style="font-size: 0.72rem; color: var(--ms-text-dim);">Restoran Tujuan</span>
-                                    <strong class="text-white">@(ActiveTenant?.RestaurantName ?? TenantCode)</strong>
+                                <div class="p-3" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm);">
+                                    <span class="small d-block fw-semibold font-mono" style="font-size: 0.7rem; color: #8F8371;">@Lang["Ticket_Restaurant"]</span>
+                                    <strong style="color: #F5F1E8;">@(ActiveTenant?.RestaurantName ?? TenantCode)</strong>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="p-3" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
-                                    <span class="small d-block" style="font-size: 0.72rem; color: var(--ms-text-dim);">Nama Pemesan</span>
-                                    <strong class="text-white">@BookingName</strong>
+                                <div class="p-3" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm);">
+                                    <span class="small d-block fw-semibold font-mono" style="font-size: 0.7rem; color: #8F8371;">@Lang["Ticket_Guest_Name"]</span>
+                                    <strong style="color: #F5F1E8;">@BookingName</strong>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="p-3" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
-                                    <span class="small d-block font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">Tanggal & Waktu</span>
-                                    <strong class="text-white font-mono">@ConfirmedReservation.Date.ToString("dd MMMM yyyy")</strong>
-                                    <div class="small text-primary font-mono fw-bold">@ConfirmedReservation.StartTime.ToString(@"hh\:mm") - @ConfirmedReservation.EndTime.ToString(@"hh\:mm") WIB</div>
+                                <div class="p-3" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm);">
+                                    <span class="small d-block font-mono fw-semibold" style="font-size: 0.7rem; color: #8F8371;">@Lang["Ticket_Date_Time"]</span>
+                                    <strong class="font-mono" style="color: #F5F1E8;">@ConfirmedReservation.Date.ToString("dd MMMM yyyy")</strong>
+                                    <div class="small font-mono fw-bold" style="color: #D4AF37;">@ConfirmedReservation.StartTime.ToString(@"hh\:mm") - @ConfirmedReservation.EndTime.ToString(@"hh\:mm") WIB</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="p-3" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
-                                    <span class="small d-block" style="font-size: 0.72rem; color: var(--ms-text-dim);">Jumlah Tamu</span>
-                                    <strong class="text-white">@ConfirmedReservation.GuestCount Orang</strong>
-                                    <div class="small font-mono" style="color: var(--ms-text-dim);">Kontak: @BookingPhone</div>
+                                <div class="p-3" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm);">
+                                    <span class="small d-block fw-semibold font-mono" style="font-size: 0.7rem; color: #8F8371;">@Lang["Ticket_Guests"]</span>
+                                    <strong style="color: #F5F1E8;">@ConfirmedReservation.GuestCount @Lang["Booking_Guests_Suffix"]</strong>
+                                    <div class="small font-mono" style="color: #8F8371;">Kontak: @BookingPhone</div>
                                 </div>
                             </div>
                         </div>
 
                         @if (!string.IsNullOrEmpty(ConfirmedReservation.Notes))
                         {
-                            <div class="p-3 mb-4" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
-                                <span class="small d-block" style="font-size: 0.72rem; color: var(--ms-text-dim);"><i class="bi bi-chat-text me-1 text-primary"></i> Catatan Khusus:</span>
-                                <div class="small text-white">@ConfirmedReservation.Notes</div>
+                            <div class="p-3 mb-4" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm);">
+                                <span class="small d-block fw-semibold font-mono" style="font-size: 0.7rem; color: #8F8371;"><i class="bi bi-chat-text me-1" style="color: #D4AF37;"></i> @Lang["Ticket_Notes"]</span>
+                                <div class="small" style="color: #F5F1E8;">@ConfirmedReservation.Notes</div>
                             </div>
                         }
 
                         <!-- Actions -->
-                        <div class="d-flex flex-wrap gap-2 justify-content-end pt-3" style="border-top: 1px solid var(--ms-border);">
+                        <div class="d-flex flex-wrap gap-2 justify-content-end pt-3" style="border-top: 1px solid rgba(201, 169, 110, 0.16);">
                             <button class="ms-btn ms-btn-secondary" onclick="window.print()">
-                                <i class="bi bi-printer"></i> Cetak Tiket
+                                <i class="bi bi-printer"></i> @Lang["Ticket_Btn_Print"]
                             </button>
                             <button class="ms-btn ms-btn-secondary" @onclick="ResetForm">
-                                <i class="bi bi-plus-circle"></i> Reservasi Baru
+                                <i class="bi bi-plus-circle"></i> @Lang["Ticket_Btn_New"]
                             </button>
                             <button class="ms-btn ms-btn-primary" @onclick="() => ShowSuccessCard = false">
-                                <span>Kembali ke Form</span>
+                                <span>@Lang["Ticket_Btn_Back"]</span>
                             </button>
                         </div>
                     </div>
@@ -174,7 +207,7 @@
     }
     else
     {
-        <!-- Booking Form Wizard -->
+        <!-- Booking Form Wizard (Dark Luxury) -->
         @if (!string.IsNullOrEmpty(Message))
         {
             <div class="ms-alert ms-alert-danger mb-4">
@@ -192,51 +225,52 @@
         <div class="row g-4">
             <!-- Left Column: Parameters & Slots -->
             <div class="col-lg-5">
-                <div class="ms-card p-3.5 h-100" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
-                    <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
-                        <span class="d-inline-flex align-items-center justify-content-center fw-bold font-mono" 
-                              style="width: 24px; height: 24px; font-size: 0.75rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs); color: var(--ms-primary);">
+                <div class="ms-card p-3.5 h-100" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.20); box-shadow: 0 18px 50px -20px rgba(0,0,0,0.8);">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid rgba(201, 169, 110, 0.16);">
+                        <span class="d-inline-flex align-items-center justify-content-center fw-bold font-mono ms-serif"
+                              style="width: 28px; height: 28px; font-size: 0.8rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.38); border-radius: var(--ms-radius-xs); color: #D4AF37;">
                             01
                         </span>
-                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Tentukan Tanggal & Tamu</h6>
+                        <h6 class="ms-serif fw-bold mb-0" style="font-size: 1.02rem; color: #F5F1E8;">@Lang["Booking_Step1_Title"]</h6>
                     </div>
 
                     <!-- Date picker -->
                     <div class="ms-form-group">
-                        <label class="ms-form-label" for="bookingDate">
-                            <i class="bi bi-calendar3 me-1 text-primary"></i> Tanggal Kunjungan <span class="text-danger">*</span>
+                        <label class="ms-form-label" for="bookingDate" style="color: #C4B9A6; font-weight: 600;">
+                            <i class="bi bi-calendar3 me-1" style="color: #D4AF37;"></i> @Lang["Booking_Date_Label"] <span class="text-danger">*</span>
                         </label>
-                        <input type="date" class="ms-form-control font-mono" id="bookingDate" @value="BookingDate" 
-                               @onchange="OnDateChanged" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        <input type="date" class="ms-form-control font-mono" id="bookingDate" @value="BookingDate"
+                               @onchange="OnDateChanged" min="@DateTime.Today.ToString("yyyy-MM-dd")" required
+                               style="font-weight: 600;" />
                     </div>
 
                     <!-- Guest Stepper -->
                     <div class="ms-form-group">
-                        <label class="ms-form-label">
-                            <i class="bi bi-people me-1 text-primary"></i> Jumlah Tamu <span class="text-danger">*</span>
+                        <label class="ms-form-label" style="color: #C4B9A6; font-weight: 600;">
+                            <i class="bi bi-people me-1" style="color: #D4AF37;"></i> @Lang["Booking_Guests_Label"] <span class="text-danger">*</span>
                         </label>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="ms-btn ms-btn-secondary px-3" @onclick="DecrementGuests">-</button>
-                            <input type="number" class="ms-form-control text-center font-mono fw-bold text-primary" 
-                                   @value="GuestCount" @onchange="OnGuestsChanged" min="1" max="20" style="max-width: 90px;" />
-                            <button type="button" class="ms-btn ms-btn-secondary px-3" @onclick="IncrementGuests">+</button>
-                            <span class="small font-mono ms-2" style="color: var(--ms-text-dim);">Orang</span>
+                            <button type="button" class="ms-btn ms-btn-secondary px-3" @onclick="DecrementGuests" style="font-weight: bold;">-</button>
+                            <input type="number" class="ms-form-control text-center font-mono fw-bold" 
+                                   @value="GuestCount" @onchange="OnGuestsChanged" min="1" max="20" style="max-width: 90px; color: #D4AF37;" />
+                            <button type="button" class="ms-btn ms-btn-secondary px-3" @onclick="IncrementGuests" style="font-weight: bold;">+</button>
+                            <span class="small font-mono ms-2" style="color: #8F8371; font-weight: 500;">@Lang["Booking_Guests_Suffix"]</span>
                         </div>
                     </div>
 
                     <!-- Time Slots Selector -->
-                    <div class="mt-4 pt-3" style="border-top: 1px solid var(--ms-border);">
+                    <div class="mt-4 pt-3" style="border-top: 1px solid rgba(201, 169, 110, 0.16);">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fw-bold text-white" style="font-size: 0.85rem;">
-                                <i class="bi bi-clock me-1 text-primary"></i> Slot Waktu Tersedia: <span class="text-danger">*</span>
+                            <span class="fw-bold" style="font-size: 0.88rem; color: #F5F1E8;">
+                                <i class="bi bi-clock me-1" style="color: #D4AF37;"></i> @Lang["Booking_Slots_Title"] <span class="text-danger">*</span>
                             </span>
                             <span class="ms-badge ms-badge-neutral">@Slots.Count Slot</span>
                         </div>
 
                         @if (Slots == null || !Slots.Any())
                         {
-                            <div class="text-center py-4 small" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-sm); color: var(--ms-text-dim);">
-                                <span>Tidak ada slot waktu tersedia atau restoran belum dimuat.</span>
+                            <div class="text-center py-4 small" style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-sm); color: #8F8371;">
+                                <span>@Lang["Booking_No_Slots"]</span>
                             </div>
                         }
                         else
@@ -246,22 +280,22 @@
                                 {
                                     var isSelected = SelectedStartTime == slot.StartTime;
                                     var isSlotDisabled = !slot.IsAvailable;
-                                    
+
                                     <div class="col-6">
                                         <div class="ms-slot-card @(isSelected ? "selected" : "") @(isSlotDisabled ? "disabled" : "")"
                                              @onclick="() => SelectSlot(slot)">
-                                            <div class="fw-bold font-mono text-white fs-6">@slot.StartTime</div>
-                                            <div class="small font-mono mb-1" style="font-size: 0.72rem; color: var(--ms-text-dim);">s/d @slot.EndTime WIB</div>
+                                            <div class="fw-bold font-mono fs-6" style="color: @(isSelected ? "#D4AF37" : "#F5F1E8");">@slot.StartTime</div>
+                                            <div class="small font-mono mb-1" style="font-size: 0.72rem; color: #8F8371;">s/d @slot.EndTime WIB</div>
                                             @if (slot.IsAvailable)
                                             {
                                                 <span class="ms-badge ms-badge-success" style="font-size: 0.68rem;">
-                                                    <span class="ms-badge-dot"></span> @slot.AvailableTablesCount Meja
+                                                    <span class="ms-badge-dot"></span> @slot.AvailableTablesCount @Lang["Booking_Slot_Tables_Count"]
                                                 </span>
                                             }
                                             else
                                             {
                                                 <span class="ms-badge ms-badge-danger" style="font-size: 0.68rem;">
-                                                    Penuh
+                                                    @Lang["Booking_Slot_Full"]
                                                 </span>
                                             }
                                         </div>
@@ -275,13 +309,13 @@
 
             <!-- Right Column: Guest Information & Confirmation -->
             <div class="col-lg-7">
-                <div class="ms-card p-3.5 h-100" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
-                    <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
-                        <span class="d-inline-flex align-items-center justify-content-center fw-bold font-mono" 
-                              style="width: 24px; height: 24px; font-size: 0.75rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs); color: var(--ms-primary);">
+                <div class="ms-card p-3.5 h-100" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.20); box-shadow: 0 18px 50px -20px rgba(0,0,0,0.8);">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid rgba(201, 169, 110, 0.16);">
+                        <span class="d-inline-flex align-items-center justify-content-center fw-bold font-mono ms-serif"
+                              style="width: 28px; height: 28px; font-size: 0.8rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.38); border-radius: var(--ms-radius-xs); color: #D4AF37;">
                             02
                         </span>
-                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Informasi Kontak Pemesan</h6>
+                        <h6 class="ms-serif fw-bold mb-0" style="font-size: 1.02rem; color: #F5F1E8;">@Lang["Booking_Step2_Title"]</h6>
                     </div>
 
                     @if (string.IsNullOrEmpty(SelectedStartTime))
@@ -289,80 +323,81 @@
                         <div class="ms-alert ms-alert-warning mb-3">
                             <i class="bi bi-info-circle ms-alert-icon"></i>
                             <div class="ms-alert-content">
-                                <div class="ms-alert-title">Pilih Slot Waktu</div>
-                                <div class="small">Silakan pilih salah satu slot waktu yang tersedia pada panel di sebelah kiri.</div>
+                                <div class="ms-alert-title fw-bold">Pilih Slot Waktu</div>
+                                <div class="small">@Lang["Booking_Prompt_Select_Slot"]</div>
                             </div>
                         </div>
                     }
                     else
                     {
-                        <div class="p-2.5 mb-3 d-flex align-items-center justify-content-between font-mono" 
-                             style="background-color: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                        <div class="p-2.5 mb-3 d-flex align-items-center justify-content-between font-mono"
+                             style="background-color: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.30); border-radius: var(--ms-radius-sm);">
                             <div>
-                                <span class="small d-block" style="font-size: 0.7rem; color: var(--ms-text-dim);">SLOT TERPILIH:</span>
-                                <strong class="text-primary fs-6">
+                                <span class="small d-block fw-bold" style="font-size: 0.7rem; color: #C4B9A6;">@Lang["Booking_Selected_Slot_Label"]</span>
+                                <strong class="fs-6" style="color: #D4AF37;">
                                     <i class="bi bi-clock me-1"></i> @SelectedStartTime - @SelectedEndTime WIB
                                 </strong>
                             </div>
                             <span class="ms-badge ms-badge-primary">
-                                <i class="bi bi-people me-1"></i> @GuestCount Orang
+                                <i class="bi bi-people me-1"></i> @GuestCount @Lang["Booking_Guests_Suffix"]
                             </span>
                         </div>
                     }
 
                     <form @onsubmit="SubmitBooking">
                         <div class="ms-form-group">
-                            <label class="ms-form-label" for="guestName">
-                                <i class="bi bi-person me-1 text-primary"></i> Nama Lengkap Pemesan <span class="text-danger">*</span>
+                            <label class="ms-form-label" for="guestName" style="color: #C4B9A6; font-weight: 600;">
+                                <i class="bi bi-person me-1" style="color: #D4AF37;"></i> @Lang["Booking_Name_Label"] <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingName) && HasAttemptedSubmit ? "is-invalid" : "")" 
-                                   id="guestName" name="name" autocomplete="name" @bind="BookingName" required placeholder="Nama Lengkap Anda" />
+                            <input type="text" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingName) && HasAttemptedSubmit ? "is-invalid" : "")"
+                                   id="guestName" name="name" autocomplete="name" @bind="BookingName" required placeholder="@Lang["Booking_Name_Placeholder"]" />
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="ms-form-group">
-                                    <label class="ms-form-label" for="guestEmail">
-                                        <i class="bi bi-envelope me-1 text-primary"></i> Alamat Email <span class="text-danger">*</span>
+                                    <label class="ms-form-label" for="guestEmail" style="color: #C4B9A6; font-weight: 600;">
+                                        <i class="bi bi-envelope me-1" style="color: #D4AF37;"></i> @Lang["Booking_Email_Label"] <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingEmail) && HasAttemptedSubmit ? "is-invalid" : "")" 
-                                           id="guestEmail" name="email" autocomplete="email" @bind="BookingEmail" required placeholder="alamat@email.com" />
+                                    <input type="email" class="ms-form-control @(string.IsNullOrWhiteSpace(BookingEmail) && HasAttemptedSubmit ? "is-invalid" : "")"
+                                           id="guestEmail" name="email" autocomplete="email" @bind="BookingEmail" required placeholder="@Lang["Booking_Email_Placeholder"]" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="ms-form-group">
-                                    <label class="ms-form-label" for="guestPhone">
-                                        <i class="bi bi-telephone me-1 text-primary"></i> No. WhatsApp / Telepon <span class="text-danger">*</span>
+                                    <label class="ms-form-label" for="guestPhone" style="color: #C4B9A6; font-weight: 600;">
+                                        <i class="bi bi-telephone me-1" style="color: #D4AF37;"></i> @Lang["Booking_Phone_Label"] <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" class="ms-form-control font-mono @(string.IsNullOrWhiteSpace(BookingPhone) && HasAttemptedSubmit ? "is-invalid" : "")" 
-                                           id="guestPhone" name="tel" autocomplete="tel" @bind="BookingPhone" required placeholder="08xxxxxxxxxx" />
+                                    <input type="tel" class="ms-form-control font-mono @(string.IsNullOrWhiteSpace(BookingPhone) && HasAttemptedSubmit ? "is-invalid" : "")"
+                                           id="guestPhone" name="tel" autocomplete="tel" @bind="BookingPhone" required placeholder="@Lang["Booking_Phone_Placeholder"]" />
                                 </div>
                             </div>
                         </div>
 
                         <div class="ms-form-group">
-                            <label class="ms-form-label" for="guestNotes">
-                                <i class="bi bi-chat-text me-1 text-primary"></i> Catatan Khusus (Opsional)
+                            <label class="ms-form-label" for="guestNotes" style="color: #C4B9A6; font-weight: 600;">
+                                <i class="bi bi-chat-text me-1" style="color: #D4AF37;"></i> @Lang["Booking_Notes_Label"]
                             </label>
-                            <textarea class="ms-form-control" id="guestNotes" @bind="BookingNotes" rows="3" placeholder="Permintaan khusus: area dekat jendela, kursi bayi, acara keluarga, dll."></textarea>
+                            <textarea class="ms-form-control" id="guestNotes" @bind="BookingNotes" rows="3"
+                                      placeholder="@Lang["Booking_Notes_Placeholder"]"></textarea>
                         </div>
 
-                        <div class="pt-3 mt-3" style="border-top: 1px solid var(--ms-border);">
-                            <button type="submit" class="ms-btn ms-btn-primary w-100" 
+                        <div class="pt-3 mt-3" style="border-top: 1px solid rgba(201, 169, 110, 0.16);">
+                            <button type="submit" class="ms-btn ms-btn-primary w-100"
                                     disabled="@IsSubmitting">
                                 @if (IsSubmitting)
                                 {
                                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    <span>Memproses Reservasi Anda...</span>
+                                    <span>@Lang["Booking_Submitting"]</span>
                                 }
                                 else
                                 {
-                                    <span>Konfirmasi & Buat Reservasi</span>
+                                    <span>@Lang["Booking_Submit_Btn"]</span>
                                     <i class="bi bi-arrow-right ms-1"></i>
                                 }
                             </button>
-                            <div class="font-mono text-center mt-2" style="font-size: 0.7rem; color: var(--ms-text-dim);">
-                                Terenkripsi & terhubung langsung dengan sistem reservasi outlet.
+                            <div class="font-mono text-center mt-2" style="font-size: 0.72rem; color: #6E6455;">
+                                @Lang["Booking_Security_Note"]
                             </div>
                         </div>
                     </form>
@@ -372,11 +407,17 @@
     }
 </div>
 
+<!-- QR Camera Scanner Modal -->
+<QrScannerModal IsOpen="IsScannerOpen"
+                OnScanSuccess="HandleQrScanned"
+                OnClose="() => IsScannerOpen = false" />
+
 @code {
     private string TenantCode = "";
     private bool IsLoading = false;
     private bool IsSubmitting = false;
     private bool HasAttemptedSubmit = false;
+    private bool IsScannerOpen = false;
     private string? Message;
 
     private Tenant? ActiveTenant;
@@ -398,8 +439,8 @@
 
     public class BrandingConfig
     {
-        public string PrimaryColor { get; set; } = "#6366F1";
-        public string SecondaryColor { get; set; } = "#4F46E5";
+        public string PrimaryColor { get; set; } = "#D4AF37";
+        public string SecondaryColor { get; set; } = "#A07E3F";
         public string Font { get; set; } = "Plus Jakarta Sans";
     }
 
@@ -433,12 +474,40 @@
         return client;
     }
 
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += HandleLanguageChanged;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("tenant", out var code))
         {
             TenantCode = code.ToString().ToUpperInvariant();
+            await LoadTenantBranding();
+        }
+    }
+
+    private void HandleLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SelectDemoOutlet(string code)
+    {
+        TenantCode = code.Trim().ToUpperInvariant();
+        Navigation.NavigateTo($"/booking?tenant={TenantCode}");
+        await LoadTenantBranding();
+    }
+
+    private async Task HandleQrScanned(string code)
+    {
+        IsScannerOpen = false;
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+            TenantCode = code.Trim().ToUpperInvariant();
+            Navigation.NavigateTo($"/booking?tenant={TenantCode}");
             await LoadTenantBranding();
         }
     }
@@ -677,5 +746,10 @@
         BookingNotes = "";
         HasAttemptedSubmit = false;
         ComputeTimeSlots();
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= HandleLanguageChanged;
     }
 }

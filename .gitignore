@@ -27,3 +27,7 @@ Desktop.ini
 .env.local
 .env.development
 .env.production
+
+# Node modules
+node_modules/
+package-lock.json

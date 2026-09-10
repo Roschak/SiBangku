@@ -1,34 +1,82 @@
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject LanguageService Lang
+@inject IJSRuntime JS
 
-<div class="d-flex flex-column min-vh-100" style="background-color: var(--ms-surface-dark);">
-    <!-- Editorial Architectural Navigation Bar -->
-    <header class="ms-public-navbar py-2.5 px-3 px-lg-4">
+<!-- Top Glowing Champagne Scroll Progress Indicator -->
+<div id="sibangku-scroll-progress"></div>
+
+<!-- Floating Luxury Back-to-Top Button with Circular Progress Ring -->
+<button id="sibangku-back-to-top" type="button" aria-label="Kembali ke atas" onclick="window.SiBangkuScroll ? window.SiBangkuScroll.scrollToTop() : window.scrollTo({top:0,behavior:'smooth'})">
+    <svg class="progress-ring" viewBox="0 0 48 48">
+        <circle class="progress-ring-circle" cx="24" cy="24" r="22"></circle>
+    </svg>
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<!-- Floating Section Quick-Jump Rail for Desktop -->
+<aside class="ms-quick-jump-rail d-none d-xl-flex" aria-label="Navigasi Bagian Cepat">
+    <a href="#hero" class="ms-quick-jump-dot active" data-target="#hero" title="Beranda"></a>
+    <a href="#simulasi" class="ms-quick-jump-dot" data-target="#simulasi" title="Simulasi Meja"></a>
+    <a href="#keunggulan" class="ms-quick-jump-dot" data-target="#keunggulan" title="Keunggulan"></a>
+    <a href="#alur" class="ms-quick-jump-dot" data-target="#alur" title="Cara Kerja"></a>
+    <a href="#teknologi" class="ms-quick-jump-dot" data-target="#teknologi" title="Teknologi"></a>
+    <a href="#cta" class="ms-quick-jump-dot" data-target="#cta" title="Mulai Reservasi"></a>
+</aside>
+
+<div class="ms-customer-portal d-flex flex-column min-vh-100" style="background-color: #0B0908; color: #F5F1E8;">
+    <!-- Editorial Luxury Navigation Bar (Dark Glass + Champagne Hairline) -->
+    <header class="ms-public-navbar py-3 px-3 px-lg-4 sticky-top" style="backdrop-filter: blur(16px); background-color: rgba(11, 9, 8, 0.85); border-bottom: 1px solid rgba(201, 169, 110, 0.22); z-index: 1000;">
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-4">
-                <a href="/" class="ms-public-brand">
-                    <span class="d-inline-flex align-items-center justify-content-center" 
-                          style="width: 32px; height: 32px; font-size: 1rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm); color: var(--ms-primary);">
-                        <i class="bi bi-grid-1x2"></i>
-                    </span>
-                    <span class="fw-bold tracking-tight">SiBangku</span>
-                    <span class="ms-public-brand-badge">SaaS</span>
+                <!-- Official SiBangku Brand Logo (Gold on Espresso) -->
+                <a href="/" class="text-decoration-none d-inline-flex align-items-center">
+                    <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" style="height: 40px; width: auto;" />
                 </a>
 
-                <nav class="d-none d-md-flex align-items-center gap-1.5">
+                <nav class="d-none d-lg-flex align-items-center gap-1 ms-2">
                     <NavLink class="ms-public-nav-link" href="" Match="NavLinkMatch.All">
-                        <i class="bi bi-house"></i> Beranda
+                        <i class="bi bi-house"></i> @Lang["Nav_Home"]
                     </NavLink>
+                    <a class="ms-public-nav-link" href="#simulasi">
+                        <i class="bi bi-grid-1x2"></i> Denah Meja
+                    </a>
+                    <a class="ms-public-nav-link" href="#keunggulan">
+                        <i class="bi bi-gem"></i> Keunggulan
+                    </a>
+                    <a class="ms-public-nav-link" href="#alur">
+                        <i class="bi bi-signpost-split"></i> 3 Langkah
+                    </a>
+                    <a class="ms-public-nav-link" href="#teknologi">
+                        <i class="bi bi-cpu"></i> Arsitektur
+                    </a>
                     <NavLink class="ms-public-nav-link" href="booking">
-                        <i class="bi bi-calendar2-check"></i> Reservasi Meja
+                        <i class="bi bi-calendar2-check"></i> @Lang["Nav_Booking"]
                     </NavLink>
                 </nav>
             </div>
 
-            <!-- Customer Fast Action -->
-            <div class="d-flex align-items-center gap-2">
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap">
-                    <i class="bi bi-calendar-plus"></i>
-                    <span>Pesan Meja</span>
+            <!-- Customer Fast Actions & Spacious Language Switcher -->
+            <div class="d-flex align-items-center gap-2.5">
+                <!-- Multi-Language Gold Pill Switcher -->
+                <div class="d-flex align-items-center p-1" style="background: #100D0B; border: 1px solid rgba(201, 169, 110, 0.30); border-radius: 999px; gap: 4px;">
+                    <button type="button"
+                            class="btn btn-sm font-mono"
+                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.Indonesian ? "rgba(212,175,55,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "#1A1206" : "#C4B9A6"); background: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "linear-gradient(135deg,#E8C98F,#D4AF37)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "0 4px 14px -4px rgba(212,175,55,0.6)" : "none");"
+                            @onclick='() => ChangeLanguage(LanguageService.Indonesian)'>
+                        ID
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm font-mono"
+                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.English ? "rgba(212,175,55,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.English ? "#1A1206" : "#C4B9A6"); background: @(Lang.CurrentLanguage == LanguageService.English ? "linear-gradient(135deg,#E8C98F,#D4AF37)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.English ? "0 4px 14px -4px rgba(212,175,55,0.6)" : "none");"
+                            @onclick='() => ChangeLanguage(LanguageService.English)'>
+                        EN
+                    </button>
+                </div>
+
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap d-none d-sm-inline-flex gold-shimmer-btn">
+                    <i class="bi bi-calendar-plus me-1"></i>
+                    <span>@Lang["Nav_BookNow"]</span>
                 </a>
             </div>
         </div>
@@ -39,37 +87,38 @@
         @Body
     </main>
 
-    <!-- High-End Hospitality Footer -->
-    <footer class="py-4 mt-auto" style="background-color: #07090F; border-top: 1px solid var(--ms-border);">
+    <!-- High-End Hospitality Footer (Dark Noir) -->
+    <footer class="py-5 mt-auto" style="background-color: #100D0B; border-top: 1px solid rgba(201, 169, 110, 0.20);">
         <div class="container py-2">
             <div class="row g-4 align-items-center justify-content-between">
                 <div class="col-md-6 text-center text-md-start">
-                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-1.5">
-                        <span class="d-inline-flex align-items-center justify-content-center text-white me-1" 
-                              style="width: 22px; height: 22px; font-size: 0.75rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs);">
-                            <i class="bi bi-grid-1x2 text-primary"></i>
-                        </span>
-                        <span class="fw-bold text-white fs-6">SiBangku</span>
-                        <span class="ms-badge ms-badge-neutral">Hospitality Engine</span>
+                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-2">
+                        <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku" style="height: 36px; width: auto;" />
                     </div>
-                    <p class="small mb-0" style="color: var(--ms-text-dim);">
-                        Enterprise multi-tenant table reservation and high-density restaurant operations platform.
+                    <p class="small mb-0" style="color: #8F8371; max-width: 480px; line-height: 1.7;">
+                        @(Lang.CurrentLanguage == LanguageService.English
+                            ? "Enterprise multi-tenant table reservation, interactive floorplan visualization, and high-density restaurant operations platform."
+                            : "Platform reservasi meja restoran multi-tenant modern dengan visualisasi denah meja akurat, pencegahan bentrok waktu, dan operasional kuliner efisien.")
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small mb-2" style="color: var(--ms-text-muted);">
-                        <a href="/" class="text-decoration-none" style="color: var(--ms-text-muted);">Beranda</a>
-                        <span style="color: var(--ms-border);">•</span>
-                        <a href="/booking" class="text-decoration-none" style="color: var(--ms-text-muted);">Pesan Meja</a>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small mb-2.5">
+                        <a href="/" class="text-decoration-none" style="color: #C4B9A6;">@Lang["Nav_Home"]</a>
+                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
+                        <a href="#simulasi" class="text-decoration-none" style="color: #C4B9A6;">Denah Meja</a>
+                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
+                        <a href="#alur" class="text-decoration-none" style="color: #C4B9A6;">Alur Pemesanan</a>
+                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
+                        <a href="/booking" class="text-decoration-none" style="color: #C4B9A6;">@Lang["Nav_Booking"]</a>
                     </div>
                     <!-- Discreet portal links for clients & owner -->
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2 font-mono" style="font-size: 0.72rem;">
-                        <span style="color: var(--ms-text-dim);">Access:</span>
-                        <a href="/admin" class="text-decoration-none" style="color: var(--ms-text-muted);" title="Portal Mitra Restoran">Resto Admin</a>
-                        <span style="color: var(--ms-border);">/</span>
-                        <a href="/control-admin" class="text-decoration-none" style="color: var(--ms-text-muted);" title="Platform Control Panel">Control Plane</a>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2 font-mono" style="font-size: 0.75rem;">
+                        <span style="color: #8F8371;">Portals:</span>
+                        <a href="/admin" class="text-decoration-none fw-semibold" style="color: #D4AF37;" title="Portal Mitra Restoran">@Lang["Nav_RestoAdmin"]</a>
+                        <span style="color: rgba(201, 169, 110, 0.35);">/</span>
+                        <a href="/control-admin" class="text-decoration-none fw-semibold" style="color: #D4AF37;" title="Platform Control Panel">@Lang["Nav_ControlPlane"]</a>
                     </div>
-                    <div class="font-mono mt-2" style="font-size: 0.7rem; color: var(--ms-text-dim);">
+                    <div class="font-mono mt-2" style="font-size: 0.72rem; color: #6E6455;">
                         &copy; 2026 SiBangku SaaS Platform. All rights reserved.
                     </div>
                 </div>
@@ -77,3 +126,52 @@
         </div>
     </footer>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var stored = await JS.InvokeAsync<string>("SiBangkuLang.getLanguage");
+                if (!string.IsNullOrEmpty(stored) && stored != Lang.CurrentLanguage)
+                {
+                    Lang.SetLanguage(stored);
+                }
+            }
+            catch { }
+
+            try
+            {
+                await JS.InvokeVoidAsync("SiBangkuScroll.init");
+            }
+            catch { }
+        }
+    }
+
+    private async Task ChangeLanguage(string code)
+    {
+        Lang.SetLanguage(code);
+        try
+        {
+            await JS.InvokeVoidAsync("SiBangkuLang.setLanguage", code);
+        }
+        catch { }
+    }
+
+    private void HandleLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= HandleLanguageChanged;
+    }
+}

@@ -21,6 +21,8 @@ builder.Services.AddHttpClient("TenantApi", client =>
     client.BaseAddress = new Uri(builder.Configuration["TENANT_API_URL"] ?? "http://localhost:3002");
 });
 
+builder.Services.AddScoped<SiBangku.Web.Services.LanguageService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

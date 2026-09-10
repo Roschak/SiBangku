@@ -1,4 +1,5 @@
 @page "/control-admin"
+@layout Layout.PortalLayout
 @rendermode InteractiveServer
 @using System.Net.Http.Headers
 @using System.Text.Json
@@ -16,12 +17,12 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-5 col-xl-4">
                     <div class="text-center mb-4">
-                        <a href="/" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2">
-                            <span class="d-inline-flex align-items-center justify-content-center text-primary" 
-                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                        <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center" 
+                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
                                 <i class="bi bi-sliders2"></i>
                             </span>
-                            <span class="fs-5 fw-bold tracking-tight text-white">SiBangku Control</span>
+                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: #F5F1E8;">SiBangku Control</span>
                         </a>
                         <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Platform Super Admin Authentication</div>
                     </div>
@@ -624,7 +625,7 @@ else
                                     </div>
                                 </div>
 
-                                <div class="p-3" style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--ms-primary-border); border-radius: var(--ms-radius-xs);">
+                                <div class="p-3" style="background: rgba(212, 175, 55, 0.06); border: 1px solid var(--ms-primary-border); border-radius: var(--ms-radius-xs);">
                                     <div class="small text-white fw-bold mb-1">
                                         <i class="bi bi-shield-check text-primary me-1"></i> Standar Keamanan SiBangku
                                     </div>

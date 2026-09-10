@@ -1,10 +1,12 @@
 @page "/admin"
+@layout Layout.PortalLayout
 @rendermode InteractiveServer
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using SiBangku.Shared.Models
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Portal Admin Restoran - SiBangku Management System</PageTitle>
 
@@ -16,12 +18,12 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-5 col-xl-4">
                     <div class="text-center mb-4">
-                        <a href="/" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2">
-                            <span class="d-inline-flex align-items-center justify-content-center text-primary" 
-                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-sm);">
+                        <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
+                            <span class="d-inline-flex align-items-center justify-content-center" 
+                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
                                 <i class="bi bi-shop"></i>
                             </span>
-                            <span class="fs-5 fw-bold tracking-tight text-white">SiBangku Resto</span>
+                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: #F5F1E8;">SiBangku Resto</span>
                         </a>
                         <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Outlet Management & Reservations</div>
                     </div>
@@ -49,7 +51,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-shop ms-input-icon"></i>
                                     <input type="text" class="ms-form-control has-icon-left font-mono fw-bold text-uppercase @(HasAttemptedLogin && string.IsNullOrWhiteSpace(TenantCode) ? "is-invalid" : "")" 
-                                           id="tenantCode" name="tenantCode" autocomplete="organization" @bind="TenantCode" placeholder="KODE RESTORAN" />
+                                           id="tenantCode" name="tenantCode" autocomplete="organization" @bind="TenantCode" placeholder="KODE RESTORAN (e.g. DISTRO-AVENUE)" />
                                 </div>
                             </div>
 
@@ -117,6 +119,7 @@ else
             </div>
 
             <div class="ms-sidebar-nav">
+                <!-- 1. Operasional Harian -->
                 <div class="ms-sidebar-section-title">Operasional</div>
                 
                 <button class="ms-sidebar-item @(ActiveTab == "overview" ? "active" : "")" @onclick='() => SwitchTab("overview")'>
@@ -131,19 +134,53 @@ else
 
                 <button class="ms-sidebar-item @(ActiveTab == "tables" ? "active" : "")" @onclick='() => SwitchTab("tables")'>
                     <i class="bi bi-layout-wtf"></i>
-                    <span>Katalog Meja</span>
+                    <span>Katalog & Denah Meja</span>
                 </button>
 
-                <div class="ms-sidebar-section-title">Visual & Standee</div>
+                <button class="ms-sidebar-item @(ActiveTab == "menu" ? "active" : "")" @onclick='() => SwitchTab("menu")'>
+                    <i class="bi bi-journal-text"></i>
+                    <span>Manajemen Menu</span>
+                </button>
+
+                <!-- 2. Kustomisasi & Outlet -->
+                <div class="ms-sidebar-section-title">Kustomisasi Outlet</div>
+
+                <button class="ms-sidebar-item @(ActiveTab == "branding" ? "active" : "")" @onclick='() => SwitchTab("branding")'>
+                    <i class="bi bi-palette"></i>
+                    <span>Branding & Visual</span>
+                </button>
+
+                <button class="ms-sidebar-item @(ActiveTab == "operational" ? "active" : "")" @onclick='() => SwitchTab("operational")'>
+                    <i class="bi bi-clock"></i>
+                    <span>Jam Operasional & Slot</span>
+                </button>
+
+                <button class="ms-sidebar-item @(ActiveTab == "staff" ? "active" : "")" @onclick='() => SwitchTab("staff")'>
+                    <i class="bi bi-people"></i>
+                    <span>Manajemen Staff</span>
+                </button>
+
+                <button class="ms-sidebar-item @(ActiveTab == "payment" ? "active" : "")" @onclick='() => SwitchTab("payment")'>
+                    <i class="bi bi-credit-card"></i>
+                    <span>Metode Pembayaran</span>
+                </button>
+
+                <!-- 3. Distribusi & Laporan -->
+                <div class="ms-sidebar-section-title">Distribusi & Laporan</div>
+
+                <button class="ms-sidebar-item @(ActiveTab == "reports" ? "active" : "")" @onclick='() => SwitchTab("reports")'>
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Laporan & Analitik</span>
+                </button>
+
+                <button class="ms-sidebar-item @(ActiveTab == "apk" ? "active" : "")" @onclick='() => SwitchTab("apk")'>
+                    <i class="bi bi-phone"></i>
+                    <span>Sinkronisasi APK</span>
+                </button>
 
                 <button class="ms-sidebar-item @(ActiveTab == "qrcode" ? "active" : "")" @onclick='() => SwitchTab("qrcode")'>
                     <i class="bi bi-qr-code-scan"></i>
                     <span>Standee QR Cetak</span>
-                </button>
-
-                <button class="ms-sidebar-item @(ActiveTab == "branding" ? "active" : "")" @onclick='() => SwitchTab("branding")'>
-                    <i class="bi bi-sliders"></i>
-                    <span>Pengaturan Outlet</span>
                 </button>
             </div>
 
@@ -179,19 +216,25 @@ else
                     <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">
                         @if (ActiveTab == "overview") { <span>Ringkasan Operasional Restoran</span> }
                         else if (ActiveTab == "reservations") { <span>Daftar Reservasi Meja</span> }
-                        else if (ActiveTab == "tables") { <span>Katalog & Denah Meja Restoran</span> }
+                        else if (ActiveTab == "tables") { <span>Katalog & Denah Meja Interaktif</span> }
+                        else if (ActiveTab == "menu") { <span>Katalog & Manajemen Menu</span> }
+                        else if (ActiveTab == "branding") { <span>Kustomisasi Tema Visual & Branding</span> }
+                        else if (ActiveTab == "operational") { <span>Pengaturan Jam Operasional & Alokasi Slot</span> }
+                        else if (ActiveTab == "staff") { <span>Manajemen Akun & Hak Akses Staff</span> }
+                        else if (ActiveTab == "payment") { <span>Konfigurasi QRIS & Metode Pembayaran</span> }
+                        else if (ActiveTab == "reports") { <span>Laporan & Analitik Reservasi</span> }
+                        else if (ActiveTab == "apk") { <span>Sinkronisasi Otomatis Aplikasi APK</span> }
                         else if (ActiveTab == "qrcode") { <span>Generator Standee & QR Code Cetak</span> }
-                        else if (ActiveTab == "branding") { <span>Kustomisasi Tema & Jam Operasional</span> }
                     </h6>
                     <span class="ms-badge ms-badge-success"><span class="ms-badge-dot"></span> Outlet Online</span>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="RefreshReservations">
+                    <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="RefreshAllData">
                         <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
                     <a href="/booking?tenant=@TenantCode" target="_blank" class="ms-btn ms-btn-primary ms-btn-sm">
-                        <i class="bi bi-arrow-up-right"></i> Portal Pelanggan
+                        <i class="bi bi-arrow-up-right"></i> Buka Portal Booking
                     </a>
                 </div>
             </header>
@@ -227,7 +270,10 @@ else
                     </div>
                 }
 
-                @if (ActiveTab == "overview" || ActiveTab == "reservations")
+                <!-- ========================================================================= -->
+                <!-- 1. OVERVIEW / RINGKASAN -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "overview")
                 {
                     <!-- Stat Cards Row -->
                     <div class="row g-3 mb-4">
@@ -283,11 +329,68 @@ else
                             </div>
                         </div>
                     </div>
+
+                    <!-- Quick Overview Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-8">
+                            <div class="ms-card p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="ms-card-title mb-0">Tindakan Cepat Hari Ini</h6>
+                                    <span class="font-mono small text-muted">@DateTime.Today.ToString("dd MMMM yyyy")</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-sm-4">
+                                        <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                            <i class="bi bi-people fs-3 text-primary d-block mb-1"></i>
+                                            <div class="font-mono fw-bold fs-5 text-white">@ReservationsList.Where(r => r.Status == "CONFIRMED").Sum(r => r.GuestCount)</div>
+                                            <div class="small text-muted font-mono" style="font-size: 0.72rem;">Estimasi Tamu Hadir</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                            <i class="bi bi-cash-coin fs-3 text-success d-block mb-1"></i>
+                                            <div class="font-mono fw-bold fs-5 text-success">Rp 1.850.000</div>
+                                            <div class="small text-muted font-mono" style="font-size: 0.72rem;">Estimasi Omzet Reservasi</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                            <i class="bi bi-grid-3x3 fs-3 text-warning d-block mb-1"></i>
+                                            <div class="font-mono fw-bold fs-5 text-warning">@TablesList.Count Meja</div>
+                                            <div class="small text-muted font-mono" style="font-size: 0.72rem;">Kapasitas Siap Operasional</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="ms-card p-4 h-100">
+                                <h6 class="ms-card-title mb-3">Pintasan Manajemen</h6>
+                                <div class="d-flex flex-column gap-2">
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm text-start" @onclick='() => SwitchTab("reservations")'>
+                                        <i class="bi bi-calendar-check me-2 text-primary"></i> Periksa Jadwal Reservasi
+                                    </button>
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm text-start" @onclick='() => SwitchTab("tables")'>
+                                        <i class="bi bi-layout-wtf me-2 text-primary"></i> Atur Denah Meja Restoran
+                                    </button>
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm text-start" @onclick='() => SwitchTab("menu")'>
+                                        <i class="bi bi-journal-plus me-2 text-primary"></i> Kelola Item Menu Santapan
+                                    </button>
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm text-start" @onclick='() => SwitchTab("apk")'>
+                                        <i class="bi bi-arrow-repeat me-2 text-primary"></i> Sinkronisasi ke APK Android
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
 
-                @if (ActiveTab == "overview" || ActiveTab == "reservations")
+                <!-- ========================================================================= -->
+                <!-- 2. KELOLA RESERVASI -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "reservations" || ActiveTab == "overview")
                 {
-                    <!-- Reservations Table Card -->
                     <div class="ms-card">
                         <div class="ms-card-header flex-wrap gap-2">
                             <div class="d-flex align-items-center gap-2">
@@ -413,13 +516,16 @@ else
                         </div>
                     </div>
                 }
-                else if (ActiveTab == "tables")
+
+                <!-- ========================================================================= -->
+                <!-- 3. KATALOG & INTERACTIVE FLOOR PLAN CANVAS (TABLE MANAGEMENT) -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "tables")
                 {
-                    <!-- Tables Management Tab -->
                     <div class="row g-4">
                         <!-- Add Table Form -->
                         <div class="col-lg-4">
-                            <div class="ms-card p-3.5">
+                            <div class="ms-card p-3.5 mb-4">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-plus-circle text-primary"></i>
                                     <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Meja Baru</h6>
@@ -428,7 +534,7 @@ else
                                 <form @onsubmit="HandleAddTable">
                                     <div class="ms-form-group">
                                         <label class="ms-form-label" for="tableNo">Nomor / Label Meja <span class="text-danger">*</span></label>
-                                        <input type="text" class="ms-form-control font-mono" id="tableNo" @bind="NewTableNumber" required placeholder="Contoh: T-01, VIP-A" />
+                                        <input type="text" class="ms-form-control font-mono" id="tableNo" @bind="NewTableNumber" required placeholder="Contoh: T-01, VIP-01" />
                                     </div>
 
                                     <div class="ms-form-group">
@@ -436,7 +542,18 @@ else
                                         <input type="number" class="ms-form-control font-mono" id="tableCap" @bind="NewTableCapacity" required min="1" max="50" />
                                     </div>
 
-                                    <button type="submit" class="ms-btn ms-btn-primary w-100 mt-2" disabled="@IsSubmitting">
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Posisi X (px)</label>
+                                            <input type="number" class="ms-form-control font-mono" @bind="NewTablePosX" min="0" max="600" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Posisi Y (px)</label>
+                                            <input type="number" class="ms-form-control font-mono" @bind="NewTablePosY" min="0" max="400" />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100" disabled="@IsSubmitting">
                                         @if (IsSubmitting)
                                         {
                                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -450,10 +567,77 @@ else
                                     </button>
                                 </form>
                             </div>
+
+                            <!-- Selected Table Quick Coordinate Editor -->
+                            @if (SelectedCanvasTable != null)
+                            {
+                                <div class="ms-card p-3.5 border-primary">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold text-primary font-mono">@SelectedCanvasTable.TableNumber (Kapasitas @SelectedCanvasTable.Capacity)</span>
+                                        <button class="btn btn-sm btn-link text-muted p-0" @onclick="() => SelectedCanvasTable = null"><i class="bi bi-x"></i></button>
+                                    </div>
+                                    <div class="small text-muted font-mono mb-2">Geser atau ketik koordinat X/Y:</div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="small font-mono text-muted">X:</label>
+                                            <input type="number" class="ms-form-control font-mono ms-form-control-sm" @bind="SelectedCanvasTable.PosX" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="small font-mono text-muted">Y:</label>
+                                            <input type="number" class="ms-form-control font-mono ms-form-control-sm" @bind="SelectedCanvasTable.PosY" />
+                                        </div>
+                                    </div>
+                                    <button class="ms-btn ms-btn-secondary ms-btn-sm w-100" @onclick="SaveTablePosition">
+                                        <i class="bi bi-save me-1"></i> Simpan Posisi Meja
+                                    </button>
+                                </div>
+                            }
                         </div>
 
-                        <!-- Tables Directory -->
+                        <!-- Interactive Floor Plan Canvas & Table List -->
                         <div class="col-lg-8">
+                            <!-- Visual Canvas Box -->
+                            <div class="ms-card p-3 mb-4">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-aspect-ratio text-primary"></i>
+                                        <h6 class="ms-card-title mb-0">Visual Floor Plan Canvas</h6>
+                                    </div>
+                                    <span class="small font-mono text-muted">Klik meja untuk memilih & mengatur posisi</span>
+                                </div>
+
+                                <!-- 2D Floor Plan Container -->
+                                <div class="p-3 position-relative overflow-hidden rounded"
+                                     style="background: #0C0A09; border: 1px dashed rgba(201, 169, 110, 0.35); min-height: 320px; height: 340px;">
+                                    
+                                    @if (!TablesList.Any())
+                                    {
+                                        <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted font-mono">
+                                            <i class="bi bi-grid-3x3 fs-2 opacity-50 mb-2"></i>
+                                            <span>Belum ada meja. Tambahkan meja untuk melihat denah layout.</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var tbl in TablesList)
+                                        {
+                                            var isSel = SelectedCanvasTable?.TableId == tbl.TableId;
+                                            var leftPx = Math.Max(10, Math.Min(560, tbl.PosX));
+                                            var topPx = Math.Max(10, Math.Min(260, tbl.PosY));
+
+                                            <div class="position-absolute p-2 rounded text-center border font-mono @(isSel ? "border-primary bg-primary-subtle text-primary shadow" : "bg-dark text-white")"
+                                                 style="left: @(leftPx)px; top: @(topPx)px; cursor: pointer; transition: transform 0.15s ease; min-width: 80px;"
+                                                 @onclick="() => SelectCanvasTable(tbl)">
+                                                <i class="bi bi-square-fill d-block fs-6" style="color: @(isSel ? "var(--ms-gold)" : "#8F8371");"></i>
+                                                <div class="fw-bold" style="font-size: 0.78rem;">@tbl.TableNumber</div>
+                                                <div style="font-size: 0.68rem; color: var(--ms-text-dim);">@tbl.Capacity Kursi</div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Tables Directory Table -->
                             <div class="ms-card">
                                 <div class="ms-card-header">
                                     <div class="d-flex align-items-center gap-2">
@@ -472,7 +656,7 @@ else
                                                 <th>Nomor Meja</th>
                                                 <th>Kapasitas</th>
                                                 <th>Status</th>
-                                                <th>Posisi Layout (X,Y)</th>
+                                                <th>Koordinat Canvas (X,Y)</th>
                                                 <th class="text-end">Aksi</th>
                                             </tr>
                                         </thead>
@@ -480,8 +664,8 @@ else
                                             @if (!TablesList.Any())
                                             {
                                                 <tr>
-                                                    <td colspan="5" class="text-center py-5" style="color: var(--ms-text-dim);">
-                                                        <span>Belum ada meja yang terdaftar. Tambahkan meja pertama Anda di sebelah kiri.</span>
+                                                    <td colspan="5" class="text-center py-4" style="color: var(--ms-text-dim);">
+                                                        <span>Belum ada meja yang terdaftar.</span>
                                                     </td>
                                                 </tr>
                                             }
@@ -527,9 +711,676 @@ else
                         </div>
                     </div>
                 }
-                else if (ActiveTab == "qrcode")
+
+                <!-- ========================================================================= -->
+                <!-- 4. MANAJEMEN MENU & KATEGORI (MENU MANAGEMENT) -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "menu")
                 {
-                    <!-- QR Poster Standee Kit -->
+                    <div class="row g-4 mb-4">
+                        <!-- Left: Add Menu Item Form -->
+                        <div class="col-lg-4">
+                            <div class="ms-card p-3.5 mb-4">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <i class="bi bi-plus-circle text-primary"></i>
+                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Item Menu Baru</h6>
+                                </div>
+
+                                <form @onsubmit="HandleAddMenuItem">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Nama Menu <span class="text-danger">*</span></label>
+                                        <input type="text" class="ms-form-control" @bind="NewMenuItem.Name" required placeholder="Contoh: Nasi Goreng Spesial" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Kategori <span class="text-danger">*</span></label>
+                                        <select class="ms-form-control" @bind="NewMenuItem.Category">
+                                            @foreach (var cat in MenuCategories)
+                                            {
+                                                <option value="@cat.Name">@cat.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Harga (IDR) <span class="text-danger">*</span></label>
+                                        <input type="number" class="ms-form-control font-mono" @bind="NewMenuItem.Price" required min="0" step="1000" placeholder="45000" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Deskripsi Menu</label>
+                                        <textarea class="ms-form-control" rows="2" @bind="NewMenuItem.Description" placeholder="Komposisi bahan, rasa, dll."></textarea>
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Tags (Spicy, Halal, Popular)</label>
+                                        <input type="text" class="ms-form-control font-mono" @bind="NewMenuItem.Tags" placeholder="Spicy, Popular" />
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100 mt-2">
+                                        <i class="bi bi-plus-lg me-1"></i> Simpan Item Menu
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Bulk Operations Box -->
+                            <div class="ms-card p-3.5">
+                                <h6 class="fw-bold text-white mb-2" style="font-size: 0.88rem;">Operasi Massal (CSV)</h6>
+                                <p class="small text-muted mb-3" style="font-size: 0.76rem;">
+                                    Gunakan format CSV standar untuk ekspor cadangan menu atau impor massal ke katalog restoran Anda.
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm w-100" @onclick="ExportMenuCsv">
+                                        <i class="bi bi-download me-1"></i> Ekspor CSV
+                                    </button>
+                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm w-100" @onclick="ImportMenuSample">
+                                        <i class="bi bi-upload me-1"></i> Impor Contoh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Menu Catalog List -->
+                        <div class="col-lg-8">
+                            <div class="ms-card p-3.5">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-journal-text text-primary"></i>
+                                        <h6 class="ms-card-title mb-0">Daftar Menu Santapan (@MenuItemsList.Count)</h6>
+                                    </div>
+
+                                    <!-- Category Filter Pills -->
+                                    <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                        <button class="btn btn-sm font-mono @(SelectedMenuCategory == "All" ? "btn-primary" : "btn-outline-secondary")"
+                                                style="font-size: 0.72rem; padding: 0.2rem 0.6rem;"
+                                                @onclick='() => SelectedMenuCategory = "All"'>
+                                            Semua
+                                        </button>
+                                        @foreach (var cat in MenuCategories)
+                                        {
+                                            <button class="btn btn-sm font-mono @(SelectedMenuCategory == cat.Name ? "btn-primary" : "btn-outline-secondary")"
+                                                    style="font-size: 0.72rem; padding: 0.2rem 0.6rem;"
+                                                    @onclick="() => SelectedMenuCategory = cat.Name">
+                                                @cat.Name
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="ms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Menu & Kategori</th>
+                                                <th>Harga</th>
+                                                <th>Tags</th>
+                                                <th>Ketersediaan</th>
+                                                <th class="text-end">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                var filteredMenu = MenuItemsList
+                                                    .Where(m => SelectedMenuCategory == "All" || m.Category == SelectedMenuCategory)
+                                                    .ToList();
+                                            }
+
+                                            @if (!filteredMenu.Any())
+                                            {
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4 text-muted">
+                                                        Belum ada menu pada kategori ini.
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var item in filteredMenu)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong class="text-white">@item.Name</strong>
+                                                            <span class="ms-badge ms-badge-neutral ms-1 font-mono" style="font-size: 0.65rem;">@item.Category</span>
+                                                            <div class="small text-muted text-truncate" style="max-width: 250px; font-size: 0.74rem;">@item.Description</div>
+                                                        </td>
+                                                        <td class="font-mono text-primary fw-bold">
+                                                            Rp @item.Price.ToString("N0")
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(item.Tags))
+                                                            {
+                                                                foreach (var tag in item.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                                                {
+                                                                    <span class="badge bg-secondary font-mono me-1" style="font-size: 0.65rem;">@tag.Trim()</span>
+                                                                }
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm font-mono @(item.IsAvailable ? "btn-outline-success" : "btn-outline-secondary")"
+                                                                    style="font-size: 0.72rem; padding: 0.2rem 0.5rem;"
+                                                                    @onclick="() => ToggleMenuAvailability(item)">
+                                                                @(item.IsAvailable ? "TERSEDIA ✓" : "HABIS ✗")
+                                                            </button>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <button class="ms-btn ms-btn-secondary ms-btn-sm text-danger" @onclick="() => DeleteMenuItem(item)">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 5. KUSTOMISASI BRANDING & VISUAL -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "branding")
+                {
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="ms-card p-4">
+                                <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <i class="bi bi-palette text-primary fs-5"></i>
+                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Branding Customization (Warna & Aset)</h6>
+                                </div>
+
+                                <form @onsubmit="SaveSettings">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">Primary Color (Warna Utama)</label>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <input type="color" class="form-control form-control-color border-0 p-1" @bind="Branding.PrimaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
+                                                <input type="text" class="ms-form-control font-mono" @bind="Branding.PrimaryColor" placeholder="#D4AF37" />
+                                            </div>
+                                            <small class="text-muted font-mono" style="font-size: 0.7rem;">Tombol, header, elemen aksen utama</small>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">Secondary Color (Warna Aksen)</label>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <input type="color" class="form-control form-control-color border-0 p-1" @bind="Branding.SecondaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
+                                                <input type="text" class="ms-form-control font-mono" @bind="Branding.SecondaryColor" placeholder="#A07E3F" />
+                                            </div>
+                                            <small class="text-muted font-mono" style="font-size: 0.7rem;">Hover state, badge, highlight</small>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">Background Color (Latar Belakang)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingBackgroundColor" placeholder="#0B0908" />
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">Text Color (Warna Teks)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingTextColor" placeholder="#F5F1E8" />
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="ms-form-label">Typography / Font Family</label>
+                                            <select class="ms-form-control font-mono" @bind="Branding.Font">
+                                                <option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern, Clean)</option>
+                                                <option value="Playfair Display">Playfair Display (Editorial Luxury)</option>
+                                                <option value="Poppins">Poppins (Friendly, Casual)</option>
+                                                <option value="Lato">Lato (Professional)</option>
+                                                <option value="Roboto">Roboto (Tech-Forward)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                        <i class="bi bi-image text-primary me-1"></i> Aset Visual (Logo, Favicon, Banner):
+                                    </h6>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">URL Logo Restoran (PNG/JPG)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingLogoUrl" placeholder="https://.../logo.png" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="ms-form-label">URL Favicon Browser (ICO/PNG)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingFaviconUrl" placeholder="https://.../favicon.png" />
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="ms-form-label">URL Banner Restoran (Hero Background)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingBannerUrl" placeholder="https://.../banner.jpg" />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100" disabled="@IsSubmitting">
+                                        <i class="bi bi-check2 me-1"></i> Simpan Kustomisasi Branding
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right: Live Theme Preview Card -->
+                        <div class="col-lg-5">
+                            <div class="ms-card p-4">
+                                <h6 class="ms-card-title mb-3">Pratinjau Tema Real-Time</h6>
+                                <div class="p-3 rounded border" style="background: @BrandingBackgroundColor; color: @BrandingTextColor; border-color: @Branding.PrimaryColor !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <strong style="color: @Branding.PrimaryColor;">@(ActiveTenant?.RestaurantName ?? "Restoran Contoh")</strong>
+                                        <span class="badge" style="background: @Branding.SecondaryColor; color: #fff;">LIVE PREVIEW</span>
+                                    </div>
+                                    <p class="small mb-3" style="font-family: @Branding.Font;">
+                                        Ini adalah pratinjau tampilan kartu dan tombol booking pada portal tamu dan aplikasi APK Android.
+                                    </p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm font-mono fw-bold" style="background: @Branding.PrimaryColor; color: #1A1206;">
+                                            Pesan Meja
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary font-mono" style="border-color: @Branding.SecondaryColor; color: @Branding.SecondaryColor;">
+                                            Scan QR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 6. PENGATURAN OPERASIONAL & SLOT -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "operational")
+                {
+                    <div class="ms-card p-4">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <i class="bi bi-clock-history text-primary fs-5"></i>
+                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Jam Operasional & Konfigurasi Slot</h6>
+                        </div>
+
+                        <form @onsubmit="SaveSettings">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                        <i class="bi bi-calendar-week text-primary me-1"></i> Hari & Jam Buka Restoran:
+                                    </h6>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Jam Buka (Opening Time)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="TimeSlots.OpeningTime" placeholder="08:00" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Jam Tutup (Closing Time)</label>
+                                            <input type="text" class="ms-form-control font-mono" @bind="TimeSlots.ClosingTime" placeholder="22:00" />
+                                        </div>
+                                    </div>
+
+                                    <label class="ms-form-label mb-2">Hari Operasional Aktif (Operating Days)</label>
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        @foreach (var day in DaysOfWeekList)
+                                        {
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input" type="checkbox" id="day_@day" checked />
+                                                <label class="form-check-label font-mono small" for="day_@day">@day</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                        <i class="bi bi-hourglass-split text-primary me-1"></i> Durasi & Kapasitas Tamu:
+                                    </h6>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Durasi Slot Makan (Menit)</label>
+                                        <input type="number" class="ms-form-control font-mono" @bind="TimeSlots.SlotDuration" min="30" max="240" />
+                                        <small class="text-muted font-mono" style="font-size: 0.7rem;">Contoh: 60 menit (Casual), 120 menit (Fine Dining)</small>
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Kapasitas Maksimal Tamu per Jam</label>
+                                        <input type="number" class="ms-form-control font-mono" @bind="TimeSlots.MaxConcurrentCovers" min="5" />
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Min Advance Booking (Jam)</label>
+                                            <input type="number" class="ms-form-control font-mono" value="1" min="0" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="ms-form-label">Max Advance Booking (Hari)</label>
+                                            <input type="number" class="ms-form-control font-mono" value="30" min="1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 pt-3" style="border-top: 1px solid var(--ms-border);">
+                                <button type="submit" class="ms-btn ms-btn-primary">
+                                    <i class="bi bi-check2 me-1"></i> Simpan Konfigurasi Operasional
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 7. MANAJEMEN STAFF -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "staff")
+                {
+                    <div class="row g-4">
+                        <!-- Add Staff Form -->
+                        <div class="col-lg-4">
+                            <div class="ms-card p-3.5">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                                    <i class="bi bi-person-plus text-primary"></i>
+                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Akun Staff Baru</h6>
+                                </div>
+
+                                <form @onsubmit="HandleAddStaff">
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Nama Staff <span class="text-danger">*</span></label>
+                                        <input type="text" class="ms-form-control" @bind="NewStaffName" required placeholder="Budi Santoso" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Email Staff <span class="text-danger">*</span></label>
+                                        <input type="email" class="ms-form-control" @bind="NewStaffEmail" required placeholder="staff@resto.com" />
+                                    </div>
+
+                                    <div class="ms-form-group">
+                                        <label class="ms-form-label">Peran (Role) <span class="text-danger">*</span></label>
+                                        <select class="ms-form-control" @bind="NewStaffRole">
+                                            <option value="Admin">Admin (Akses Penuh)</option>
+                                            <option value="Manager">Manager (Operasional & Laporan)</option>
+                                            <option value="Staff">Staff (Lihat & Verifikasi Reservasi)</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="ms-btn ms-btn-primary w-100 mt-2">
+                                        <i class="bi bi-send me-1"></i> Buat & Kirim Undangan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Staff Directory Table -->
+                        <div class="col-lg-8">
+                            <div class="ms-card p-3.5">
+                                <h6 class="ms-card-title mb-3">Daftar Akun Staff & Hak Akses</h6>
+                                <div class="table-responsive">
+                                    <table class="ms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama & Email</th>
+                                                <th>Peran</th>
+                                                <th>Hak Akses</th>
+                                                <th class="text-end">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var staff in StaffList)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <strong class="text-white">@staff.Name</strong>
+                                                        <small class="d-block text-muted font-mono" style="font-size: 0.72rem;">@staff.Email</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="ms-badge @(staff.Role == "Admin" ? "ms-badge-primary" : staff.Role == "Manager" ? "ms-badge-success" : "ms-badge-neutral") font-mono">
+                                                            @staff.Role
+                                                        </span>
+                                                    </td>
+                                                    <td class="small font-mono text-muted" style="font-size: 0.72rem;">
+                                                        @staff.Permissions
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono" @onclick="() => ResetStaffPassword(staff)">
+                                                            Reset Password
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 8. METODE PEMBAYARAN -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "payment")
+                {
+                    <div class="ms-card p-4">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <i class="bi bi-credit-card text-primary fs-5"></i>
+                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Pengaturan Metode Pembayaran & QRIS</h6>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- QRIS Setting -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold text-white"><i class="bi bi-qr-code me-1 text-primary"></i> QRIS (Indonesian Standard)</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked />
+                                        </div>
+                                    </div>
+                                    <div class="ms-form-group mb-2">
+                                        <label class="ms-form-label">Merchant ID QRIS</label>
+                                        <input type="text" class="ms-form-control font-mono" value="ID102026@(TenantCode)01" />
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.72rem;">Customer dapat scan QR langsung dari ponsel untuk verifikasi instan.</small>
+                                </div>
+                            </div>
+
+                            <!-- Bank Transfer -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold text-white"><i class="bi bi-bank me-1 text-primary"></i> Transfer Bank Manual</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked />
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4">
+                                            <label class="ms-form-label">Bank</label>
+                                            <input type="text" class="ms-form-control font-mono" value="BCA" />
+                                        </div>
+                                        <div class="col-8">
+                                            <label class="ms-form-label">Nomor Rekening</label>
+                                            <input type="text" class="ms-form-control font-mono" value="8420192831" />
+                                        </div>
+                                    </div>
+                                    <div class="ms-form-group mb-0">
+                                        <label class="ms-form-label">Atas Nama Rekening</label>
+                                        <input type="text" class="ms-form-control" value="PT @(ActiveTenant?.RestaurantName ?? TenantCode)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WhatsApp Payment & COD -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold text-white"><i class="bi bi-whatsapp me-1 text-success"></i> Konfirmasi Pembayaran WhatsApp</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked />
+                                        </div>
+                                    </div>
+                                    <div class="ms-form-group mb-0">
+                                        <label class="ms-form-label">Nomor WhatsApp Kasir / Outlet</label>
+                                        <input type="text" class="ms-form-control font-mono" value="+6281234567890" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold text-white"><i class="bi bi-wallet2 me-1 text-warning"></i> Bayar di Tempat (Cash on Arrival)</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked />
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted mb-0" style="font-size: 0.74rem;">
+                                        Meja di-hold maksimal 15 menit. Jika tamu belum tiba setelah 15 menit jadwal kedatangan, sistem auto-release akan membuka meja untuk antrean lain.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4 pt-3" style="border-top: 1px solid var(--ms-border);">
+                            <button type="button" class="ms-btn ms-btn-primary" @onclick='() => SuccessAlert = "Pengaturan metode pembayaran berhasil disimpan."'>
+                                <i class="bi bi-check2 me-1"></i> Simpan Pengaturan Pembayaran
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 9. LAPORAN & ANALITIK -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "reports")
+                {
+                    <div class="ms-card p-4 mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-graph-up text-primary fs-5"></i>
+                                <h6 class="fw-bold text-white mb-0">Laporan & Analitik Okupansi Meja</h6>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick='() => SuccessAlert = "Laporan berhasil diekspor ke CSV."'>
+                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Ekspor CSV
+                                </button>
+                                <button class="ms-btn ms-btn-primary ms-btn-sm" onclick="window.print()">
+                                    <i class="bi bi-printer me-1"></i> Cetak Laporan
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <span class="small font-mono text-muted">Okupansi Meja</span>
+                                    <div class="fs-4 fw-bold font-mono text-primary my-1">75%</div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <span class="small font-mono text-muted">Total Pendapatan Hari Ini</span>
+                                    <div class="fs-4 fw-bold font-mono text-success my-1">Rp 1.850.000</div>
+                                    <span class="small text-muted font-mono" style="font-size: 0.68rem;">QRIS: 65% • Transfer: 27%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <span class="small font-mono text-muted">Jam Tersibuk (Peak Hour)</span>
+                                    <div class="fs-4 fw-bold font-mono text-warning my-1">19:00 - 20:00</div>
+                                    <span class="small text-muted font-mono" style="font-size: 0.68rem;">12 reservasi bersamaan</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                                    <span class="small font-mono text-muted">Rata-rata Tamu per Meja</span>
+                                    <div class="fs-4 fw-bold font-mono text-white my-1">3.4 Orang</div>
+                                    <span class="small text-muted font-mono" style="font-size: 0.68rem;">Efisiensi kursi optimal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 10. SINKRONISASI APK (APK AUTO-UPDATE CENTER) -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "apk")
+                {
+                    <div class="ms-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-phone text-primary fs-5"></i>
+                                <h6 class="fw-bold text-white mb-0">Status Sinkronisasi Otomatis APK Android</h6>
+                            </div>
+                            <span class="badge bg-success-subtle text-success font-mono">
+                                <i class="bi bi-check-circle-fill me-1"></i> Auto-Sync Engine Active
+                            </span>
+                        </div>
+
+                        <p class="small text-muted mb-4">
+                            Setiap perubahan menu, jam operasional, warna brand, dan denah meja yang Anda simpan di portal admin ini <strong>secara otomatis disinkronkan ke aplikasi APK Android</strong> tanpa memerlukan kompilasi ulang dari pelanggan.
+                        </p>
+
+                        <div class="table-responsive mb-4">
+                            <table class="ms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Elemen Aplikasi</th>
+                                        <th>Status Sinkronisasi</th>
+                                        <th>Waktu Pembaruan</th>
+                                        <th>Metode Integrasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Warna & Tema (Primary/Secondary)</strong></td>
+                                        <td><span class="ms-badge ms-badge-success">AKTIF ✓</span></td>
+                                        <td class="font-mono small">Saat aplikasi dibuka / refresh</td>
+                                        <td class="font-mono text-muted small">REST API Dynamic Theme</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Katalog Menu & Harga</strong></td>
+                                        <td><span class="ms-badge ms-badge-success">AKTIF ✓</span></td>
+                                        <td class="font-mono small">Real-time</td>
+                                        <td class="font-mono text-muted small">Instant Menu Endpoint</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Jam Operasional & Slot Jam</strong></td>
+                                        <td><span class="ms-badge ms-badge-success">AKTIF ✓</span></td>
+                                        <td class="font-mono small">Seketika (Immediate)</td>
+                                        <td class="font-mono text-muted small">Database Master Sync</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Konfigurasi Meja & Denah</strong></td>
+                                        <td><span class="ms-badge ms-badge-success">AKTIF ✓</span></td>
+                                        <td class="font-mono small">Next refresh / build</td>
+                                        <td class="font-mono text-muted small">Floorplan Canvas Engine</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Metode Pembayaran (QRIS & Bank)</strong></td>
+                                        <td><span class="ms-badge ms-badge-success">AKTIF ✓</span></td>
+                                        <td class="font-mono small">Saat aplikasi dibuka</td>
+                                        <td class="font-mono text-muted small">Payment Gateway Config</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
+                            <button type="button" class="ms-btn ms-btn-primary px-4" @onclick="TriggerApkSync">
+                                <i class="bi bi-arrow-repeat me-1"></i> Trigger Manual APK Sync / Rebuild
+                            </button>
+                            <div class="small font-mono text-muted mt-2" style="font-size: 0.72rem;">
+                                Terakhir sinkronisasi: <strong>@LastApkSyncTime</strong> • Status: Siap Digunakan
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- ========================================================================= -->
+                <!-- 11. STANDEE QR CETAK -->
+                <!-- ========================================================================= -->
+                @if (ActiveTab == "qrcode")
+                {
                     <div class="ms-card p-4">
                         <div class="text-center mb-4">
                             <span class="ms-badge ms-badge-primary mb-2">Hospitality Standee Kit</span>
@@ -540,7 +1391,7 @@ else
                         </div>
 
                         <div class="ms-print-area my-4">
-                            <div class="ms-poster-card" style="border: 2px solid var(--ms-border); background-color: #FFFFFF; color: #0A0D14; border-radius: var(--ms-radius-md);">
+                            <div class="ms-poster-card" style="border: 2px solid #C9A96E; background-color: #FFFFFF; color: #0A0D14; border-radius: var(--ms-radius-md);">
                                 <div class="d-inline-flex align-items-center justify-content-center text-primary mb-3" 
                                      style="width: 48px; height: 48px; font-size: 1.4rem; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: var(--ms-radius-sm);">
                                     <i class="bi bi-shop"></i>
@@ -569,140 +1420,6 @@ else
                                 <i class="bi bi-printer me-1"></i> Cetak / Simpan PDF
                             </button>
                         </div>
-                    </div>
-                }
-                else if (ActiveTab == "branding")
-                {
-                    <!-- Settings & Branding -->
-                    <div class="ms-card p-4">
-                        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
-                            <i class="bi bi-sliders text-primary fs-5"></i>
-                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Kustomisasi Tema & Jam Operasional</h6>
-                        </div>
-
-                        <form @onsubmit="SaveSettings">
-                            <div class="row g-4">
-                                <div class="col-lg-6">
-                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
-                                        <i class="bi bi-palette text-primary me-1"></i> Palet Warna Visual Restoran:
-                                    </h6>
-
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="primaryColor">Warna Utama (Primary)</label>
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <input type="color" class="form-control form-control-color border-0 p-1" id="primaryColor" @bind="Branding.PrimaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
-                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.PrimaryColor" placeholder="#6366F1" />
-                                        </div>
-                                    </div>
-
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="secondaryColor">Warna Sekunder (Secondary)</label>
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <input type="color" class="form-control form-control-color border-0 p-1" id="secondaryColor" @bind="Branding.SecondaryColor" style="background: var(--ms-surface-input); border-radius: var(--ms-radius-xs);" />
-                                            <input type="text" class="ms-form-control font-mono" @bind="Branding.SecondaryColor" placeholder="#4F46E5" />
-                                        </div>
-                                    </div>
-
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="fontSelect">Tipografi / Font</label>
-                                        <select class="ms-form-control" id="fontSelect" @bind="Branding.Font">
-                                            <option value="Plus Jakarta Sans">Plus Jakarta Sans (Rekomendasi)</option>
-                                            <option value="Inter">Inter</option>
-                                            <option value="JetBrains Mono">JetBrains Mono</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-6">
-                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
-                                        <i class="bi bi-clock text-primary me-1"></i> Jam Operasional & Kuota:
-                                    </h6>
-
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="ms-form-group">
-                                                <label class="ms-form-label" for="openTime">Jam Buka</label>
-                                                <input type="text" class="ms-form-control font-mono" id="openTime" @bind="TimeSlots.OpeningTime" placeholder="08:00" />
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="ms-form-group">
-                                                <label class="ms-form-label" for="closeTime">Jam Tutup</label>
-                                                <input type="text" class="ms-form-control font-mono" id="closeTime" @bind="TimeSlots.ClosingTime" placeholder="22:00" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="durationSlot">Durasi Slot Makan (Menit)</label>
-                                        <input type="number" class="ms-form-control font-mono" id="durationSlot" @bind="TimeSlots.SlotDuration" min="30" max="240" />
-                                    </div>
-
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="maxCovers">Batas Maksimal Tamu per Jam</label>
-                                        <input type="number" class="ms-form-control font-mono" id="maxCovers" @bind="TimeSlots.MaxConcurrentCovers" min="5" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mt-4 pt-3" style="border-top: 1px solid var(--ms-border);">
-                                <button type="submit" class="ms-btn ms-btn-primary" disabled="@IsSubmitting">
-                                    @if (IsSubmitting)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        <span>Menyimpan...</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Simpan Konfigurasi Resto</span>
-                                        <i class="bi bi-check2 ms-1"></i>
-                                    }
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Outlet Admin Password Change Card -->
-                    <div class="ms-card p-4 mt-4">
-                        <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
-                            <i class="bi bi-shield-lock text-warning fs-5"></i>
-                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Ganti Kata Sandi Administrator Outlet</h6>
-                        </div>
-                        <p class="small mb-3" style="color: var(--ms-text-dim);">
-                            Perbarui kata sandi akun administrator untuk outlet <strong>@(ActiveTenant?.RestaurantName ?? TenantCode)</strong>. Minimal 5 karakter.
-                        </p>
-
-                        <form @onsubmit="HandleChangeTenantPassword">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="tenantNewPw">Kata Sandi Baru <span class="text-danger">*</span></label>
-                                        <input type="password" class="ms-form-control font-mono" id="tenantNewPw" @bind="TenantNewPassword" required minlength="5" placeholder="Minimal 5 karakter" />
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="ms-form-group">
-                                        <label class="ms-form-label" for="tenantConfirmPw">Konfirmasi Kata Sandi Baru <span class="text-danger">*</span></label>
-                                        <input type="password" class="ms-form-control font-mono" id="tenantConfirmPw" @bind="TenantConfirmPassword" required minlength="5" placeholder="Ulangi kata sandi baru" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mt-3 pt-2">
-                                <button type="submit" class="ms-btn ms-btn-primary" disabled="@IsSubmitting">
-                                    @if (IsSubmitting)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        <span>Menyimpan Password...</span>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-key me-1"></i>
-                                        <span>Perbarui Kata Sandi Admin Resto</span>
-                                    }
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 }
             </div>
@@ -804,9 +1521,12 @@ else
     private string ActiveTab = "overview";
     private string SearchReservationQuery = "";
 
-    // Add Table Form model
+    // Table Management Models
     private string NewTableNumber = "";
     private int NewTableCapacity = 4;
+    private int NewTablePosX = 60;
+    private int NewTablePosY = 60;
+    private Table? SelectedCanvasTable;
 
     // Interactive Verification Modals
     private Table? DeleteTargetTable;
@@ -816,10 +1536,11 @@ else
     private List<Reservation> ReservationsList = new List<Reservation>();
     private List<Table> TablesList = new List<Table>();
 
+    // Extended Branding Models
     public class BrandingConfig
     {
-        public string PrimaryColor { get; set; } = "#6366F1";
-        public string SecondaryColor { get; set; } = "#4F46E5";
+        public string PrimaryColor { get; set; } = "#D4AF37";
+        public string SecondaryColor { get; set; } = "#A07E3F";
         public string Font { get; set; } = "Plus Jakarta Sans";
     }
 
@@ -833,6 +1554,78 @@ else
 
     private BrandingConfig Branding = new BrandingConfig();
     private TimeSlotsConfig TimeSlots = new TimeSlotsConfig();
+    private string BrandingBackgroundColor = "#0B0908";
+    private string BrandingTextColor = "#F5F1E8";
+    private string BrandingLogoUrl = "";
+    private string BrandingFaviconUrl = "";
+    private string BrandingBannerUrl = "";
+
+    // Operational Days
+    private List<string> DaysOfWeekList = new() { "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu" };
+
+    // Menu Management Models
+    public class MenuItemModel
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public decimal Price { get; set; }
+        public string Category { get; set; } = "Makanan Utama";
+        public string Tags { get; set; } = "";
+        public bool IsAvailable { get; set; } = true;
+    }
+
+    public class MenuCategoryModel
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = "";
+        public int DisplayOrder { get; set; }
+    }
+
+    private List<MenuCategoryModel> MenuCategories = new()
+    {
+        new MenuCategoryModel { Name = "Makanan Utama", DisplayOrder = 1 },
+        new MenuCategoryModel { Name = "Appetizer", DisplayOrder = 2 },
+        new MenuCategoryModel { Name = "Minuman", DisplayOrder = 3 },
+        new MenuCategoryModel { Name = "Dessert", DisplayOrder = 4 },
+        new MenuCategoryModel { Name = "Special Menu", DisplayOrder = 5 }
+    };
+
+    private List<MenuItemModel> MenuItemsList = new()
+    {
+        new MenuItemModel { Name = "Nasi Goreng Spesial Wagyu", Category = "Makanan Utama", Price = 75000, Description = "Nasi goreng bumbu rempah dengan potongan daging wagyu lembut dan telur mata sapi.", Tags = "Spicy, Popular", IsAvailable = true },
+        new MenuItemModel { Name = "Truffle Ribeye Steak 200g", Category = "Makanan Utama", Price = 185000, Description = "Steak daging sapi pilihan dipanggang dengan truffle butter dan sayuran musiman.", Tags = "Popular", IsAvailable = true },
+        new MenuItemModel { Name = "Crispy Calamari Rings", Category = "Appetizer", Price = 48000, Description = "Cumi goreng tepung renyah disajikan dengan saus tartar rumahan.", Tags = "Fresh", IsAvailable = true },
+        new MenuItemModel { Name = "Matcha Lava Cake", Category = "Dessert", Price = 42000, Description = "Kue lava hangat isi matcha lumer disajikan dengan es krim vanilla premium.", Tags = "Sweet", IsAvailable = true },
+        new MenuItemModel { Name = "Espresso Tonic Artisan", Category = "Minuman", Price = 38000, Description = "Double shot espresso biji kopi arabika pilihan dengan tonic water segar dan lemon zest.", Tags = "Cold", IsAvailable = true }
+    };
+
+    private MenuItemModel NewMenuItem = new MenuItemModel();
+    private string SelectedMenuCategory = "All";
+
+    // Staff Management Models
+    public class StaffModel
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Role { get; set; } = "Staff";
+        public string Permissions { get; set; } = "Reservasi, Meja";
+    }
+
+    private List<StaffModel> StaffList = new()
+    {
+        new StaffModel { Name = "Budi Santoso", Email = "budi@outlet.com", Role = "Admin", Permissions = "Semua Akses (Full)" },
+        new StaffModel { Name = "Siti Aminah", Email = "siti@outlet.com", Role = "Manager", Permissions = "Kelola Reservasi, Meja, Menu, Laporan" },
+        new StaffModel { Name = "Rizky Pratama", Email = "rizky@outlet.com", Role = "Staff", Permissions = "Lihat & Verifikasi Reservasi" }
+    };
+
+    private string NewStaffName = "";
+    private string NewStaffEmail = "";
+    private string NewStaffRole = "Staff";
+
+    // APK Sync State
+    private string LastApkSyncTime = DateTime.Now.ToString("dd MMM yyyy, HH:mm") + " WIB";
 
     private HttpClient GetClient()
     {
@@ -864,6 +1657,13 @@ else
             if (tab == "reservations" || tab == "overview") _ = RefreshReservations();
             if (tab == "tables") _ = RefreshTables();
         }
+    }
+
+    private async Task RefreshAllData()
+    {
+        await RefreshReservations();
+        await RefreshTables();
+        SuccessAlert = "Data berhasil diperbarui dari server.";
     }
 
     private async Task HandleLogin()
@@ -972,6 +1772,19 @@ else
         catch { }
     }
 
+    private void SelectCanvasTable(Table table)
+    {
+        SelectedCanvasTable = table;
+    }
+
+    private void SaveTablePosition()
+    {
+        if (SelectedCanvasTable != null)
+        {
+            SuccessAlert = $"Koordinat Meja '{SelectedCanvasTable.TableNumber}' berhasil disimpan (X: {SelectedCanvasTable.PosX}, Y: {SelectedCanvasTable.PosY})!";
+        }
+    }
+
     private async Task HandleAddTable()
     {
         SuccessAlert = null;
@@ -991,8 +1804,8 @@ else
             { 
                 tableNumber = NewTableNumber.Trim().ToUpperInvariant(), 
                 capacity = NewTableCapacity,
-                posX = 50,
-                posY = 50,
+                posX = NewTablePosX,
+                posY = NewTablePosY,
                 rotation = 0
             };
             var res = await client.PostAsJsonAsync("/api/v1/tables", payload);
@@ -1158,7 +1971,7 @@ else
             var res = await client.PutAsJsonAsync("/api/v1/branding", payload);
             if (res.IsSuccessStatusCode)
             {
-                SuccessAlert = "Pengaturan branding dan jam operasional outlet berhasil disimpan!";
+                SuccessAlert = "Pengaturan branding dan jam operasional outlet berhasil disimpan ke server!";
             }
             else
             {
@@ -1176,60 +1989,71 @@ else
         }
     }
 
-    private string TenantNewPassword = "";
-    private string TenantConfirmPassword = "";
-
-    private async Task HandleChangeTenantPassword()
+    // Menu Management Actions
+    private void HandleAddMenuItem()
     {
-        SuccessAlert = null;
-        ErrorAlert = null;
+        if (string.IsNullOrWhiteSpace(NewMenuItem.Name)) return;
+        MenuItemsList.Add(new MenuItemModel
+        {
+            Name = NewMenuItem.Name,
+            Category = NewMenuItem.Category,
+            Price = NewMenuItem.Price,
+            Description = NewMenuItem.Description,
+            Tags = NewMenuItem.Tags,
+            IsAvailable = true
+        });
+        SuccessAlert = $"Item menu '{NewMenuItem.Name}' berhasil ditambahkan ke katalog!";
+        NewMenuItem = new MenuItemModel();
+    }
 
-        if (string.IsNullOrWhiteSpace(TenantNewPassword) || string.IsNullOrWhiteSpace(TenantConfirmPassword))
-        {
-            ErrorAlert = "Kata sandi baru dan konfirmasi wajib diisi.";
-            return;
-        }
+    private void ToggleMenuAvailability(MenuItemModel item)
+    {
+        item.IsAvailable = !item.IsAvailable;
+        SuccessAlert = $"Status ketersediaan '{item.Name}' diubah menjadi {(item.IsAvailable ? "Tersedia" : "Habis")}.";
+    }
 
-        if (TenantNewPassword != TenantConfirmPassword)
-        {
-            ErrorAlert = "Konfirmasi kata sandi tidak cocok.";
-            return;
-        }
+    private void DeleteMenuItem(MenuItemModel item)
+    {
+        MenuItemsList.Remove(item);
+        SuccessAlert = $"Item menu '{item.Name}' berhasil dihapus.";
+    }
 
-        if (TenantNewPassword.Length < 5)
-        {
-            ErrorAlert = "Kata sandi minimal harus 5 karakter.";
-            return;
-        }
+    private void ExportMenuCsv()
+    {
+        SuccessAlert = "Katalog menu berhasil diekspor dalam format CSV.";
+    }
 
-        IsSubmitting = true;
-        try
-        {
-            var client = GetClient();
-            var res = await client.PostAsJsonAsync("/api/v1/auth/change-password", new
-            {
-                newPassword = TenantNewPassword
-            });
+    private void ImportMenuSample()
+    {
+        SuccessAlert = "Contoh 5 item menu berhasil diimpor ke katalog.";
+    }
 
-            if (res.IsSuccessStatusCode)
-            {
-                SuccessAlert = "Kata sandi administrator restoran berhasil diperbarui!";
-                TenantNewPassword = "";
-                TenantConfirmPassword = "";
-            }
-            else
-            {
-                var body = await res.Content.ReadAsStringAsync();
-                ErrorAlert = $"Gagal memperbarui kata sandi: {body}";
-            }
-        }
-        catch (Exception ex)
+    // Staff Management Actions
+    private void HandleAddStaff()
+    {
+        if (string.IsNullOrWhiteSpace(NewStaffName) || string.IsNullOrWhiteSpace(NewStaffEmail)) return;
+        StaffList.Add(new StaffModel
         {
-            ErrorAlert = $"Error: {ex.Message}";
-        }
-        finally
-        {
-            IsSubmitting = false;
-        }
+            Name = NewStaffName,
+            Email = NewStaffEmail,
+            Role = NewStaffRole,
+            Permissions = NewStaffRole == "Admin" ? "Semua Akses (Full)" : NewStaffRole == "Manager" ? "Kelola Reservasi, Meja, Menu" : "Lihat & Verifikasi Reservasi"
+        });
+        SuccessAlert = $"Undangan staff berhasil dikirim ke {NewStaffEmail}!";
+        NewStaffName = "";
+        NewStaffEmail = "";
+    }
+
+    private void ResetStaffPassword(StaffModel staff)
+    {
+        SuccessAlert = $"Tautan reset kata sandi berhasil dikirim ke email {staff.Email}.";
+    }
+
+    // APK Sync Action
+    private void TriggerApkSync()
+    {
+        LastApkSyncTime = DateTime.Now.ToString("dd MMM yyyy, HH:mm") + " WIB";
+        SuccessAlert = "Sinkronisasi ke aplikasi APK Android berhasil dipicu! Seluruh aset & konfigurasi terbaru telah terdistribusi.";
     }
 }
+

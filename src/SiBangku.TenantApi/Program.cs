@@ -386,6 +386,80 @@ app.MapPost("/api/v1/settings/time_slots", [Authorize(Roles = "TENANT_ADMIN")] a
     return Results.Ok(new { success = true, data = JsonSerializer.Deserialize<JsonElement>(body) });
 });
 
+// --- Composite Branding & Settings Endpoints for Web Portals ---
+app.MapGet("/api/v1/branding", async (TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    var brandingSetting = await tenantDb.Settings.FindAsync("branding");
+    var brandingJson = brandingSetting?.Value ?? "{\"primaryColor\":\"#D4AF37\",\"secondaryColor\":\"#A07E3F\",\"font\":\"Plus Jakarta Sans\",\"logo\":\"\",\"favicon\":\"\",\"heroImage\":\"\"}";
+    var brandingObj = JsonSerializer.Deserialize<JsonElement>(brandingJson);
+
+    var timeSlotsSetting = await tenantDb.Settings.FindAsync("time_slots");
+    var timeSlotsJson = timeSlotsSetting?.Value ?? "{\"slotDuration\":60,\"maxConcurrentCovers\":30,\"openingTime\":\"08:00\",\"closingTime\":\"22:00\"}";
+    var timeSlotsObj = JsonSerializer.Deserialize<JsonElement>(timeSlotsJson);
+
+    return Results.Ok(new
+    {
+        success = true,
+        data = new
+        {
+            tenant = tenantContext.CurrentTenant,
+            branding = brandingObj,
+            timeSlots = timeSlotsObj
+        }
+    });
+});
+
+app.MapPut("/api/v1/branding", [Authorize(Roles = "TENANT_ADMIN")] async (HttpContext context, TenantContext tenantContext) =>
+{
+    var tenantDb = tenantContext.DbContext;
+    if (tenantDb == null) return Results.BadRequest("Database unresolved");
+
+    var claimTenantId = context.User.FindFirst("TenantId")?.Value;
+    if (claimTenantId != tenantContext.CurrentTenant?.TenantId)
+    {
+        return Results.Json(new { success = false, error = new { code = "FORBIDDEN", message = "Cross-tenant access forbidden" } }, statusCode: 403);
+    }
+
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+
+    if (root.TryGetProperty("branding", out var brandingProp))
+    {
+        var bSetting = await tenantDb.Settings.FindAsync("branding");
+        var bVal = brandingProp.GetRawText();
+        if (bSetting == null)
+        {
+            bSetting = new Setting { Key = "branding", Value = bVal };
+            await tenantDb.Settings.AddAsync(bSetting);
+        }
+        else
+        {
+            bSetting.Value = bVal;
+        }
+    }
+
+    if (root.TryGetProperty("timeSlots", out var tsProp) || root.TryGetProperty("time_slots", out tsProp))
+    {
+        var tsSetting = await tenantDb.Settings.FindAsync("time_slots");
+        var tsVal = tsProp.GetRawText();
+        if (tsSetting == null)
+        {
+            tsSetting = new Setting { Key = "time_slots", Value = tsVal };
+            await tenantDb.Settings.AddAsync(tsSetting);
+        }
+        else
+        {
+            tsSetting.Value = tsVal;
+        }
+    }
+
+    await tenantDb.SaveChangesAsync();
+    return Results.Ok(new { success = true, message = "Pengaturan branding dan jam operasional berhasil diperbarui." });
+});
+
 // --- Reservation Routes (Public customer booking endpoints) ---
 app.MapPost("/api/v1/reservations", async (CreateReservationDto dto, TenantContext tenantContext) =>
 {

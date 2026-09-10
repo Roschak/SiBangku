@@ -1,0 +1,25 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8C98F"/>
+      <stop offset="55%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#A07E3F"/>
+    </linearGradient>
+    <radialGradient id="tileGlow" cx="0.5" cy="0.35" r="0.9">
+      <stop offset="0%" stop-color="#1F1915"/>
+      <stop offset="100%" stop-color="#0B0908"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Bingkai Monolith Kotak Simetris -->
+  <rect width="512" height="512" rx="112" fill="url(#tileGlow)"/>
+  <rect x="12" y="12" width="488" height="488" rx="104" stroke="#C9A96E" stroke-opacity="0.45" stroke-width="6"/>
+
+  <!-- Simbol Kursi Arsitektural / Monogram S-B -->
+  <g transform="translate(136, 120) scale(5.8)">
+    <path d="M12 6C12 3.79086 13.7909 2 16 2H32C34.2091 2 36 3.79086 36 6V42C36 44.2091 34.2091 46 32 46H16C13.7909 46 12 44.2091 12 42V6Z" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M19 16H29" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M19 24H25" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="29" cy="34" r="3.5" fill="url(#goldGrad)"/>
+  </g>
+</svg>

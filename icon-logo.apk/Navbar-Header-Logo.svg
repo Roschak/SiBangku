@@ -1,0 +1,28 @@
+<svg width="240" height="64" viewBox="0 0 240 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8C98F"/>
+      <stop offset="55%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#A07E3F"/>
+    </linearGradient>
+    <linearGradient id="tileGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A1512"/>
+      <stop offset="100%" stop-color="#0C0A08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ikon Mini Kotak (Tile Espresso + Ring Emas) -->
+  <rect x="1" y="1" width="62" height="62" rx="16" fill="url(#tileGrad)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15.5" stroke="#C9A96E" stroke-opacity="0.55" stroke-width="1.5"/>
+
+  <!-- Simbol Kursi / Monogram SiBangku -->
+  <g transform="translate(14, 12) scale(0.85)">
+    <path d="M12 6C12 3.79086 13.7909 2 16 2H32C34.2091 2 36 3.79086 36 6V42C36 44.2091 34.2091 46 32 46H16C13.7909 46 12 44.2091 12 42V6Z" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M19 16H29" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="29" cy="34" r="3.5" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- Tipografi Teks SiBangku (Visible on Dark) -->
+  <text x="78" y="38" fill="#F5F1E8" font-family="'Playfair Display', 'Plus Jakarta Sans', sans-serif" font-size="21" font-weight="700" letter-spacing="0.5">Si<tspan fill="url(#goldGrad)">Bangku</tspan></text>
+  <text x="79" y="52" fill="#9C8F7A" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" letter-spacing="2.5">HOSPITALITY</text>
+</svg>

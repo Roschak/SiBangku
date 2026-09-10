@@ -1,0 +1,278 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject LanguageService Lang
+
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(5, 4, 3, 0.82); backdrop-filter: blur(10px); z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.30); border-radius: var(--ms-radius-lg); box-shadow: 0 30px 80px rgba(0,0,0,0.8); color: #F5F1E8;">
+                <!-- Header (Dark Luxury with Gold Edge) -->
+                <div class="modal-header py-3 px-4" style="background: #1B1715; border-bottom: 1px solid rgba(201, 169, 110, 0.18);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-flex align-items-center justify-content-center"
+                              style="width: 36px; height: 36px; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-xs); color: #D4AF37;">
+                            <i class="bi bi-camera-video"></i>
+                        </span>
+                        <div>
+                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.02rem; color: #F5F1E8;">@Lang["Scanner_Modal_Title"]</h6>
+                            <span class="small font-mono" style="font-size: 0.72rem; color: #8F8371;">HP & Laptop Webcam Ready</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseScanner"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-4" style="background: #141110; color: #C4B9A6;">
+                    <p class="small mb-3" style="color: #C4B9A6; line-height: 1.6; font-size: 0.88rem;">
+                        @Lang["Scanner_Modal_Subtitle"]
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(ScannerError))
+                    {
+                        <div class="ms-alert ms-alert-danger mb-3">
+                            <i class="bi bi-exclamation-triangle ms-alert-icon"></i>
+                            <div class="ms-alert-content small">
+                                @ScannerError
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Camera selection if multiple cameras found -->
+                    @if (Cameras != null && Cameras.Count > 1)
+                    {
+                        <div class="ms-form-group mb-3">
+                            <label class="ms-form-label small mb-1" style="color: #C4B9A6; font-weight: 600;">
+                                <i class="bi bi-camera me-1" style="color: #D4AF37;"></i> @Lang["Scanner_Camera_Label"]
+                            </label>
+                            <select class="ms-form-control font-mono form-select-sm" @bind="SelectedCameraId" @bind:after="OnCameraChanged"
+                                    style="font-size: 0.82rem;">
+                                @foreach (var cam in Cameras)
+                                {
+                                    <option value="@cam.Id">@cam.Label</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    <!-- Video Viewfinder Container with Scanning Animation -->
+                    <div class="scanner-viewfinder-wrapper position-relative overflow-hidden mb-3"
+                         style="background: #000000; border: 1px solid rgba(212, 175, 55, 0.45); border-radius: var(--ms-radius-sm); min-height: 280px; box-shadow: 0 0 30px rgba(212, 175, 55, 0.12);">
+
+                        <!-- Target reticle corner markers -->
+                        <div class="scanner-corners-overlay position-absolute w-100 h-100" style="pointer-events: none; z-index: 10;">
+                            <div class="corner-bracket corner-tl"></div>
+                            <div class="corner-bracket corner-tr"></div>
+                            <div class="corner-bracket corner-bl"></div>
+                            <div class="corner-bracket corner-br"></div>
+                            <div class="scanner-laser-line"></div>
+                        </div>
+
+                        <!-- HTML5 QrCode rendering mount point -->
+                        <div id="qr-camera-stream-mount" style="width: 100%; min-height: 280px;"></div>
+
+                        @if (IsStarting)
+                        {
+                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                                 style="background: rgba(0,0,0,0.78); z-index: 5;">
+                                <div class="spinner-border mb-2" role="status" style="width: 2rem; height: 2rem; color: #D4AF37;"></div>
+                                <span class="small font-mono text-white">Menghubungkan Kamera...</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Scanning Status Indicator -->
+                    <div class="d-flex align-items-center justify-content-between p-2.5 mb-3 font-mono"
+                         style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-xs); font-size: 0.75rem;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="live-radar-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34D399; box-shadow: 0 0 8px #34D399;"></span>
+                            <span style="color: #F5F1E8; font-weight: 500;">@Lang["Scanner_Scanning_Status"]</span>
+                        </div>
+                        <span class="ms-badge ms-badge-primary" style="font-size: 0.68rem;">Auto-Detect</span>
+                    </div>
+
+                    <!-- Alternative: Image File Upload Fallback -->
+                    <div class="pt-3" style="border-top: 1px solid rgba(201, 169, 110, 0.16);">
+                        <label class="small d-block mb-1.5 fw-semibold" style="font-size: 0.78rem; color: #8F8371;">
+                            <i class="bi bi-image me-1" style="color: #D4AF37;"></i> @Lang["Scanner_Upload_Hint"]
+                        </label>
+                        <input type="file" id="qr-file-upload-input" accept="image/*" class="form-control form-control-sm font-mono"
+                               style="font-size: 0.8rem;"
+                               @onchange="TriggerFileScan" />
+                        <div id="qr-hidden-file-reader" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer py-2.5 px-4 d-flex justify-content-between" style="background: #0E0C0A; border-top: 1px solid rgba(201, 169, 110, 0.16);">
+                    <span class="small font-mono" style="font-size: 0.72rem; color: #8F8371;">SiBangku Universal Engine</span>
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="CloseScanner">
+                        <i class="bi bi-x-lg me-1"></i> @Lang["Scanner_Close_Btn"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .scanner-viewfinder-wrapper {
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.85);
+        }
+        .corner-bracket {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-color: #D4AF37;
+            border-style: solid;
+            filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
+        }
+        .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
+        .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
+        .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
+        .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
+        .scanner-laser-line {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #D4AF37, #E8C98F, #A07E3F, transparent);
+            box-shadow: 0 0 14px #D4AF37;
+            animation: laserScan 2s ease-in-out infinite alternate;
+        }
+        @@keyframes laserScan {
+            0% { top: 25px; opacity: 0.35; }
+            50% { opacity: 1; }
+            100% { top: calc(100% - 25px); opacity: 0.35; }
+        }
+    </style>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<string> OnScanSuccess { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private bool IsStarting = false;
+    private string? ScannerError;
+    private string? SelectedCameraId;
+    private List<CameraInfo> Cameras = new();
+    private DotNetObjectReference<QrScannerModal>? DotNetRef;
+
+    public class CameraInfo
+    {
+        public string Id { get; set; } = "";
+        public string Label { get; set; } = "";
+    }
+
+    public class StartScannerResult
+    {
+        public bool Success { get; set; }
+        public string? Error { get; set; }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen)
+        {
+            await Task.Delay(100); // Give modal DOM time to render
+            await InitializeAndStartScanner();
+        }
+        else
+        {
+            await StopScannerInternal();
+        }
+    }
+
+    private async Task InitializeAndStartScanner()
+    {
+        IsStarting = true;
+        ScannerError = null;
+        StateHasChanged();
+
+        try
+        {
+            DotNetRef ??= DotNetObjectReference.Create(this);
+
+            // Fetch available cameras
+            Cameras = await JS.InvokeAsync<List<CameraInfo>>("SiBangkuQr.getAvailableCameras");
+            if (Cameras != null && Cameras.Any() && string.IsNullOrEmpty(SelectedCameraId))
+            {
+                SelectedCameraId = Cameras.First().Id;
+            }
+
+            var result = await JS.InvokeAsync<StartScannerResult>(
+                "SiBangkuQr.startScanner",
+                "qr-camera-stream-mount",
+                DotNetRef,
+                nameof(OnQrScannedFromJs),
+                SelectedCameraId
+            );
+
+            if (!result.Success)
+            {
+                ScannerError = result.Error ?? Lang["Scanner_Permission_Denied"];
+            }
+        }
+        catch (Exception ex)
+        {
+            ScannerError = $"Kamera tidak dapat diakses: {ex.Message}";
+        }
+        finally
+        {
+            IsStarting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnCameraChanged()
+    {
+        if (string.IsNullOrEmpty(SelectedCameraId)) return;
+        try
+        {
+            await JS.InvokeVoidAsync("SiBangkuQr.switchCamera", "qr-camera-stream-mount", SelectedCameraId);
+        }
+        catch { }
+    }
+
+    private async Task TriggerFileScan()
+    {
+        try
+        {
+            DotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("SiBangkuQr.scanFile", "qr-file-upload-input", DotNetRef, nameof(OnQrScannedFromJs));
+        }
+        catch (Exception ex)
+        {
+            ScannerError = ex.Message;
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnQrScannedFromJs(string scannedTenantCode)
+    {
+        await StopScannerInternal();
+        await OnScanSuccess.InvokeAsync(scannedTenantCode);
+    }
+
+    private async Task CloseScanner()
+    {
+        await StopScannerInternal();
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task StopScannerInternal()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("SiBangkuQr.stopScanner");
+        }
+        catch { }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopScannerInternal();
+        DotNetRef?.Dispose();
+    }
+}
