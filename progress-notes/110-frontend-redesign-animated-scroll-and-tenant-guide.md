@@ -48,7 +48,7 @@
 
 ### D. Halaman Publik (Landing Page & Reservasi Meja)
 - `src/SiBangku.Web/Components/Pages/Home.razor`:
-  - Merombak total Hero Section dengan pulse radar live, tombol aksi cepat, dan chip demo outlet instan (`DISTRO-AVENUE`, `PADANG-MERDEKA`, `KOPI-SENJA`).
+  - Merombak total Hero Section dengan pulse radar live, tombol aksi cepat, dan chip demo outlet instan (`GRAND-BISTRO`, `PADANG-MERDEKA`, `KOPI-SENJA`).
   - Menambahkan simulator denah 3-zonasi interaktif (*VIP Suite*, *Main Dining Hall*, *Skyline Terrace*) dengan pemilihan meja real-time dan CTA reservasi langsung.
   - Memasang 4 counter metrik bisnis berkekuatan animasi scroll (*100% Anti Double-Booking*, *< 30s Konfirmasi Cepat*, *99.9% Keandalan*, *24/7 Reservasi*).
   - Mengintegrasikan timeline 3 langkah reservasi mandiri dan kartu kutipan eksekutif hospitality.

@@ -34,7 +34,7 @@ Sistem antarmuka web SiBangku telah dipisahkan secara modular menjadi **3 portal
 - **Akses Langsung**: `/` (Beranda & pencarian resto) dan `/booking?tenant=KODE_RESTO` (Formulir pemesanan meja).
 - **Desain Khusus**: Menggunakan `CustomerLayout` dengan *clean top navigation*, banner interaktif, dan tanpa sidebar admin yang mengganggu.
 - **Fitur Utama**:
-  - **Pencarian Cepat Outlet**: Pelanggan dapat memasukkan kode restoran atau memilih contoh demo (`DISTRO-AVENUE`, `PADANG-MERDEKA`, `KOPI-SENJA`).
+  - **Pencarian Cepat Outlet**: Pelanggan dapat memasukkan kode restoran atau memilih contoh demo (`GRAND-BISTRO`, `PADANG-MERDEKA`, `KOPI-SENJA`).
   - **White-Label Dynamic Theme**: Warna dan branding halaman booking secara otomatis menyesuaikan konfigurasi palet warna masing-masing restoran mitra.
   - **Interactive Booking Wizard**:
     1. Pemilihan jumlah tamu (1-8+ orang) dan tanggal reservasi.
@@ -224,7 +224,7 @@ Administrator platform (Super Admin) dapat mengubah nama tampilan profil dan kat
 
 | Portal | URL | Kredensial Default | Keterangan |
 |---|---|---|---|
-| **Portal Tamu** | `http://localhost:3000/` & `/booking` | *Tidak memerlukan login* | Khusus pengunjung. Kode demo: `DISTRO-AVENUE`, `PADANG-MERDEKA`, `KOPI-SENJA` |
-| **Portal Admin Resto** | `http://localhost:3000/admin` | Kode Resto: `DISTRO-AVENUE`<br>Email: `owner@avenue.com`<br>Kata Sandi: *(Didapat saat provisioning)* | Khusus staf / manajer restoran mitra |
+| **Portal Tamu** | `http://localhost:3000/` & `/booking` | *Tidak memerlukan login* | Khusus pengunjung. Kode demo: `GRAND-BISTRO`, `PADANG-MERDEKA`, `KOPI-SENJA` |
+| **Portal Admin Resto** | `http://localhost:3000/admin` | Kode Resto: `GRAND-BISTRO`<br>Email: `admin@grandbistro.com`<br>Kata Sandi: *(Didapat saat provisioning)* | Khusus staf / manajer restoran mitra |
 | **Platform Super Admin** | `http://localhost:3000/control-admin` | Username: `admin`<br>Kata Sandi: `admin` | Khusus pemilik platform SaaS (ubah nama & pw di menu Profil) |
 

@@ -62,7 +62,7 @@
             } catch (e) { }
         }
 
-        // 4. If plain alphanumeric code (e.g. DISTRO-AVENUE, PADANG-MERDEKA)
+        // 4. If plain alphanumeric code (e.g. GRAND-BISTRO, PADANG-MERDEKA)
         const cleanCode = rawText.replace(/[^a-zA-Z0-9_-]/g, '');
         if (cleanCode.length >= 2 && cleanCode.length <= 40) {
             return cleanCode.toUpperCase();
