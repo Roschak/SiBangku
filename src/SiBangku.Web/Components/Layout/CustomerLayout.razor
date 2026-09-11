@@ -24,12 +24,12 @@
     <a href="#cta" class="ms-quick-jump-dot" data-target="#cta" title="Mulai Reservasi"></a>
 </aside>
 
-<div class="ms-customer-portal d-flex flex-column min-vh-100" style="background-color: #0B0908; color: #F5F1E8;">
-    <!-- Editorial Luxury Navigation Bar (Dark Glass + Champagne Hairline) -->
-    <header class="ms-public-navbar py-3 px-3 px-lg-4 sticky-top" style="backdrop-filter: blur(16px); background-color: rgba(11, 9, 8, 0.85); border-bottom: 1px solid rgba(201, 169, 110, 0.22); z-index: 1000;">
+<div class="ms-customer-portal d-flex flex-column min-vh-100">
+    <!-- Editorial Luxury Navigation Bar (Warm Frosted Glass + Champagne Hairline) -->
+    <header class="ms-public-navbar py-3 px-3 px-lg-4 sticky-top">
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-4">
-                <!-- Official SiBangku Brand Logo (Gold on Espresso) -->
+                <!-- Official SiBangku Brand Logo (Gold on Espresso Mark with Dark Typography) -->
                 <a href="/" class="text-decoration-none d-inline-flex align-items-center">
                     <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" style="height: 40px; width: auto;" />
                 </a>
@@ -59,16 +59,16 @@
             <!-- Customer Fast Actions & Spacious Language Switcher -->
             <div class="d-flex align-items-center gap-2.5">
                 <!-- Multi-Language Gold Pill Switcher -->
-                <div class="d-flex align-items-center p-1" style="background: #100D0B; border: 1px solid rgba(201, 169, 110, 0.30); border-radius: 999px; gap: 4px;">
+                <div class="d-flex align-items-center p-1" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.30); border-radius: 999px; gap: 4px; box-shadow: 0 2px 6px rgba(45,35,20,0.05);">
                     <button type="button"
                             class="btn btn-sm font-mono"
-                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.Indonesian ? "rgba(212,175,55,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "#1A1206" : "#C4B9A6"); background: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "linear-gradient(135deg,#E8C98F,#D4AF37)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "0 4px 14px -4px rgba(212,175,55,0.6)" : "none");"
+                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.Indonesian ? "rgba(184,142,45,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "#FFFFFF" : "var(--ms-text-muted)"); background: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "linear-gradient(135deg,#D4AF37,#B88E2D)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "0 4px 12px -3px rgba(184,142,45,0.5)" : "none");"
                             @onclick='() => ChangeLanguage(LanguageService.Indonesian)'>
                         ID
                     </button>
                     <button type="button"
                             class="btn btn-sm font-mono"
-                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.English ? "rgba(212,175,55,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.English ? "#1A1206" : "#C4B9A6"); background: @(Lang.CurrentLanguage == LanguageService.English ? "linear-gradient(135deg,#E8C98F,#D4AF37)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.English ? "0 4px 14px -4px rgba(212,175,55,0.6)" : "none");"
+                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.English ? "rgba(184,142,45,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.English ? "#FFFFFF" : "var(--ms-text-muted)"); background: @(Lang.CurrentLanguage == LanguageService.English ? "linear-gradient(135deg,#D4AF37,#B88E2D)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.English ? "0 4px 12px -3px rgba(184,142,45,0.5)" : "none");"
                             @onclick='() => ChangeLanguage(LanguageService.English)'>
                         EN
                     </button>
@@ -87,15 +87,15 @@
         @Body
     </main>
 
-    <!-- High-End Hospitality Footer (Dark Noir) -->
-    <footer class="py-5 mt-auto" style="background-color: #100D0B; border-top: 1px solid rgba(201, 169, 110, 0.20);">
+    <!-- High-End Hospitality Footer (Warm Alabaster) -->
+    <footer class="py-5 mt-auto" style="background-color: #F4EFE6; border-top: 1px solid rgba(184, 142, 45, 0.20);">
         <div class="container py-2">
             <div class="row g-4 align-items-center justify-content-between">
                 <div class="col-md-6 text-center text-md-start">
                     <div class="d-flex align-items-center gap-2 justify-content-center justify-content-md-start mb-2">
                         <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku" style="height: 36px; width: auto;" />
                     </div>
-                    <p class="small mb-0" style="color: #8F8371; max-width: 480px; line-height: 1.7;">
+                    <p class="small mb-0" style="color: var(--ms-text-muted); max-width: 480px; line-height: 1.7;">
                         @(Lang.CurrentLanguage == LanguageService.English
                             ? "Enterprise multi-tenant table reservation, interactive floorplan visualization, and high-density restaurant operations platform."
                             : "Platform reservasi meja restoran multi-tenant modern dengan visualisasi denah meja akurat, pencegahan bentrok waktu, dan operasional kuliner efisien.")
@@ -103,22 +103,22 @@
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small mb-2.5">
-                        <a href="/" class="text-decoration-none" style="color: #C4B9A6;">@Lang["Nav_Home"]</a>
-                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
-                        <a href="#simulasi" class="text-decoration-none" style="color: #C4B9A6;">Denah Meja</a>
-                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
-                        <a href="#alur" class="text-decoration-none" style="color: #C4B9A6;">Alur Pemesanan</a>
-                        <span style="color: rgba(201, 169, 110, 0.35);">•</span>
-                        <a href="/booking" class="text-decoration-none" style="color: #C4B9A6;">@Lang["Nav_Booking"]</a>
+                        <a href="/" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang["Nav_Home"]</a>
+                        <span style="color: rgba(184, 142, 45, 0.35);">•</span>
+                        <a href="#simulasi" class="text-decoration-none" style="color: var(--ms-text-muted);">Denah Meja</a>
+                        <span style="color: rgba(184, 142, 45, 0.35);">•</span>
+                        <a href="#alur" class="text-decoration-none" style="color: var(--ms-text-muted);">Alur Pemesanan</a>
+                        <span style="color: rgba(184, 142, 45, 0.35);">•</span>
+                        <a href="/booking" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang["Nav_Booking"]</a>
                     </div>
                     <!-- Discreet portal links for clients & owner -->
                     <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2 font-mono" style="font-size: 0.75rem;">
-                        <span style="color: #8F8371;">Portals:</span>
-                        <a href="/admin" class="text-decoration-none fw-semibold" style="color: #D4AF37;" title="Portal Mitra Restoran">@Lang["Nav_RestoAdmin"]</a>
-                        <span style="color: rgba(201, 169, 110, 0.35);">/</span>
-                        <a href="/control-admin" class="text-decoration-none fw-semibold" style="color: #D4AF37;" title="Platform Control Panel">@Lang["Nav_ControlPlane"]</a>
+                        <span style="color: var(--ms-text-dim);">Portals:</span>
+                        <a href="/admin" class="text-decoration-none fw-semibold" style="color: var(--ms-gold);" title="Portal Mitra Restoran">@Lang["Nav_RestoAdmin"]</a>
+                        <span style="color: rgba(184, 142, 45, 0.35);">/</span>
+                        <a href="/control-admin" class="text-decoration-none fw-semibold" style="color: var(--ms-gold);" title="Platform Control Panel">@Lang["Nav_ControlPlane"]</a>
                     </div>
-                    <div class="font-mono mt-2" style="font-size: 0.72rem; color: #6E6455;">
+                    <div class="font-mono mt-2" style="font-size: 0.72rem; color: var(--ms-text-dim);">
                         &copy; 2026 SiBangku SaaS Platform. All rights reserved.
                     </div>
                 </div>

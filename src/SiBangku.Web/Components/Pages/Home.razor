@@ -7,8 +7,8 @@
 
 <PageTitle>SiBangku - @Lang["Hero_Title_1"]</PageTitle>
 
-<!-- Grand Noir Luxury Customer Experience -->
-<div class="position-relative overflow-hidden" style="background-color: #0B0908;">
+<!-- Warm Silk Alabaster & Champagne Gold Customer Experience -->
+<div class="position-relative overflow-hidden" style="background-color: var(--ms-body-bg);">
     <!-- Ambient Champagne Glows (Parallax Scroll & Float) -->
     <div class="ambient-float-1 d-none d-lg-block"></div>
     <div class="ambient-float-2 d-none d-lg-block"></div>
@@ -22,13 +22,13 @@
             <div class="hero-badge-reveal mb-3">
                 <span class="ms-badge ms-badge-primary font-mono d-inline-flex align-items-center gap-2"
                       style="font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 0.45rem 1rem;">
-                    <span class="live-radar-dot d-inline-block rounded-circle" style="width: 8px; height: 8px; background: #D4AF37;"></span>
+                    <span class="live-radar-dot d-inline-block rounded-circle" style="width: 8px; height: 8px; background: #B88E2D;"></span>
                     <span>Fine Dining Table Reservation & Management</span>
                 </span>
             </div>
 
             <!-- Main Hero Headline (Editorial Serif) -->
-            <h1 class="hero-title-reveal ms-serif fw-bold mb-3" style="font-size: clamp(2.3rem, 5vw, 3.4rem); letter-spacing: -0.015em; line-height: 1.18; color: #F5F1E8;">
+            <h1 class="hero-title-reveal ms-serif fw-bold mb-3" style="font-size: clamp(2.3rem, 5vw, 3.4rem); letter-spacing: -0.015em; line-height: 1.18; color: var(--ms-text-main);">
                 @Lang["Hero_Title_1"] <br />
                 <span class="ms-gold-text fst-italic">
                     @Lang["Hero_Title_2"]
@@ -39,7 +39,7 @@
             <div class="ms-scroll-divider is-revealed mx-auto"></div>
 
             <!-- Hero Subtitle -->
-            <p class="hero-desc-reveal mx-auto mb-4" style="color: #C4B9A6; line-height: 1.8; max-width: 680px; font-size: 1.05rem;">
+            <p class="hero-desc-reveal mx-auto mb-4" style="color: var(--ms-text-muted); line-height: 1.8; max-width: 680px; font-size: 1.05rem;">
                 @Lang["Hero_Subtitle"]
             </p>
 
@@ -53,14 +53,14 @@
                     </div>
                 }
 
-                <div class="p-1.5" style="background: #100D0B; border: 1px solid rgba(201, 169, 110, 0.35); border-radius: var(--ms-radius-md); box-shadow: 0 20px 50px -15px rgba(0,0,0,0.9), 0 0 0 1px rgba(212,175,55,0.1);">
+                <div class="p-1.5" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-md); box-shadow: 0 12px 36px -12px rgba(45,35,20,0.12), 0 0 0 1px rgba(184,142,45,0.1);">
                     <form @onsubmit="NavigateToBooking" class="d-flex flex-column flex-sm-row gap-2">
                         <div class="ms-input-group flex-grow-1">
                             <i class="bi bi-search ms-input-icon"></i>
                             <input type="text" class="ms-form-control has-icon-left font-mono text-uppercase border-0"
                                    @bind="SearchTenantCode"
                                    placeholder="@Lang["Hero_Search_Placeholder"]"
-                                   style="background: transparent; font-size: 0.84rem; color: #F5F1E8; font-weight: 600; box-shadow: none;" />
+                                   style="background: transparent; font-size: 0.84rem; color: var(--ms-text-main); font-weight: 600; box-shadow: none;" />
                         </div>
                         <button type="submit" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap px-3.5 gold-shimmer-btn">
                             <span>@Lang["Hero_Search_Btn"]</span>
@@ -71,17 +71,17 @@
 
                 <!-- Instant Demo Quick-Select Chips -->
                 <div class="d-flex flex-wrap justify-content-center align-items-center gap-1.5 mt-2.5">
-                    <span class="font-mono text-muted small me-1" style="font-size: 0.72rem; color: #8F8371;">Coba Demo Outlet:</span>
+                    <span class="font-mono text-muted small me-1" style="font-size: 0.72rem; color: var(--ms-text-dim);">Coba Demo Outlet:</span>
                     <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("GRAND-BISTRO")'>
-                        <i class="bi bi-stars" style="color: #D4AF37;"></i>
+                        <i class="bi bi-stars" style="color: #B88E2D;"></i>
                         <span>GRAND-BISTRO (Fine Dining)</span>
                     </button>
                     <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("PADANG-MERDEKA")'>
-                        <i class="bi bi-fire" style="color: #F87171;"></i>
+                        <i class="bi bi-fire" style="color: #DC2626;"></i>
                         <span>PADANG-MERDEKA</span>
                     </button>
                     <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("KOPI-SENJA")'>
-                        <i class="bi bi-cup-hot" style="color: #FBBF24;"></i>
+                        <i class="bi bi-cup-hot" style="color: #D97706;"></i>
                         <span>KOPI-SENJA</span>
                     </button>
                 </div>
@@ -90,7 +90,7 @@
             <!-- Centered Fast Action Buttons -->
             <div class="hero-action-reveal d-flex flex-wrap justify-content-center align-items-center gap-2.5 mb-5 mt-4">
                 <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm px-3.5" @onclick="() => IsScannerOpen = true">
-                    <i class="bi bi-camera me-1.5" style="color: #D4AF37;"></i>
+                    <i class="bi bi-camera me-1.5" style="color: #B88E2D;"></i>
                     <span class="fw-semibold">@Lang["Hero_Btn_ScanQR"]</span>
                 </button>
                 <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm px-4 gold-shimmer-btn">
@@ -112,29 +112,29 @@
                 <span class="ms-badge ms-badge-primary mb-2 font-mono" style="font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;">
                     <i class="bi bi-grid-3x3-gap-fill me-1"></i> SIMULASI DENAH RESTORAN REAL-TIME
                 </span>
-                <h2 class="ms-serif fw-bold mb-2" style="font-size: 2.2rem; letter-spacing: -0.01em; color: #F5F1E8;">
+                <h2 class="ms-serif fw-bold mb-2" style="font-size: 2.2rem; letter-spacing: -0.01em; color: var(--ms-text-main);">
                     Eksplorasi Denah & Alur Pemilihan Meja
                 </h2>
                 <div class="ms-scroll-divider"></div>
-                <p class="fs-6 mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                <p class="fs-6 mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                     Klik meja di bawah ini untuk melihat zonasi ruang, estimasi suasana, dan alur pemesanan langsung.
                 </p>
             </div>
 
             <!-- Floorplan Container Card -->
             <div class="hero-preview-reveal ms-card p-3 p-md-4 mx-auto text-start"
-                 style="max-width: 960px; background: #13100E; border: 1px solid rgba(201, 169, 110, 0.28); border-radius: var(--ms-radius-lg); box-shadow: 0 35px 90px -30px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(212, 175, 55, 0.08);">
+                 style="max-width: 960px; background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.28); border-radius: var(--ms-radius-lg); box-shadow: 0 20px 60px -20px rgba(45, 35, 20, 0.12), 0 0 0 1px rgba(184, 142, 45, 0.08);">
 
                 <!-- Topbar Info & Legend -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 pb-3" style="border-bottom: 1px solid rgba(201, 169, 110, 0.18);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 pb-3" style="border-bottom: 1px solid rgba(184, 142, 45, 0.18);">
                     <div class="d-flex align-items-center gap-2.5">
                         <span class="d-inline-flex align-items-center justify-content-center"
-                              style="width: 38px; height: 38px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: var(--ms-radius-sm); color: #D4AF37;">
+                              style="width: 38px; height: 38px; font-size: 1.1rem; background: rgba(184, 142, 45, 0.12); border: 1px solid rgba(184, 142, 45, 0.4); border-radius: var(--ms-radius-sm); color: #B88E2D;">
                             <i class="bi bi-diagram-2"></i>
                         </span>
                         <div>
-                            <strong class="small d-block ms-serif fw-bold" style="color: #F5F1E8; font-size: 1.05rem;">Denah Meja Utama - Grand Bistro</strong>
-                            <span class="font-mono" style="font-size: 0.72rem; color: #8F8371;">Kapasitas Ruang: 24 Kursi • 3 Zona Bersantap</span>
+                            <strong class="small d-block ms-serif fw-bold" style="color: var(--ms-text-main); font-size: 1.05rem;">Denah Meja Utama - Grand Bistro</strong>
+                            <span class="font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">Kapasitas Ruang: 24 Kursi • 3 Zona Bersantap</span>
                         </div>
                     </div>
 
@@ -158,15 +158,15 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="floorplan-zone-card h-100">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #D4AF37; letter-spacing: 0.1em;">
+                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #B88E2D; letter-spacing: 0.1em;">
                                     <i class="bi bi-star-fill me-1"></i> ZONA VIP SUITE
                                 </span>
-                                <span class="badge bg-dark text-muted font-mono" style="font-size: 0.65rem;">Privat</span>
+                                <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Privat</span>
                             </div>
                             <div class="table-sim-luxury @(SelectedDemoTable == 1 ? "is-selected" : "")"
                                  @onclick="() => SelectDemoTable(1)">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #F5F1E8;">Meja 01</span>
+                                    <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 01</span>
                                     <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
                                 </div>
                                 <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Sofa Booth Mewah • 6 Kursi</div>
@@ -182,16 +182,16 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="floorplan-zone-card h-100">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #D4AF37; letter-spacing: 0.1em;">
+                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #B88E2D; letter-spacing: 0.1em;">
                                     <i class="bi bi-cup-straw me-1"></i> MAIN DINING HALL
                                 </span>
-                                <span class="badge bg-dark text-muted font-mono" style="font-size: 0.65rem;">Lobby Tengah</span>
+                                <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Lobby Tengah</span>
                             </div>
                             <div class="d-flex flex-column gap-2">
                                 <div class="table-sim-luxury @(SelectedDemoTable == 2 ? "is-selected" : "")"
                                      @onclick="() => SelectDemoTable(2)">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #F5F1E8;">Meja 02</span>
+                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 02</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
                                     </div>
                                     <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Intimate Candlelight • 2 Kursi</div>
@@ -201,21 +201,21 @@
                                 </div>
                                 <div class="table-sim-luxury is-booked" title="Meja ini sedang digunakan tamu">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #F87171;">Meja 03</span>
+                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #DC2626;">Meja 03</span>
                                         <span class="badge bg-danger-subtle text-danger font-mono" style="font-size: 0.65rem;">Terisi</span>
                                     </div>
                                     <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Family Table • 4 Kursi</div>
                                     <div class="chair-indicator-dots">
-                                        <span class="chair-dot" style="background: rgba(248,113,113,0.5);"></span>
-                                        <span class="chair-dot" style="background: rgba(248,113,113,0.5);"></span>
-                                        <span class="chair-dot" style="background: rgba(248,113,113,0.5);"></span>
-                                        <span class="chair-dot" style="background: rgba(248,113,113,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(220,38,38,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(220,38,38,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(220,38,38,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(220,38,38,0.5);"></span>
                                     </div>
                                 </div>
                                 <div class="table-sim-luxury @(SelectedDemoTable == 4 ? "is-selected" : "")"
                                      @onclick="() => SelectDemoTable(4)">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #F5F1E8;">Meja 04</span>
+                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 04</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
                                     </div>
                                     <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Center Dining • 6 Kursi</div>
@@ -232,27 +232,27 @@
                     <div class="col-lg-4 col-md-12">
                         <div class="floorplan-zone-card h-100">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #D4AF37; letter-spacing: 0.1em;">
+                                <span class="font-mono fw-bold" style="font-size: 0.72rem; color: #B88E2D; letter-spacing: 0.1em;">
                                     <i class="bi bi-brightness-high me-1"></i> SKYLINE TERRACE
                                 </span>
-                                <span class="badge bg-dark text-muted font-mono" style="font-size: 0.65rem;">Outdoor / View</span>
+                                <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Outdoor / View</span>
                             </div>
                             <div class="d-flex flex-column gap-2">
                                 <div class="table-sim-luxury is-hold" title="Meja dalam batas tunggu reservasi 15 menit">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #FCD34D;">Meja 05</span>
+                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #D97706;">Meja 05</span>
                                         <span class="badge bg-warning-subtle text-warning font-mono" style="font-size: 0.65rem;">Hold 15m</span>
                                     </div>
                                     <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Glass Window Side • 2 Kursi</div>
                                     <div class="chair-indicator-dots">
-                                        <span class="chair-dot" style="background: rgba(251,191,36,0.5);"></span>
-                                        <span class="chair-dot" style="background: rgba(251,191,36,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(217,119,6,0.5);"></span>
+                                        <span class="chair-dot" style="background: rgba(217,119,6,0.5);"></span>
                                     </div>
                                 </div>
                                 <div class="table-sim-luxury @(SelectedDemoTable == 6 ? "is-selected" : "")"
                                      @onclick="() => SelectDemoTable(6)">
                                     <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: #F5F1E8;">Meja 06</span>
+                                        <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 06</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
                                     </div>
                                     <div class="small font-mono text-muted mb-1" style="font-size: 0.72rem;">Outdoor Balcony • 4 Kursi</div>
@@ -271,19 +271,19 @@
                     var tableInfo = GetTableInfo(SelectedDemoTable);
                 }
                 <div class="p-3 mb-3 rounded font-mono"
-                     style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.32); border-radius: var(--ms-radius-sm);">
+                     style="background: rgba(184, 142, 45, 0.08); border: 1px solid rgba(184, 142, 45, 0.32); border-radius: var(--ms-radius-sm);">
                     <div class="row align-items-center g-3">
                         <div class="col-md-3">
-                            <span class="d-block" style="font-size: 0.68rem; color: #8F8371;">MEJA TERPILIH</span>
-                            <strong class="fs-6" style="color: #F5F1E8;">Meja 0@SelectedDemoTable (@tableInfo.Zone)</strong>
+                            <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">MEJA TERPILIH</span>
+                            <strong class="fs-6" style="color: var(--ms-text-main);">Meja 0@SelectedDemoTable (@tableInfo.Zone)</strong>
                         </div>
                         <div class="col-md-3">
-                            <span class="d-block" style="font-size: 0.68rem; color: #8F8371;">KAPASITAS & MIN. SPEND</span>
-                            <strong class="fs-6" style="color: #D4AF37;">@tableInfo.Seats Kursi • @tableInfo.MinSpend</strong>
+                            <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">KAPASITAS & MIN. SPEND</span>
+                            <strong class="fs-6" style="color: #B88E2D;">@tableInfo.Seats Kursi • @tableInfo.MinSpend</strong>
                         </div>
                         <div class="col-md-3">
-                            <span class="d-block" style="font-size: 0.68rem; color: #8F8371;">SUASANA & FITUR</span>
-                            <span class="small" style="color: #C4B9A6;">@tableInfo.Ambiance</span>
+                            <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">SUASANA & FITUR</span>
+                            <span class="small" style="color: var(--ms-text-muted);">@tableInfo.Ambiance</span>
                         </div>
                         <div class="col-md-3 text-md-end">
                             <a href="/booking?tenant=GRAND-BISTRO" class="ms-btn ms-btn-primary ms-btn-sm w-100 gold-shimmer-btn text-center justify-content-center">
@@ -304,11 +304,11 @@
                 <span class="ms-badge ms-badge-primary mb-2 font-mono" style="font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;">
                     KEUNGGULAN UTAMA
                 </span>
-                <h2 class="ms-serif fw-bold mb-2.5" style="font-size: 2.2rem; letter-spacing: -0.01em; color: #F5F1E8;">
+                <h2 class="ms-serif fw-bold mb-2.5" style="font-size: 2.2rem; letter-spacing: -0.01em; color: var(--ms-text-main);">
                     Dirancang Presisi untuk Industri Kuliner
                 </h2>
                 <div class="ms-scroll-divider"></div>
-                <p class="fs-6" style="color: #C4B9A6; line-height: 1.7;">
+                <p class="fs-6" style="color: var(--ms-text-muted); line-height: 1.7;">
                     Fondasi matematis mutakhir yang mengeliminasi kerugian restoran dan memberikan kepastian tempat bagi tamu.
                 </p>
             </div>
@@ -319,10 +319,10 @@
                     <div class="stat-counter-card h-100">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="100" data-suffix="%">100%</div>
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-shield-check"></i></span>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-shield-check"></i></span>
                         </div>
-                        <h6 class="ms-serif fw-bold mb-1" style="color: #F5F1E8; font-size: 1.05rem;">Anti Double-Booking</h6>
-                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: #8F8371; line-height: 1.6;">
+                        <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Anti Double-Booking</h6>
+                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
                             Algoritma verifikasi waktu presisi tanpa potensi tabrakan jam meja antar tamu.
                         </p>
                     </div>
@@ -331,10 +331,10 @@
                     <div class="stat-counter-card h-100">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="30" data-prefix="< " data-suffix="s">&lt; 30s</div>
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-lightning-charge"></i></span>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-lightning-charge"></i></span>
                         </div>
-                        <h6 class="ms-serif fw-bold mb-1" style="color: #F5F1E8; font-size: 1.05rem;">Konfirmasi Cepat</h6>
-                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: #8F8371; line-height: 1.6;">
+                        <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Konfirmasi Cepat</h6>
+                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
                             Slot tervalidasi dan tiket pass digital diterima dalam hitungan detik via ponsel.
                         </p>
                     </div>
@@ -343,10 +343,10 @@
                     <div class="stat-counter-card h-100">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="99.9" data-decimals="1" data-suffix="%">99.9%</div>
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-diagram-3"></i></span>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-diagram-3"></i></span>
                         </div>
-                        <h6 class="ms-serif fw-bold mb-1" style="color: #F5F1E8; font-size: 1.05rem;">Keandalan Sistem</h6>
-                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: #8F8371; line-height: 1.6;">
+                        <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Keandalan Sistem</h6>
+                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
                             Kesiapan operasional penuh di jam sibuk dengan arsitektur multi-tenant terisolasi.
                         </p>
                     </div>
@@ -355,10 +355,10 @@
                     <div class="stat-counter-card h-100">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="24" data-suffix="/7">24/7</div>
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-calendar2-check"></i></span>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-calendar2-check"></i></span>
                         </div>
-                        <h6 class="ms-serif fw-bold mb-1" style="color: #F5F1E8; font-size: 1.05rem;">Reservasi Mandiri</h6>
-                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: #8F8371; line-height: 1.6;">
+                        <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Reservasi Mandiri</h6>
+                        <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
                             Tamu dapat memesan meja kapan saja tanpa harus menunggu telepon diangkat staf.
                         </p>
                     </div>
@@ -370,16 +370,16 @@
                 <!-- Card 1 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="product-feature-card ms-card p-4 h-100"
-                         style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.3s ease;">
+                         style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.06); transition: all 0.3s ease;">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #D4AF37;">@Lang["Product_Card_1_Tag"]</span>
+                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #B88E2D;">@Lang["Product_Card_1_Tag"]</span>
                             <div class="d-inline-flex align-items-center justify-content-center"
-                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
+                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-sm); color: #B88E2D;">
                                 <i class="bi bi-qr-code-scan"></i>
                             </div>
                         </div>
-                        <h5 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.18rem;">@Lang["Product_Card_1_Title"]</h5>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                        <h5 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.18rem;">@Lang["Product_Card_1_Title"]</h5>
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                             @Lang["Product_Card_1_Desc"]
                         </p>
                     </div>
@@ -388,16 +388,16 @@
                 <!-- Card 2 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="product-feature-card ms-card p-4 h-100"
-                         style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.3s ease;">
+                         style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.06); transition: all 0.3s ease;">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #D4AF37;">@Lang["Product_Card_2_Tag"]</span>
+                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #B88E2D;">@Lang["Product_Card_2_Tag"]</span>
                             <div class="d-inline-flex align-items-center justify-content-center"
-                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
+                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-sm); color: #B88E2D;">
                                 <i class="bi bi-grid-3x3-gap"></i>
                             </div>
                         </div>
-                        <h5 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.18rem;">@Lang["Product_Card_2_Title"]</h5>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                        <h5 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.18rem;">@Lang["Product_Card_2_Title"]</h5>
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                             @Lang["Product_Card_2_Desc"]
                         </p>
                     </div>
@@ -406,16 +406,16 @@
                 <!-- Card 3 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="product-feature-card ms-card p-4 h-100"
-                         style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.3s ease;">
+                         style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.06); transition: all 0.3s ease;">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #D4AF37;">@Lang["Product_Card_3_Tag"]</span>
+                            <span class="font-mono fw-bold" style="font-size: 0.72rem; letter-spacing: 0.12em; color: #B88E2D;">@Lang["Product_Card_3_Tag"]</span>
                             <div class="d-inline-flex align-items-center justify-content-center"
-                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
+                                 style="width: 44px; height: 44px; font-size: 1.3rem; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-sm); color: #B88E2D;">
                                 <i class="bi bi-arrow-repeat"></i>
                             </div>
                         </div>
-                        <h5 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.18rem;">@Lang["Product_Card_3_Title"]</h5>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                        <h5 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.18rem;">@Lang["Product_Card_3_Title"]</h5>
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                             @Lang["Product_Card_3_Desc"]
                         </p>
                     </div>
@@ -429,9 +429,9 @@
         <section id="alur" class="observe-section observe-step-flow py-5 my-4">
             <div class="text-center mx-auto mb-5" style="max-width: 680px;">
                 <span class="ms-badge ms-badge-primary mb-2 font-mono" style="font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;">@Lang["How_Badge"]</span>
-                <h3 class="ms-serif fw-bold mb-1" style="font-size: 2.2rem; letter-spacing: -0.01em; color: #F5F1E8;">@Lang["How_Title"]</h3>
+                <h3 class="ms-serif fw-bold mb-1" style="font-size: 2.2rem; letter-spacing: -0.01em; color: var(--ms-text-main);">@Lang["How_Title"]</h3>
                 <div class="ms-scroll-divider"></div>
-                <p class="small mb-0" style="color: #C4B9A6; font-size: 0.95rem;">@Lang["How_Subtitle"]</p>
+                <p class="small mb-0" style="color: var(--ms-text-muted); font-size: 0.95rem;">@Lang["How_Subtitle"]</p>
             </div>
 
             <!-- Connected Pathway Wrapper -->
@@ -447,8 +447,8 @@
                             <div class="step-number-badge">
                                 <span>01</span>
                             </div>
-                            <h6 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.15rem;">@Lang["Step_1_Title"]</h6>
-                            <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                            <h6 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.15rem;">@Lang["Step_1_Title"]</h6>
+                            <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                                 @Lang["Step_1_Desc"]
                             </p>
                         </div>
@@ -460,8 +460,8 @@
                             <div class="step-number-badge">
                                 <span>02</span>
                             </div>
-                            <h6 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.15rem;">@Lang["Step_2_Title"]</h6>
-                            <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                            <h6 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.15rem;">@Lang["Step_2_Title"]</h6>
+                            <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                                 @Lang["Step_2_Desc"]
                             </p>
                         </div>
@@ -473,8 +473,8 @@
                             <div class="step-number-badge">
                                 <span>03</span>
                             </div>
-                            <h6 class="ms-serif fw-bold mb-2" style="color: #F5F1E8; font-size: 1.15rem;">@Lang["Step_3_Title"]</h6>
-                            <p class="small mb-0" style="color: #C4B9A6; line-height: 1.75;">
+                            <h6 class="ms-serif fw-bold mb-2" style="color: var(--ms-text-main); font-size: 1.15rem;">@Lang["Step_3_Title"]</h6>
+                            <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.75;">
                                 @Lang["Step_3_Desc"]
                             </p>
                         </div>
@@ -489,83 +489,83 @@
         <section id="teknologi" class="observe-section observe-tech-grid py-5 my-4">
             <div class="text-center mx-auto mb-5" style="max-width: 700px;">
                 <span class="ms-badge ms-badge-primary mb-2 font-mono" style="font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;">@Lang["Tech_Badge"]</span>
-                <h2 class="ms-serif fw-bold mb-2.5" style="font-size: 2.2rem; letter-spacing: -0.01em; color: #F5F1E8;">
+                <h2 class="ms-serif fw-bold mb-2.5" style="font-size: 2.2rem; letter-spacing: -0.01em; color: var(--ms-text-main);">
                     @Lang["Tech_Title"]
                 </h2>
                 <div class="ms-scroll-divider"></div>
-                <p class="fs-6" style="color: #C4B9A6; line-height: 1.7;">
+                <p class="fs-6" style="color: var(--ms-text-muted); line-height: 1.7;">
                     @Lang["Tech_Subtitle"]
                 </p>
             </div>
 
             <div class="row g-4 justify-content-center">
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-cpu"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_1_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-cpu"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_1_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_1_Desc"]
                         </p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-database-lock"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_2_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-database-lock"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_2_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_2_Desc"]
                         </p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-camera-video"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_3_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-camera-video"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_3_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_3_Desc"]
                         </p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-clock-history"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_4_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-clock-history"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_4_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_4_Desc"]
                         </p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-palette"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_5_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-palette"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_5_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_5_Desc"]
                         </p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #141110; border: 1px solid rgba(201, 169, 110, 0.18); transition: all 0.25s ease;">
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
                         <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #D4AF37;"><i class="bi bi-printer"></i></span>
-                            <h6 class="ms-serif fw-bold mb-0" style="color: #F5F1E8; font-size: 1.05rem;">@Lang["Tech_6_Title"]</h6>
+                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-printer"></i></span>
+                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_6_Title"]</h6>
                         </div>
-                        <p class="small mb-0" style="color: #C4B9A6; line-height: 1.7;">
+                        <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
                             @Lang["Tech_6_Desc"]
                         </p>
                     </div>
@@ -578,21 +578,21 @@
         <!-- ========================================================================= -->
         <section class="py-5 my-2">
             <div class="ms-card p-4 p-md-5 mx-auto text-center position-relative"
-                 style="max-width: 820px; background: linear-gradient(170deg, #161210 0%, #100D0B 100%); border: 1px solid rgba(201, 169, 110, 0.25); box-shadow: 0 25px 60px -20px rgba(0,0,0,0.85);">
-                <div class="mb-3" style="color: #D4AF37; font-size: 1.1rem; letter-spacing: 0.25em;">
+                 style="max-width: 820px; background: linear-gradient(170deg, #FFFFFF 0%, #FAF8F5 100%); border: 1px solid rgba(184, 142, 45, 0.25); box-shadow: 0 10px 30px -10px rgba(45,35,20,0.08);">
+                <div class="mb-3" style="color: #B88E2D; font-size: 1.1rem; letter-spacing: 0.25em;">
                     <i class="bi bi-star-fill"></i>
                     <i class="bi bi-star-fill"></i>
                     <i class="bi bi-star-fill"></i>
                     <i class="bi bi-star-fill"></i>
                     <i class="bi bi-star-fill"></i>
                 </div>
-                <blockquote class="ms-serif fst-italic mb-3" style="font-size: 1.25rem; line-height: 1.8; color: #F5F1E8;">
+                <blockquote class="ms-serif fst-italic mb-3" style="font-size: 1.25rem; line-height: 1.8; color: var(--ms-text-main);">
                     "Dengan SiBangku, perputaran meja kami meningkat lebih dari 35% dan masalah no-show dapat dieliminasi secara otomatis tanpa perlu pencatatan manual di buku reservasi kasir."
                 </blockquote>
-                <div class="font-mono fw-bold" style="color: #D4AF37; font-size: 0.85rem;">
+                <div class="font-mono fw-bold" style="color: #B88E2D; font-size: 0.85rem;">
                     Marco Santoso
                 </div>
-                <div class="font-mono text-muted" style="font-size: 0.72rem; color: #8F8371;">
+                <div class="font-mono text-muted" style="font-size: 0.72rem; color: var(--ms-text-dim);">
                     Director of F&B Operations • Grand Bistro Dining & Lounge
                 </div>
             </div>
@@ -603,12 +603,12 @@
         <!-- ========================================================================= -->
         <section id="cta" class="py-5 my-3">
             <div class="ms-card p-4 p-md-5 text-center mx-auto position-relative overflow-hidden"
-                 style="max-width: 860px; background: radial-gradient(120% 160% at 50% 0%, rgba(212, 175, 55, 0.14) 0%, #141110 55%); border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: 0 35px 90px -30px rgba(0, 0, 0, 0.95);">
+                 style="max-width: 860px; background: radial-gradient(120% 160% at 50% 0%, rgba(212, 175, 55, 0.16) 0%, #FFFFFF 65%); border: 1px solid rgba(184, 142, 45, 0.35); box-shadow: 0 16px 45px -15px rgba(45, 35, 20, 0.12);">
                 <div class="ms-scroll-divider is-revealed mx-auto"></div>
-                <h3 class="ms-serif fw-bold mb-2.5" style="font-size: clamp(1.8rem, 4vw, 2.3rem); letter-spacing: -0.01em; color: #F5F1E8;">
+                <h3 class="ms-serif fw-bold mb-2.5" style="font-size: clamp(1.8rem, 4vw, 2.3rem); letter-spacing: -0.01em; color: var(--ms-text-main);">
                     @Lang["CTA_Title"]
                 </h3>
-                <p class="fs-6 mb-4 max-w-600 mx-auto" style="color: #C4B9A6; line-height: 1.75;">
+                <p class="fs-6 mb-4 max-w-600 mx-auto" style="color: var(--ms-text-muted); line-height: 1.75;">
                     @Lang["CTA_Subtitle"]
                 </p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
@@ -617,7 +617,7 @@
                         <span>@Lang["CTA_Btn_Explore"]</span>
                     </a>
                     <a href="/admin" class="ms-btn ms-btn-secondary ms-btn-lg px-4">
-                        <i class="bi bi-shop me-2" style="color: #D4AF37;"></i>
+                        <i class="bi bi-shop me-2" style="color: #B88E2D;"></i>
                         <span>@Lang["CTA_Btn_Partner"]</span>
                     </a>
                 </div>

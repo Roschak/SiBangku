@@ -579,6 +579,100 @@ app.MapPost("/api/v1/tenants/{id}/reset-password", [Authorize(Roles = "SUPER_ADM
     return Results.Ok(new { success = true, message = $"Kata sandi untuk admin tenant '{tenant.RestaurantName}' ({adminUser.Email}) berhasil diubah.", adminEmail = adminUser.Email });
 });
 
+app.MapPut("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (string id, HttpContext context, ControlDbContext db) =>
+{
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+    var tenant = await db.Tenants.FindAsync(id);
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    if (root.TryGetProperty("tenantName", out var tn) && !string.IsNullOrWhiteSpace(tn.GetString()))
+    {
+        tenant.TenantName = tn.GetString()!.Trim();
+    }
+    if (root.TryGetProperty("restaurantName", out var rn) && !string.IsNullOrWhiteSpace(rn.GetString()))
+    {
+        tenant.RestaurantName = rn.GetString()!.Trim();
+    }
+    tenant.UpdatedAt = DateTime.UtcNow;
+
+    if (root.TryGetProperty("adminEmail", out var em) && !string.IsNullOrWhiteSpace(em.GetString()))
+    {
+        var newEmail = em.GetString()!.Trim();
+        var controlConn = controlDbUrl;
+        var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(controlConn) { Database = tenant.DatabaseIdentifier };
+        var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(connBuilder.ConnectionString).Options;
+        await using var tenantDb = new TenantDbContext(tenantOptions);
+        var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN")
+                     ?? await tenantDb.Users.FirstOrDefaultAsync();
+        if (adminUser != null)
+        {
+            adminUser.Email = newEmail;
+            await tenantDb.SaveChangesAsync();
+        }
+    }
+
+    var audit = new AuditLog
+    {
+        Id = $"aud-{Guid.NewGuid():N}",
+        TenantId = id,
+        Action = "update tenant details",
+        UserId = "super-admin",
+        Details = $"{{\"restaurantName\":\"{tenant.RestaurantName}\",\"tenantName\":\"{tenant.TenantName}\"}}",
+        CreatedAt = DateTime.UtcNow
+    };
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, data = tenant });
+});
+
+app.MapPost("/api/v1/tenants/{id}/subscription", [Authorize(Roles = "SUPER_ADMIN")] async (string id, HttpContext context, ControlDbContext db) =>
+{
+    using var document = await JsonDocument.ParseAsync(context.Request.Body);
+    var root = document.RootElement;
+    var tenant = await db.Tenants.FindAsync(id);
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var action = root.TryGetProperty("action", out var ac) ? ac.GetString() : "extend";
+    var days = root.TryGetProperty("days", out var dy) ? dy.GetInt32() : 30;
+    var now = DateTime.UtcNow;
+
+    if (action == "lock")
+    {
+        tenant.Status = "SUSPENDED";
+        tenant.UpdatedAt = now;
+    }
+    else
+    {
+        var baseDate = (tenant.TrialEnd != null && tenant.TrialEnd > now) ? tenant.TrialEnd.Value : now;
+        tenant.TrialEnd = baseDate.AddDays(days);
+        tenant.Status = "ACTIVE";
+        tenant.SubscriptionStatus = "ACTIVE";
+        tenant.UpdatedAt = now;
+    }
+
+    var audit = new AuditLog
+    {
+        Id = $"aud-{Guid.NewGuid():N}",
+        TenantId = id,
+        Action = action == "lock" ? "lock tenant subscription" : $"activate subscription ({days} days)",
+        UserId = "super-admin",
+        Details = $"{{\"action\":\"{action}\",\"days\":{days},\"status\":\"{tenant.Status}\",\"newEnd\":\"{tenant.TrialEnd:O}\"}}",
+        CreatedAt = now
+    };
+    await db.AuditLogs.AddAsync(audit);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { success = true, data = tenant });
+});
+
 app.MapDelete("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (string id, ControlDbContext db) =>
 {
     var tenant = await db.Tenants.FindAsync(id);

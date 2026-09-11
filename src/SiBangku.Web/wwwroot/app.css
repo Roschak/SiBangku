@@ -2,8 +2,9 @@
 
 /* ==========================================================================
    SiBangku Management System - Enterprise B2B SaaS & High-End Hospitality
-   Aesthetic Direction: Grand Noir Luxury - Espresso Dark, Champagne Gold,
-   Editorial Serif Display. Dark-Mode First Design System.
+   Aesthetic Direction: Warm Silk Alabaster & Champagne Gold - Luxury Hospitality
+   Palette: Warm Alabaster (#FAF8F5), Crisp Porcelain (#FFFFFF), Deep Espresso (#1C1714),
+   Polished Champagne Gold (#B88E2D / #D4AF37). Light-Luxury First Design System.
    ========================================================================== */
 
 :root {
@@ -11,54 +12,54 @@
     --ms-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
     --ms-font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
 
-    /* Surface & Background Tokens (Deep Espresso Noir) */
-    --ms-surface-dark: #0B0908;
-    --ms-surface-card: #141110;
-    --ms-surface-elevated: #1B1715;
-    --ms-surface-hover: #221D19;
-    --ms-surface-input: #100D0B;
+    /* Surface & Background Tokens (Warm Silk Alabaster & Crisp Porcelain) */
+    --ms-surface-dark: #FAF8F5;
+    --ms-surface-card: #FFFFFF;
+    --ms-surface-elevated: #F4EFE6;
+    --ms-surface-hover: #ECE4D6;
+    --ms-surface-input: #FFFFFF;
 
     /* Border & Divider Tokens (Champagne Hairlines) */
-    --ms-border: rgba(201, 169, 110, 0.16);
-    --ms-border-subtle: rgba(201, 169, 110, 0.10);
-    --ms-border-focus: #D4AF37;
+    --ms-border: rgba(184, 142, 45, 0.22);
+    --ms-border-subtle: rgba(184, 142, 45, 0.12);
+    --ms-border-focus: #B88E2D;
     --ms-border-gold: #C9A96E;
 
-    /* Accent Palette - Champagne Gold */
-    --ms-gold: #D4AF37;
-    --ms-gold-bright: #E8C98F;
-    --ms-gold-deep: #A07E3F;
-    --ms-gold-hover: #E8C98F;
-    --ms-gold-subtle: rgba(212, 175, 55, 0.10);
-    --ms-gold-border: rgba(212, 175, 55, 0.32);
+    /* Accent Palette - Polished Champagne Gold */
+    --ms-gold: #B88E2D;
+    --ms-gold-bright: #D4AF37;
+    --ms-gold-deep: #8C6819;
+    --ms-gold-hover: #9C751E;
+    --ms-gold-subtle: rgba(184, 142, 45, 0.10);
+    --ms-gold-border: rgba(184, 142, 45, 0.35);
 
-    --ms-primary: #D4AF37;
-    --ms-primary-hover: #E8C98F;
-    --ms-primary-subtle: rgba(212, 175, 55, 0.10);
-    --ms-primary-border: rgba(212, 175, 55, 0.32);
-    --ms-on-primary: #1A1206;
+    --ms-primary: #B88E2D;
+    --ms-primary-hover: #9C751E;
+    --ms-primary-subtle: rgba(184, 142, 45, 0.10);
+    --ms-primary-border: rgba(184, 142, 45, 0.35);
+    --ms-on-primary: #FFFFFF;
 
-    /* Text Hierarchy (Warm Ivory, Ultra-Readable) */
-    --ms-text-main: #F5F1E8;
-    --ms-text-muted: #C4B9A6;
-    --ms-text-dim: #8F8371;
+    /* Text Hierarchy (Deep Warm Espresso Noir, Ultra-Readable) */
+    --ms-text-main: #1C1714;
+    --ms-text-muted: #5C5245;
+    --ms-text-dim: #8A7C6D;
 
     /* Status Tokens */
-    --ms-success: #34D399;
-    --ms-success-subtle: rgba(52, 211, 153, 0.10);
-    --ms-success-border: rgba(52, 211, 153, 0.32);
+    --ms-success: #059669;
+    --ms-success-subtle: rgba(5, 150, 105, 0.10);
+    --ms-success-border: rgba(5, 150, 105, 0.32);
 
-    --ms-warning: #FBBF24;
-    --ms-warning-subtle: rgba(251, 191, 36, 0.10);
-    --ms-warning-border: rgba(251, 191, 36, 0.32);
+    --ms-warning: #D97706;
+    --ms-warning-subtle: rgba(217, 119, 6, 0.10);
+    --ms-warning-border: rgba(217, 119, 6, 0.32);
 
-    --ms-danger: #F87171;
-    --ms-danger-subtle: rgba(248, 113, 113, 0.10);
-    --ms-danger-border: rgba(248, 113, 113, 0.32);
+    --ms-danger: #DC2626;
+    --ms-danger-subtle: rgba(220, 38, 38, 0.10);
+    --ms-danger-border: rgba(220, 38, 38, 0.32);
 
-    --ms-info: #7DD3FC;
-    --ms-info-subtle: rgba(125, 211, 252, 0.10);
-    --ms-info-border: rgba(125, 211, 252, 0.32);
+    --ms-info: #0284C7;
+    --ms-info-subtle: rgba(2, 132, 199, 0.10);
+    --ms-info-border: rgba(2, 132, 199, 0.32);
 
     /* Architectural Radii */
     --ms-radius-xs: 6px;
@@ -68,17 +69,17 @@
     --ms-radius-xl: 20px;
     --ms-radius-full: 9999px;
 
-    /* Shadows (Warm, Deep & Refined) */
-    --ms-shadow-card: 0 1px 0 rgba(201, 169, 110, 0.06) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
-    --ms-shadow-popover: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(201, 169, 110, 0.14);
+    /* Shadows (Soft Warm Architectural Elevation) */
+    --ms-shadow-card: 0 1px 3px rgba(45, 35, 20, 0.05), 0 10px 28px -6px rgba(45, 35, 20, 0.07);
+    --ms-shadow-popover: 0 20px 50px -12px rgba(45, 35, 20, 0.16), 0 0 0 1px rgba(184, 142, 45, 0.18);
 
     /* Global Body variables */
-    --ms-body-bg: #0B0908;
-    --ms-body-color: #F5F1E8;
-    --ms-card-bg: #141110;
-    --ms-border-color: rgba(201, 169, 110, 0.16);
+    --ms-body-bg: #FAF8F5;
+    --ms-body-color: #1C1714;
+    --ms-card-bg: #FFFFFF;
+    --ms-border-color: rgba(184, 142, 45, 0.22);
 
-    color-scheme: dark;
+    color-scheme: light;
 }
 
 *, *::before, *::after {
@@ -91,8 +92,8 @@ html {
 
 html, body {
     font-family: var(--ms-font-sans);
-    background-color: #0B0908;
-    color: #F5F1E8;
+    background-color: #FAF8F5;
+    color: #1C1714;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -143,10 +144,10 @@ a:hover {
     color: var(--ms-gold-bright);
 }
 
-/* Native form controls render dark (date picker, color, select dropdown) */
+/* Native form controls render cleanly on light surfaces */
 select option {
-    background-color: #141110;
-    color: #F5F1E8;
+    background-color: #FFFFFF;
+    color: #1C1714;
 }
 
 /* Subtle Gold Scrollbar */
@@ -155,24 +156,25 @@ select option {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #0B0908;
+    background: #FAF8F5;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(201, 169, 110, 0.25);
+    background: rgba(184, 142, 45, 0.28);
     border-radius: var(--ms-radius-xs);
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(201, 169, 110, 0.45);
+    background: rgba(184, 142, 45, 0.48);
 }
 
 /* ==========================================================================
-   Public Header & Navigation (Dark Luxury Glass)
+   Public Header & Navigation (Warm Frosted Glass + Champagne Hairline)
    ========================================================================== */
 .ms-public-navbar {
-    background-color: rgba(11, 9, 8, 0.82);
+    background-color: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(201, 169, 110, 0.22);
+    border-bottom: 1px solid rgba(184, 142, 45, 0.20);
+    box-shadow: 0 4px 20px -8px rgba(45, 35, 20, 0.06);
     position: sticky;
     top: 0;
     z-index: 1020;
@@ -218,23 +220,23 @@ select option {
     border: 1px solid transparent;
 }
 .ms-public-nav-link:hover {
-    color: var(--ms-gold-bright);
-    background-color: rgba(212, 175, 55, 0.08);
+    color: var(--ms-gold);
+    background-color: rgba(184, 142, 45, 0.08);
 }
 .ms-public-nav-link.active {
     color: var(--ms-gold);
-    background-color: rgba(212, 175, 55, 0.10);
+    background-color: rgba(184, 142, 45, 0.12);
     border-color: var(--ms-gold-border);
 }
 
 /* ==========================================================================
-   Admin Workspace Layout (Dark Noir / Champagne)
+   Admin Workspace Layout (Warm Alabaster & Crisp Porcelain)
    ========================================================================== */
 .ms-portal-root {
     min-height: 100vh;
     width: 100%;
-    background-color: #0B0908;
-    color: #F5F1E8;
+    background-color: #FAF8F5;
+    color: #1C1714;
     display: flex;
     flex-direction: column;
 }
@@ -243,14 +245,14 @@ select option {
     display: flex;
     min-height: 100vh;
     width: 100%;
-    background-color: #0B0908;
-    color: #F5F1E8;
+    background-color: #FAF8F5;
+    color: #1C1714;
 }
 
 .ms-sidebar {
     width: 260px;
-    background-color: #141110;
-    color: #F5F1E8;
+    background-color: #FFFFFF;
+    color: #1C1714;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -258,8 +260,8 @@ select option {
     top: 0;
     height: 100vh;
     z-index: 1000;
-    border-right: 1px solid rgba(201, 169, 110, 0.20);
-    box-shadow: 8px 0 30px -18px rgba(0, 0, 0, 0.9);
+    border-right: 1px solid rgba(184, 142, 45, 0.18);
+    box-shadow: 4px 0 24px -10px rgba(45, 35, 20, 0.06);
 }
 
 .ms-sidebar-brand {
@@ -267,8 +269,8 @@ select option {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid rgba(201, 169, 110, 0.16);
-    background-color: #141110;
+    border-bottom: 1px solid rgba(184, 142, 45, 0.16);
+    background-color: #FAF8F5;
 }
 .ms-sidebar-brand-icon {
     width: 38px;
@@ -281,12 +283,12 @@ select option {
     background: var(--ms-gold-subtle);
     border: 1px solid var(--ms-gold-border);
     color: var(--ms-gold);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    box-shadow: 0 0 16px rgba(184, 142, 45, 0.15);
 }
 .ms-sidebar-brand-title {
     font-size: 1rem;
     font-weight: 700;
-    color: #F5F1E8;
+    color: #1C1714;
     line-height: 1.2;
     margin: 0;
     letter-spacing: 0.01em;
@@ -307,7 +309,7 @@ select option {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    background-color: #141110;
+    background-color: #FFFFFF;
 }
 
 .ms-sidebar-section-title {
@@ -316,7 +318,7 @@ select option {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    color: #8F8371;
+    color: var(--ms-text-dim);
     padding: 0.75rem 0.75rem 0.3rem 0.75rem;
     margin-top: 0.4rem;
 }
@@ -326,7 +328,7 @@ select option {
     align-items: center;
     gap: 0.65rem;
     padding: 0.58rem 0.8rem;
-    color: #C4B9A6;
+    color: var(--ms-text-muted);
     font-size: 0.85rem;
     font-weight: 500;
     border-radius: var(--ms-radius-sm);
@@ -340,13 +342,13 @@ select option {
     position: relative;
 }
 .ms-sidebar-item:hover {
-    color: #F5F1E8;
-    background-color: rgba(212, 175, 55, 0.07);
-    border-color: rgba(201, 169, 110, 0.14);
+    color: #1C1714;
+    background-color: rgba(184, 142, 45, 0.07);
+    border-color: rgba(184, 142, 45, 0.14);
 }
 .ms-sidebar-item.active {
     color: var(--ms-gold);
-    background: linear-gradient(90deg, rgba(212, 175, 55, 0.14), rgba(212, 175, 55, 0.03));
+    background: linear-gradient(90deg, rgba(184, 142, 45, 0.12), rgba(184, 142, 45, 0.02));
     border-color: var(--ms-gold-border);
     font-weight: 600;
 }
@@ -358,8 +360,8 @@ select option {
     bottom: 20%;
     width: 3px;
     border-radius: 0 3px 3px 0;
-    background: linear-gradient(180deg, #E8C98F, #A07E3F);
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+    background: linear-gradient(180deg, #D4AF37, #8C6819);
+    box-shadow: 0 0 10px rgba(184, 142, 45, 0.5);
 }
 .ms-sidebar-item.active i {
     color: var(--ms-gold);
@@ -368,13 +370,13 @@ select option {
     font-size: 1rem;
     width: 20px;
     text-align: center;
-    color: #8F8371;
+    color: var(--ms-text-dim);
 }
 
 .ms-sidebar-footer {
     padding: 1rem 1.15rem;
-    border-top: 1px solid rgba(201, 169, 110, 0.16);
-    background-color: #0E0C0A;
+    border-top: 1px solid rgba(184, 142, 45, 0.16);
+    background-color: #FAF8F5;
 }
 
 .ms-admin-main {
@@ -382,16 +384,17 @@ select option {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background-color: #0B0908;
-    color: #F5F1E8;
+    background-color: #FAF8F5;
+    color: #1C1714;
 }
 
 .ms-admin-topbar {
     height: 62px;
-    background-color: rgba(20, 17, 16, 0.85);
+    background-color: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(201, 169, 110, 0.20);
+    border-bottom: 1px solid rgba(184, 142, 45, 0.18);
+    box-shadow: 0 2px 10px -4px rgba(45, 35, 20, 0.04);
     padding: 0 1.75rem;
     display: flex;
     align-items: center;
@@ -778,8 +781,8 @@ select option {
     border-collapse: collapse;
 }
 .ms-table th {
-    background-color: #0B0908;
-    color: var(--ms-gold);
+    background-color: var(--ms-surface-elevated, #F5EFE6);
+    color: var(--ms-gold-dark, #8C6A15);
     font-family: var(--ms-font-mono);
     font-size: 0.7rem;
     font-weight: 600;
@@ -793,7 +796,7 @@ select option {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid var(--ms-border-subtle);
     font-size: 0.85rem;
-    color: #D8CFC0;
+    color: var(--ms-text-main, #1C1714);
 }
 .ms-table tbody tr {
     transition: background-color 0.12s ease;
@@ -996,15 +999,18 @@ select option {
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Bootstrap close button -> light on dark */
+/* Bootstrap close button on light */
 .btn-close {
-    filter: invert(1) grayscale(1) brightness(1.6);
+    opacity: 0.7;
+}
+.btn-close:hover {
+    opacity: 1;
 }
 
-/* Form check on dark */
+/* Form check on light */
 .form-check-input {
     background-color: var(--ms-surface-input);
-    border-color: rgba(201, 169, 110, 0.4);
+    border-color: rgba(184, 142, 45, 0.4);
 }
 .form-check-input:checked {
     background-color: var(--ms-gold);
@@ -1015,17 +1021,17 @@ select option {
 }
 
 /* ==========================================================================
-   Customer Portal & Landing Page (Dark Noir Luxury)
+   Customer Portal & Landing Page (Warm Silk Alabaster & Champagne Gold)
    ========================================================================== */
 .ms-customer-portal {
-    background-color: #0B0908 !important;
-    color: #F5F1E8 !important;
+    background-color: #FAF8F5 !important;
+    color: #1C1714 !important;
 }
 
 .ms-customer-portal footer {
-    background-color: #100D0B !important;
-    border-top: 1px solid rgba(201, 169, 110, 0.20) !important;
-    color: #C4B9A6 !important;
+    background-color: #F4EFE6 !important;
+    border-top: 1px solid rgba(184, 142, 45, 0.20) !important;
+    color: #5C5245 !important;
 }
 
 /* Ambient luxury glow blobs (animated by anime.js) */
@@ -1033,39 +1039,39 @@ select option {
 .ambient-float-2 {
     position: absolute;
     border-radius: 50%;
-    filter: blur(70px);
+    filter: blur(75px);
     pointer-events: none;
-    opacity: 0.5;
+    opacity: 0.45;
 }
 .ambient-float-1 {
     width: 480px;
     height: 480px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.20), transparent 65%);
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.16), transparent 65%);
     top: -140px;
     left: -120px;
 }
 .ambient-float-2 {
     width: 520px;
     height: 520px;
-    background: radial-gradient(circle, rgba(160, 126, 63, 0.16), transparent 65%);
+    background: radial-gradient(circle, rgba(184, 142, 45, 0.14), transparent 65%);
     bottom: -180px;
     right: -140px;
 }
 
 /* Interactive Table Simulation (Home Preview) */
 .table-sim-idle {
-    background: #0E0C0A;
-    border-color: rgba(201, 169, 110, 0.22) !important;
-    color: #C4B9A6;
+    background: #FFFFFF;
+    border-color: rgba(184, 142, 45, 0.22) !important;
+    color: #5C5245;
 }
 .table-sim-idle:hover {
-    border-color: rgba(212, 175, 55, 0.55) !important;
-    background: #1B1715;
+    border-color: rgba(184, 142, 45, 0.55) !important;
+    background: #FAF8F5;
 }
 .table-sim-selected {
     background: rgba(212, 175, 55, 0.12) !important;
-    color: #F5F1E8 !important;
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.55), 0 8px 24px -10px rgba(212, 175, 55, 0.4);
+    color: #1C1714 !important;
+    box-shadow: 0 0 0 1px rgba(184, 142, 45, 0.55), 0 8px 20px -8px rgba(184, 142, 45, 0.3);
 }
 
 /* Print */
@@ -1096,8 +1102,8 @@ select option {
     left: 0;
     height: 3px;
     width: 0%;
-    background: linear-gradient(90deg, #A07E3F 0%, #D4AF37 35%, #FFF0CD 60%, #E8C98F 85%, #D4AF37 100%);
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.9), 0 0 20px rgba(212, 175, 55, 0.5);
+    background: linear-gradient(90deg, #8C6819 0%, #B88E2D 35%, #D4AF37 60%, #E8C98F 85%, #B88E2D 100%);
+    box-shadow: 0 0 10px rgba(184, 142, 45, 0.7), 0 0 20px rgba(184, 142, 45, 0.35);
     z-index: 99999;
     pointer-events: none;
     transition: width 0.08s ease-out;
@@ -1111,11 +1117,11 @@ select option {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(16, 13, 11, 0.88);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(201, 169, 110, 0.35);
-    color: #D4AF37;
+    border: 1px solid rgba(184, 142, 45, 0.35);
+    color: #B88E2D;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1125,7 +1131,7 @@ select option {
     visibility: hidden;
     transform: translateY(20px) scale(0.9);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 8px 24px -6px rgba(45, 35, 20, 0.12), 0 0 0 1px rgba(184, 142, 45, 0.15);
 }
 
 #sibangku-back-to-top.show {
@@ -1135,11 +1141,11 @@ select option {
 }
 
 #sibangku-back-to-top:hover {
-    background: rgba(26, 20, 16, 0.95);
-    border-color: #D4AF37;
-    color: #FFF2D1;
+    background: #FFFFFF;
+    border-color: #B88E2D;
+    color: #8C6819;
     transform: translateY(-3px) scale(1.06);
-    box-shadow: 0 14px 36px -8px rgba(0, 0, 0, 0.9), 0 0 24px rgba(212, 175, 55, 0.45);
+    box-shadow: 0 12px 30px -6px rgba(45, 35, 20, 0.18), 0 0 20px rgba(184, 142, 45, 0.3);
 }
 
 #sibangku-back-to-top .progress-ring {
@@ -1153,7 +1159,7 @@ select option {
 }
 
 #sibangku-back-to-top .progress-ring-circle {
-    stroke: #D4AF37;
+    stroke: #B88E2D;
     stroke-width: 2.5;
     fill: transparent;
     stroke-dasharray: 138;
@@ -1165,7 +1171,7 @@ select option {
 .ms-scroll-divider {
     width: 0px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    background: linear-gradient(90deg, transparent, #B88E2D, transparent);
     margin: 0.75rem auto 1.25rem auto;
     transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1185,19 +1191,19 @@ select option {
     flex-direction: column;
     gap: 0.85rem;
     padding: 0.6rem 0.4rem;
-    background: rgba(16, 13, 11, 0.75);
+    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(201, 169, 110, 0.22);
+    border: 1px solid rgba(184, 142, 45, 0.22);
     border-radius: 999px;
-    box-shadow: 0 12px 30px -10px rgba(0,0,0,0.8);
+    box-shadow: 0 8px 25px -8px rgba(45, 35, 20, 0.10);
 }
 
 .ms-quick-jump-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(201, 169, 110, 0.30);
+    background: rgba(184, 142, 45, 0.30);
     border: 1px solid transparent;
     transition: all 0.25s ease;
     cursor: pointer;
@@ -1205,24 +1211,25 @@ select option {
 }
 
 .ms-quick-jump-dot:hover {
-    background: #E8C98F;
+    background: #D4AF37;
     transform: scale(1.3);
 }
 
 .ms-quick-jump-dot.active {
-    background: #D4AF37;
-    box-shadow: 0 0 12px #D4AF37, 0 0 0 2px rgba(212, 175, 55, 0.3);
+    background: #B88E2D;
+    box-shadow: 0 0 10px #B88E2D, 0 0 0 2px rgba(184, 142, 45, 0.3);
     transform: scale(1.35);
 }
 
 /* 5. Stat Counter Cards with Gold Radiance */
 .stat-counter-card {
-    background: linear-gradient(165deg, #171311 0%, #100D0B 100%);
-    border: 1px solid rgba(201, 169, 110, 0.20);
+    background: #FFFFFF;
+    border: 1px solid rgba(184, 142, 45, 0.20);
     border-radius: var(--ms-radius-md);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 18px -4px rgba(45, 35, 20, 0.06);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1233,15 +1240,15 @@ select option {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+    background: linear-gradient(90deg, transparent, rgba(184, 142, 45, 0.6), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .stat-counter-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(212, 175, 55, 0.45);
-    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.9), 0 0 20px rgba(212, 175, 55, 0.12);
+    border-color: rgba(184, 142, 45, 0.45);
+    box-shadow: 0 16px 36px -10px rgba(45, 35, 20, 0.12), 0 0 20px rgba(184, 142, 45, 0.10);
 }
 
 .stat-counter-card:hover::before {
@@ -1253,7 +1260,7 @@ select option {
     font-weight: 700;
     font-size: 2.4rem;
     line-height: 1.1;
-    background: linear-gradient(135deg, #FFF0CD 0%, #D4AF37 55%, #A07E3F 100%);
+    background: linear-gradient(135deg, #B88E2D 0%, #D4AF37 55%, #8C6819 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1271,7 +1278,7 @@ select option {
     left: 10%;
     right: 10%;
     height: 2px;
-    background: rgba(201, 169, 110, 0.16);
+    background: rgba(184, 142, 45, 0.25);
     z-index: 1;
 }
 
@@ -1281,36 +1288,36 @@ select option {
     left: 0;
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #A07E3F, #D4AF37, #FFF0CD);
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+    background: linear-gradient(90deg, #8C6819, #B88E2D, #D4AF37);
+    box-shadow: 0 0 10px rgba(184, 142, 45, 0.8);
     transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .step-card-elevated {
     position: relative;
     z-index: 2;
-    background: linear-gradient(180deg, #151210 0%, #0F0D0C 100%);
-    border: 1px solid rgba(201, 169, 110, 0.20);
+    background: #FFFFFF;
+    border: 1px solid rgba(184, 142, 45, 0.20);
     border-radius: var(--ms-radius-lg);
     padding: 2rem 1.5rem;
     text-align: center;
+    box-shadow: 0 10px 30px -12px rgba(45, 35, 20, 0.08);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.7);
 }
 
 .step-card-elevated:hover {
     transform: translateY(-5px);
-    border-color: rgba(212, 175, 55, 0.45);
-    box-shadow: 0 24px 50px -16px rgba(0, 0, 0, 0.85), 0 0 25px rgba(212, 175, 55, 0.15);
+    border-color: rgba(184, 142, 45, 0.45);
+    box-shadow: 0 18px 45px -14px rgba(45, 35, 20, 0.14), 0 0 20px rgba(184, 142, 45, 0.12);
 }
 
 .step-number-badge {
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.20) 0%, rgba(20, 17, 16, 0.95) 75%);
-    border: 1px solid rgba(212, 175, 55, 0.45);
-    color: #F5E0B3;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, #FAF8F5 75%);
+    border: 1px solid rgba(184, 142, 45, 0.40);
+    color: #8C6819;
     font-family: var(--ms-font-serif);
     font-weight: 700;
     font-size: 1.35rem;
@@ -1318,14 +1325,14 @@ select option {
     align-items: center;
     justify-content: center;
     margin-bottom: 1.25rem;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+    box-shadow: 0 4px 16px rgba(184, 142, 45, 0.18);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .step-card-elevated:hover .step-number-badge {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
-    border-color: #D4AF37;
+    box-shadow: 0 6px 24px rgba(184, 142, 45, 0.35);
+    border-color: #B88E2D;
 }
 
 /* 7. Demo Outlet Quick-Select Chips */
@@ -1335,9 +1342,9 @@ select option {
     font-weight: 600;
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px solid rgba(201, 169, 110, 0.24);
-    color: #C4B9A6;
+    background: #FFFFFF;
+    border: 1px solid rgba(184, 142, 45, 0.28);
+    color: var(--ms-text-muted);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -1347,70 +1354,71 @@ select option {
 }
 
 .outlet-chip:hover {
-    background: rgba(212, 175, 55, 0.18);
-    border-color: #D4AF37;
-    color: #FFF2D1;
+    background: rgba(184, 142, 45, 0.10);
+    border-color: #B88E2D;
+    color: #1C1714;
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px -3px rgba(212, 175, 55, 0.35);
+    box-shadow: 0 4px 14px -3px rgba(184, 142, 45, 0.25);
 }
 
 .outlet-chip.active {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(160, 126, 63, 0.2));
-    border-color: #D4AF37;
-    color: #FFF2D1;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(184, 142, 45, 0.12));
+    border-color: #B88E2D;
+    color: #1C1714;
 }
 
 /* 8. Floorplan Simulation Luxury Cards */
 .floorplan-zone-card {
-    background: rgba(14, 12, 11, 0.85);
-    border: 1px solid rgba(201, 169, 110, 0.20);
+    background: #FAF8F5;
+    border: 1px solid rgba(184, 142, 45, 0.20);
     border-radius: var(--ms-radius-md);
     padding: 1rem;
     transition: all 0.25s ease;
 }
 
 .floorplan-zone-card:hover {
-    border-color: rgba(212, 175, 55, 0.35);
-    background: rgba(20, 17, 15, 0.9);
+    border-color: rgba(184, 142, 45, 0.35);
+    background: #F4EFE6;
 }
 
 .table-sim-luxury {
-    background: #110E0C;
-    border: 1px solid rgba(201, 169, 110, 0.22);
+    background: #FFFFFF;
+    border: 1px solid rgba(184, 142, 45, 0.22);
     border-radius: var(--ms-radius-sm);
     padding: 0.9rem 0.8rem;
     text-align: center;
     cursor: pointer;
     position: relative;
+    box-shadow: 0 2px 6px rgba(45, 35, 20, 0.04);
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
 }
 
 .table-sim-luxury:hover {
-    border-color: rgba(212, 175, 55, 0.6);
-    background: #1C1714;
+    border-color: rgba(184, 142, 45, 0.6);
+    background: #FFFDF9;
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px -8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.18);
+    box-shadow: 0 8px 20px -6px rgba(45, 35, 20, 0.10), 0 0 12px rgba(184, 142, 45, 0.15);
 }
 
 .table-sim-luxury.is-selected {
-    background: linear-gradient(145deg, rgba(212, 175, 55, 0.18), rgba(20, 17, 16, 0.95));
-    border-color: #D4AF37;
-    box-shadow: 0 0 0 1px #D4AF37, 0 12px 28px -8px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(145deg, rgba(212, 175, 55, 0.14), #FFFFFF);
+    border-color: #B88E2D;
+    box-shadow: 0 0 0 1px #B88E2D, 0 8px 24px -6px rgba(184, 142, 45, 0.3);
     transform: translateY(-2px);
 }
 
 .table-sim-luxury.is-booked {
     cursor: not-allowed;
-    opacity: 0.55;
-    background: rgba(248, 113, 113, 0.04);
-    border-color: rgba(248, 113, 113, 0.24);
+    opacity: 0.65;
+    background: rgba(220, 38, 38, 0.04);
+    border-color: rgba(220, 38, 38, 0.24);
 }
 
 .table-sim-luxury.is-hold {
     cursor: not-allowed;
-    background: rgba(251, 191, 36, 0.05);
-    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(217, 119, 6, 0.05);
+    border-color: rgba(217, 119, 6, 0.3);
 }
 
 .chair-indicator-dots {

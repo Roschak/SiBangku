@@ -15,6 +15,13 @@
     <ImportMap />
     <link rel="icon" type="image/svg+xml" href="brand/Favicon Browser.svg" />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" href="favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#B88E2D" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SiBangku" />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
@@ -24,6 +31,15 @@
     <script src="lib/animejs/anime.min.js"></script>
     <script src="lib/html5-qrcode/html5-qrcode.min.js"></script>
     <script src="js/sibangku-app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/service-worker.js').catch(function (err) {
+                    console.log('SW registration note:', err);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>

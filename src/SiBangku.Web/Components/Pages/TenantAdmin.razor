@@ -23,7 +23,7 @@
                                   style="width: 36px; height: 36px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
                                 <i class="bi bi-shop"></i>
                             </span>
-                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: #F5F1E8;">SiBangku Resto</span>
+                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: var(--ms-text-main, #1C1714);">SiBangku Resto</span>
                         </a>
                         <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Outlet Management & Reservations</div>
                     </div>
@@ -913,12 +913,12 @@ else
 
                                         <div class="col-md-6">
                                             <label class="ms-form-label">Background Color (Latar Belakang)</label>
-                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingBackgroundColor" placeholder="#0B0908" />
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingBackgroundColor" placeholder="#FAF8F5" />
                                         </div>
 
                                         <div class="col-md-6">
                                             <label class="ms-form-label">Text Color (Warna Teks)</label>
-                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingTextColor" placeholder="#F5F1E8" />
+                                            <input type="text" class="ms-form-control font-mono" @bind="BrandingTextColor" placeholder="#1C1714" />
                                         </div>
 
                                         <div class="col-12">
@@ -1554,8 +1554,8 @@ else
 
     private BrandingConfig Branding = new BrandingConfig();
     private TimeSlotsConfig TimeSlots = new TimeSlotsConfig();
-    private string BrandingBackgroundColor = "#0B0908";
-    private string BrandingTextColor = "#F5F1E8";
+    private string BrandingBackgroundColor = "#FAF8F5";
+    private string BrandingTextColor = "#1C1714";
     private string BrandingLogoUrl = "";
     private string BrandingFaviconUrl = "";
     private string BrandingBannerUrl = "";

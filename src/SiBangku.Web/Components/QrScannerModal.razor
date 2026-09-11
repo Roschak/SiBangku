@@ -4,27 +4,27 @@
 
 @if (IsOpen)
 {
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(5, 4, 3, 0.82); backdrop-filter: blur(10px); z-index: 1060;">
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(28, 22, 19, 0.45); backdrop-filter: blur(8px); z-index: 1060;">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
-            <div class="modal-content" style="background-color: #141110; border: 1px solid rgba(201, 169, 110, 0.30); border-radius: var(--ms-radius-lg); box-shadow: 0 30px 80px rgba(0,0,0,0.8); color: #F5F1E8;">
-                <!-- Header (Dark Luxury with Gold Edge) -->
-                <div class="modal-header py-3 px-4" style="background: #1B1715; border-bottom: 1px solid rgba(201, 169, 110, 0.18);">
+            <div class="modal-content" style="background-color: var(--ms-surface-card, #FFFFFF); border: 1px solid var(--ms-border, rgba(184, 142, 45, 0.25)); border-radius: var(--ms-radius-lg); box-shadow: var(--ms-shadow-xl, 0 20px 50px rgba(0,0,0,0.15)); color: var(--ms-text-main, #1C1714);">
+                <!-- Header (Warm Silk Alabaster with Champagne Gold Border) -->
+                <div class="modal-header py-3 px-4" style="background: var(--ms-surface-elevated, #F4EFE6); border-bottom: 1px solid var(--ms-border, rgba(184, 142, 45, 0.18));">
                     <div class="d-flex align-items-center gap-2">
                         <span class="d-inline-flex align-items-center justify-content-center"
-                              style="width: 36px; height: 36px; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-xs); color: #D4AF37;">
+                              style="width: 36px; height: 36px; background: rgba(184, 142, 45, 0.12); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-xs); color: var(--ms-gold, #B88E2D);">
                             <i class="bi bi-camera-video"></i>
                         </span>
                         <div>
-                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.02rem; color: #F5F1E8;">@Lang["Scanner_Modal_Title"]</h6>
-                            <span class="small font-mono" style="font-size: 0.72rem; color: #8F8371;">HP & Laptop Webcam Ready</span>
+                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.02rem; color: var(--ms-text-main, #1C1714);">@Lang["Scanner_Modal_Title"]</h6>
+                            <span class="small font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim, #8A7C6D);">HP & Laptop Webcam Ready</span>
                         </div>
                     </div>
                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseScanner"></button>
                 </div>
 
                 <!-- Body -->
-                <div class="modal-body p-4" style="background: #141110; color: #C4B9A6;">
-                    <p class="small mb-3" style="color: #C4B9A6; line-height: 1.6; font-size: 0.88rem;">
+                <div class="modal-body p-4" style="background: var(--ms-surface-card, #FFFFFF); color: var(--ms-text-muted, #5C5245);">
+                    <p class="small mb-3" style="color: var(--ms-text-muted, #5C5245); line-height: 1.6; font-size: 0.88rem;">
                         @Lang["Scanner_Modal_Subtitle"]
                     </p>
 
@@ -42,8 +42,8 @@
                     @if (Cameras != null && Cameras.Count > 1)
                     {
                         <div class="ms-form-group mb-3">
-                            <label class="ms-form-label small mb-1" style="color: #C4B9A6; font-weight: 600;">
-                                <i class="bi bi-camera me-1" style="color: #D4AF37;"></i> @Lang["Scanner_Camera_Label"]
+                            <label class="ms-form-label small mb-1" style="color: var(--ms-text-main, #1C1714); font-weight: 600;">
+                                <i class="bi bi-camera me-1" style="color: var(--ms-gold, #B88E2D);"></i> @Lang["Scanner_Camera_Label"]
                             </label>
                             <select class="ms-form-control font-mono form-select-sm" @bind="SelectedCameraId" @bind:after="OnCameraChanged"
                                     style="font-size: 0.82rem;">
@@ -83,18 +83,18 @@
 
                     <!-- Scanning Status Indicator -->
                     <div class="d-flex align-items-center justify-content-between p-2.5 mb-3 font-mono"
-                         style="background: #0E0C0A; border: 1px solid rgba(201, 169, 110, 0.14); border-radius: var(--ms-radius-xs); font-size: 0.75rem;">
+                         style="background: var(--ms-surface-elevated, #F4EFE6); border: 1px solid var(--ms-border, rgba(184, 142, 45, 0.20)); border-radius: var(--ms-radius-xs); font-size: 0.75rem;">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="live-radar-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34D399; box-shadow: 0 0 8px #34D399;"></span>
-                            <span style="color: #F5F1E8; font-weight: 500;">@Lang["Scanner_Scanning_Status"]</span>
+                            <span class="live-radar-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16A34A; box-shadow: 0 0 8px #16A34A;"></span>
+                            <span style="color: var(--ms-text-main, #1C1714); font-weight: 500;">@Lang["Scanner_Scanning_Status"]</span>
                         </div>
                         <span class="ms-badge ms-badge-primary" style="font-size: 0.68rem;">Auto-Detect</span>
                     </div>
 
                     <!-- Alternative: Image File Upload Fallback -->
-                    <div class="pt-3" style="border-top: 1px solid rgba(201, 169, 110, 0.16);">
-                        <label class="small d-block mb-1.5 fw-semibold" style="font-size: 0.78rem; color: #8F8371;">
-                            <i class="bi bi-image me-1" style="color: #D4AF37;"></i> @Lang["Scanner_Upload_Hint"]
+                    <div class="pt-3" style="border-top: 1px solid var(--ms-border, rgba(184, 142, 45, 0.18));">
+                        <label class="small d-block mb-1.5 fw-semibold" style="font-size: 0.78rem; color: var(--ms-text-dim, #8A7C6D);">
+                            <i class="bi bi-image me-1" style="color: var(--ms-gold, #B88E2D);"></i> @Lang["Scanner_Upload_Hint"]
                         </label>
                         <input type="file" id="qr-file-upload-input" accept="image/*" class="form-control form-control-sm font-mono"
                                style="font-size: 0.8rem;"
@@ -104,8 +104,8 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer py-2.5 px-4 d-flex justify-content-between" style="background: #0E0C0A; border-top: 1px solid rgba(201, 169, 110, 0.16);">
-                    <span class="small font-mono" style="font-size: 0.72rem; color: #8F8371;">SiBangku Universal Engine</span>
+                <div class="modal-footer py-2.5 px-4 d-flex justify-content-between" style="background: var(--ms-surface-elevated, #F4EFE6); border-top: 1px solid var(--ms-border, rgba(184, 142, 45, 0.18));">
+                    <span class="small font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim, #8A7C6D);">SiBangku Universal Engine</span>
                     <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="CloseScanner">
                         <i class="bi bi-x-lg me-1"></i> @Lang["Scanner_Close_Btn"]
                     </button>
