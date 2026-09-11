@@ -421,6 +421,22 @@ app.MapPost("/api/v1/internal/tenant/reset-password", async (HttpContext context
     return Results.Ok(new { success = true, message = $"Kata sandi untuk admin resto '{tenant.RestaurantName}' ({adminUser.Email}) berhasil diperbarui.", adminEmail = adminUser.Email });
 });
 
+// --- Public Outlet Directory (Privacy-Preserving, No Auth Required) ---
+app.MapGet("/api/v1/public/outlets", async (ControlDbContext db) =>
+{
+    var list = await db.Tenants
+        .Where(t => t.Status == "ACTIVE" || t.Status == "TRIAL")
+        .OrderBy(t => t.RestaurantName)
+        .Select(t => new
+        {
+            tenantCode = t.TenantCode,
+            restaurantName = t.RestaurantName,
+            status = t.Status
+        })
+        .ToListAsync();
+    return Results.Ok(new { success = true, data = list });
+});
+
 // --- Tenant Management Routes (Admin protected) ---
 app.MapGet("/api/v1/tenants", [Authorize(Roles = "SUPER_ADMIN")] async (ControlDbContext db) =>
 {

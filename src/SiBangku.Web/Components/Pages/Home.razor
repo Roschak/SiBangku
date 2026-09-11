@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject LanguageService Lang
 @inject IJSRuntime JS
+@inject IHttpClientFactory ClientFactory
 
 <PageTitle>SiBangku - @Lang["Hero_Title_1"]</PageTitle>
 
@@ -43,61 +44,72 @@
                 @Lang["Hero_Subtitle"]
             </p>
 
-            <!-- Search Outlet & Scanner Action Bar -->
-            <div class="hero-action-reveal mb-3 mx-auto" style="max-width: 580px;">
+            <!-- Search Outlet & Scanner Action Bar with Relaxed Spacing -->
+            <div class="hero-action-reveal mb-4 mx-auto" style="max-width: 600px;">
                 @if (!string.IsNullOrEmpty(SearchError))
                 {
-                    <div class="ms-alert ms-alert-danger mb-2.5 py-2 px-3 small text-start">
+                    <div class="ms-alert ms-alert-danger mb-3 py-2 px-3 small text-start">
                         <i class="bi bi-exclamation-octagon ms-alert-icon"></i>
                         <div class="ms-alert-content">@SearchError</div>
                     </div>
                 }
 
-                <div class="p-1.5" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-md); box-shadow: 0 12px 36px -12px rgba(45,35,20,0.12), 0 0 0 1px rgba(184,142,45,0.1);">
+                <div class="p-2" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.35); border-radius: 16px; box-shadow: 0 14px 40px -12px rgba(45,35,20,0.12), 0 0 0 1px rgba(184,142,45,0.08);">
                     <form @onsubmit="NavigateToBooking" class="d-flex flex-column flex-sm-row gap-2">
                         <div class="ms-input-group flex-grow-1">
                             <i class="bi bi-search ms-input-icon"></i>
                             <input type="text" class="ms-form-control has-icon-left font-mono text-uppercase border-0"
                                    @bind="SearchTenantCode"
                                    placeholder="@Lang["Hero_Search_Placeholder"]"
-                                   style="background: transparent; font-size: 0.84rem; color: var(--ms-text-main); font-weight: 600; box-shadow: none;" />
+                                   style="background: transparent; font-size: 0.86rem; color: var(--ms-text-main); font-weight: 600; box-shadow: none;" />
                         </div>
-                        <button type="submit" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap px-3.5 gold-shimmer-btn">
+                        <button type="submit" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap px-4 gold-shimmer-btn" style="border-radius: 12px;">
                             <span>@Lang["Hero_Search_Btn"]</span>
                             <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                     </form>
                 </div>
 
-                <!-- Instant Demo Quick-Select Chips -->
-                <div class="d-flex flex-wrap justify-content-center align-items-center gap-1.5 mt-2.5">
-                    <span class="font-mono text-muted small me-1" style="font-size: 0.72rem; color: var(--ms-text-dim);">Coba Demo Outlet:</span>
-                    <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("GRAND-BISTRO")'>
-                        <i class="bi bi-stars" style="color: #B88E2D;"></i>
-                        <span>GRAND-BISTRO (Fine Dining)</span>
-                    </button>
-                    <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("PADANG-MERDEKA")'>
-                        <i class="bi bi-fire" style="color: #DC2626;"></i>
-                        <span>PADANG-MERDEKA</span>
-                    </button>
-                    <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet("KOPI-SENJA")'>
-                        <i class="bi bi-cup-hot" style="color: #D97706;"></i>
-                        <span>KOPI-SENJA</span>
-                    </button>
+                <!-- Instant Demo Quick-Select Chips (Synchronized with Real Data & Relaxed Spacing) -->
+                <div class="my-4 pt-1">
+                    <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                        <span class="font-mono text-muted small me-1" style="font-size: 0.74rem; color: var(--ms-text-dim);">
+                            <i class="bi bi-shop-window me-1" style="color: #B88E2D;"></i> Coba Demo Outlet:
+                        </span>
+                        @if (DemoOutlets.Any())
+                        {
+                            @foreach (var outlet in DemoOutlets.Take(4))
+                            {
+                                <button type="button" class="outlet-chip" @onclick='() => SelectDemoOutlet(outlet.TenantCode)'>
+                                    <i class="bi bi-stars" style="color: #B88E2D;"></i>
+                                    <span>@outlet.RestaurantName</span>
+                                </button>
+                            }
+                        }
+                        else
+                        {
+                            <span class="small font-mono text-muted" style="font-size: 0.75rem;">(Belum ada outlet demo publik)</span>
+                        }
+
+                        <button type="button" class="outlet-chip border-primary" style="background: rgba(184, 142, 45, 0.08);" @onclick="() => IsDirectoryModalOpen = true">
+                            <i class="bi bi-compass" style="color: #B88E2D;"></i>
+                            <span>Direktori Outlet (@AllOutlets.Count)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Centered Fast Action Buttons -->
-            <div class="hero-action-reveal d-flex flex-wrap justify-content-center align-items-center gap-2.5 mb-5 mt-4">
-                <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm px-3.5" @onclick="() => IsScannerOpen = true">
+            <!-- Centered Fast Action Buttons with Generous Breathing Room -->
+            <div class="hero-action-reveal d-flex flex-wrap justify-content-center align-items-center gap-3 mb-5 mt-4 pt-1">
+                <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm px-4" style="border-radius: 12px;" @onclick="() => IsScannerOpen = true">
                     <i class="bi bi-camera me-1.5" style="color: #B88E2D;"></i>
                     <span class="fw-semibold">@Lang["Hero_Btn_ScanQR"]</span>
                 </button>
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm px-4 gold-shimmer-btn">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm px-4.5 gold-shimmer-btn" style="border-radius: 12px;">
                     <i class="bi bi-calendar-check me-1.5"></i>
                     <span>@Lang["Hero_Btn_Book"]</span>
                 </a>
-                <a href="/admin" class="ms-btn ms-btn-secondary ms-btn-sm font-mono px-3" style="font-size: 0.78rem;">
+                <a href="/admin" class="ms-btn ms-btn-secondary ms-btn-sm font-mono px-3.5" style="font-size: 0.78rem; border-radius: 12px;">
                     <i class="bi bi-shop me-1.5"></i>
                     <span>@Lang["Hero_Btn_RestoPortal"]</span>
                 </a>
@@ -164,7 +176,7 @@
                                 <span class="badge bg-light text-muted border font-mono" style="font-size: 0.65rem;">Privat</span>
                             </div>
                             <div class="table-sim-luxury @(SelectedDemoTable == 1 ? "is-selected" : "")"
-                                 @onclick="() => SelectDemoTable(1)">
+                                 @onclick='() => SelectDemoTable("Meja 01", 1)'>
                                 <div class="d-flex align-items-center justify-content-between mb-1">
                                     <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 01</span>
                                     <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
@@ -189,7 +201,7 @@
                             </div>
                             <div class="d-flex flex-column gap-2">
                                 <div class="table-sim-luxury @(SelectedDemoTable == 2 ? "is-selected" : "")"
-                                     @onclick="() => SelectDemoTable(2)">
+                                     @onclick='() => SelectDemoTable("Meja 02", 2)'>
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 02</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
@@ -213,7 +225,7 @@
                                     </div>
                                 </div>
                                 <div class="table-sim-luxury @(SelectedDemoTable == 4 ? "is-selected" : "")"
-                                     @onclick="() => SelectDemoTable(4)">
+                                     @onclick='() => SelectDemoTable("Meja 04", 4)'>
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 04</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
@@ -250,7 +262,7 @@
                                     </div>
                                 </div>
                                 <div class="table-sim-luxury @(SelectedDemoTable == 6 ? "is-selected" : "")"
-                                     @onclick="() => SelectDemoTable(6)">
+                                     @onclick='() => SelectDemoTable("Meja 06", 6)'>
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <span class="font-mono fw-bold" style="font-size: 0.85rem; color: var(--ms-text-main);">Meja 06</span>
                                         <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.65rem;">Siap</span>
@@ -271,11 +283,11 @@
                     var tableInfo = GetTableInfo(SelectedDemoTable);
                 }
                 <div class="p-3 mb-3 rounded font-mono"
-                     style="background: rgba(184, 142, 45, 0.08); border: 1px solid rgba(184, 142, 45, 0.32); border-radius: var(--ms-radius-sm);">
+                     style="background: rgba(184, 142, 45, 0.08); border: 1px solid rgba(184, 142, 45, 0.32); border-radius: 14px;">
                     <div class="row align-items-center g-3">
                         <div class="col-md-3">
                             <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">MEJA TERPILIH</span>
-                            <strong class="fs-6" style="color: var(--ms-text-main);">Meja 0@SelectedDemoTable (@tableInfo.Zone)</strong>
+                            <strong class="fs-6" style="color: var(--ms-text-main);">@SelectedDemoTableNumber (@tableInfo.Zone)</strong>
                         </div>
                         <div class="col-md-3">
                             <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">KAPASITAS & MIN. SPEND</span>
@@ -286,9 +298,9 @@
                             <span class="small" style="color: var(--ms-text-muted);">@tableInfo.Ambiance</span>
                         </div>
                         <div class="col-md-3 text-md-end">
-                            <a href="/booking?tenant=GRAND-BISTRO" class="ms-btn ms-btn-primary ms-btn-sm w-100 gold-shimmer-btn text-center justify-content-center">
+                            <a href="/booking?tenant=GRAND-BISTRO" class="ms-btn ms-btn-primary ms-btn-sm w-100 gold-shimmer-btn text-center justify-content-center" style="border-radius: 10px;">
                                 <i class="bi bi-calendar2-check me-1"></i>
-                                <span>Pesan Meja 0@SelectedDemoTable</span>
+                                <span>Pesan @SelectedDemoTableNumber</span>
                             </a>
                         </div>
                     </div>
@@ -316,10 +328,13 @@
             <!-- 4 Counter Metric Cards on Scroll -->
             <div class="row g-3 mb-5 justify-content-center">
                 <div class="col-lg-3 col-sm-6">
-                    <div class="stat-counter-card h-100">
+                    <div class="stat-counter-card h-100" style="border-radius: 16px; padding: 1.25rem;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="100" data-suffix="%">100%</div>
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-shield-check"></i></span>
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                 style="width: 44px; height: 44px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.25rem;">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
                         </div>
                         <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Anti Double-Booking</h6>
                         <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
@@ -328,10 +343,13 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="stat-counter-card h-100">
+                    <div class="stat-counter-card h-100" style="border-radius: 16px; padding: 1.25rem;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="30" data-prefix="< " data-suffix="s">&lt; 30s</div>
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-lightning-charge"></i></span>
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                 style="width: 44px; height: 44px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.25rem;">
+                                <i class="bi bi-lightning-charge"></i>
+                            </div>
                         </div>
                         <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Konfirmasi Cepat</h6>
                         <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
@@ -340,10 +358,13 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="stat-counter-card h-100">
+                    <div class="stat-counter-card h-100" style="border-radius: 16px; padding: 1.25rem;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="99.9" data-decimals="1" data-suffix="%">99.9%</div>
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-diagram-3"></i></span>
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                 style="width: 44px; height: 44px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.25rem;">
+                                <i class="bi bi-diagram-3"></i>
+                            </div>
                         </div>
                         <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Keandalan Sistem</h6>
                         <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
@@ -352,10 +373,13 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="stat-counter-card h-100">
+                    <div class="stat-counter-card h-100" style="border-radius: 16px; padding: 1.25rem;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="stat-number-glow stat-counter-value" data-target="24" data-suffix="/7">24/7</div>
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-calendar2-check"></i></span>
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                 style="width: 44px; height: 44px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.25rem;">
+                                <i class="bi bi-calendar2-check"></i>
+                            </div>
                         </div>
                         <h6 class="ms-serif fw-bold mb-1" style="color: var(--ms-text-main); font-size: 1.05rem;">Reservasi Mandiri</h6>
                         <p class="small mb-0 font-mono" style="font-size: 0.74rem; color: var(--ms-text-dim); line-height: 1.6;">
@@ -500,9 +524,12 @@
 
             <div class="row g-4 justify-content-center">
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-cpu"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-cpu"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_1_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -512,9 +539,12 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-database-lock"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-database-lock"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_2_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -524,9 +554,12 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-camera-video"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-camera-video"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_3_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -536,9 +569,12 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-clock-history"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_4_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -548,9 +584,12 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-palette"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-palette"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_5_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -560,9 +599,12 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
-                        <div class="d-flex align-items-center gap-2.5 mb-2.5">
-                            <span class="fs-4" style="color: #B88E2D;"><i class="bi bi-printer"></i></span>
+                    <div class="tech-stack-card ms-card p-4 h-100" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.20); border-radius: 16px; box-shadow: 0 4px 18px -4px rgba(45,35,20,0.05); transition: all 0.25s ease;">
+                        <div class="d-flex align-items-center gap-3 mb-2.5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: rgba(184, 142, 45, 0.10); border: 1px solid rgba(184, 142, 45, 0.28); color: #B88E2D; font-size: 1.15rem;">
+                                <i class="bi bi-printer"></i>
+                            </div>
                             <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 1.05rem;">@Lang["Tech_6_Title"]</h6>
                         </div>
                         <p class="small mb-0" style="color: var(--ms-text-muted); line-height: 1.7;">
@@ -631,15 +673,213 @@
                 OnScanSuccess="HandleQrScanned"
                 OnClose="() => IsScannerOpen = false" />
 
+<!-- Public Outlets Directory Modal (Privacy-Preserving & Synchronized) -->
+@if (IsDirectoryModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(45, 35, 20, 0.65); backdrop-filter: blur(6px); z-index: 1060;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.40); border-radius: 16px; box-shadow: 0 24px 60px -15px rgba(45,35,20,0.30); overflow: hidden;">
+                <div class="modal-header px-4 py-3" style="border-bottom: 1px solid rgba(184, 142, 45, 0.18); background: #FAF8F5;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 38px; height: 38px; background: rgba(184, 142, 45, 0.12); color: #B88E2D;">
+                            <i class="bi bi-compass fs-5"></i>
+                        </span>
+                        <div>
+                            <h5 class="modal-title ms-serif fw-bold mb-0" style="color: var(--ms-text-main);">Direktori Outlet Restoran</h5>
+                            <span class="font-mono text-muted" style="font-size: 0.72rem;">Daftar mitra aktif & demo resmi platform SiBangku</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => IsDirectoryModalOpen = false"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Search & Filter Tabs -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-7">
+                            <div class="ms-input-group">
+                                <i class="bi bi-search ms-input-icon"></i>
+                                <input type="text" class="ms-form-control has-icon-left font-mono"
+                                       @bind="DirectorySearchQuery" @bind:event="oninput"
+                                       placeholder="Cari nama atau kode outlet..."
+                                       style="font-size: 0.82rem; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-sm @(DirectoryTab == "ALL" ? "btn-dark" : "btn-outline-secondary") font-mono"
+                                        style="font-size: 0.72rem; border-radius: 8px 0 0 8px;" @onclick='() => DirectoryTab = "ALL"'>
+                                    Semua (@FilteredOutlets.Count)
+                                </button>
+                                <button type="button" class="btn btn-sm @(DirectoryTab == "ACTIVE" ? "btn-dark" : "btn-outline-secondary") font-mono"
+                                        style="font-size: 0.72rem;" @onclick='() => DirectoryTab = "ACTIVE"'>
+                                    Berlangganan (@SubscribedOutlets.Count)
+                                </button>
+                                <button type="button" class="btn btn-sm @(DirectoryTab == "TRIAL" ? "btn-dark" : "btn-outline-secondary") font-mono"
+                                        style="font-size: 0.72rem; border-radius: 0 8px 8px 0;" @onclick='() => DirectoryTab = "TRIAL"'>
+                                    Demo (@DemoOutlets.Count)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Shield Guarantee Notice -->
+                    <div class="p-2 px-3 mb-3 font-mono rounded" style="font-size: 0.72rem; background: rgba(184, 142, 45, 0.08); color: var(--ms-text-dim); border: 1px solid rgba(184, 142, 45, 0.18);">
+                        <i class="bi bi-shield-lock me-1" style="color: #B88E2D;"></i>
+                        <strong>Privasi Terlindungi:</strong> Informasi sensitif (alamat email pemilik, kredensial DB, histori invoice) diisolasi terpisah dan tidak ditampilkan pada publik.
+                    </div>
+
+                    <!-- Outlets Dynamic List -->
+                    @if (IsLoadingOutlets)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                            <span class="font-mono small text-muted">Menyinkronkan data outlet dengan server...</span>
+                        </div>
+                    }
+                    else if (!FilteredOutlets.Any())
+                    {
+                        <div class="text-center py-4 text-muted font-mono">
+                            <i class="bi bi-shop-window d-block fs-3 mb-2" style="color: #B88E2D;"></i>
+                            <p class="small mb-0">Tidak ada outlet yang sesuai dengan kategori ini.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group gap-2" style="max-height: 380px; overflow-y: auto;">
+                            @foreach (var o in FilteredOutlets)
+                            {
+                                var isTrial = o.Status.Equals("TRIAL", StringComparison.OrdinalIgnoreCase);
+                                <div class="list-group-item d-flex align-items-center justify-content-between p-3 rounded"
+                                     style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.22); border-radius: 12px !important;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                             style="width: 42px; height: 42px; background: @(isTrial ? "rgba(217, 119, 6, 0.12)" : "rgba(16, 185, 129, 0.12)"); color: @(isTrial ? "#D97706" : "#10B981");">
+                                            <i class="bi @(isTrial ? "bi-stars" : "bi-patch-check-fill") fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="ms-serif fw-bold mb-0" style="color: var(--ms-text-main); font-size: 0.98rem;">@o.RestaurantName</h6>
+                                            <div class="d-flex align-items-center gap-2 font-mono mt-1" style="font-size: 0.70rem;">
+                                                <span class="badge @(isTrial ? "bg-warning-subtle text-warning" : "bg-success-subtle text-success") px-2 py-0.5" style="border-radius: 6px;">
+                                                    @(isTrial ? "DEMO OUTLET (TRIAL)" : "BERLANGGANAN AKTIF")
+                                                </span>
+                                                <span class="text-muted">Kode: <strong style="color: var(--ms-text-main);">@o.TenantCode</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="ms-btn ms-btn-primary ms-btn-sm font-mono text-nowrap gold-shimmer-btn"
+                                            style="border-radius: 10px; font-size: 0.75rem;"
+                                            @onclick="() => SelectDemoOutlet(o.TenantCode)">
+                                        <span>Kunjungi</span>
+                                        <i class="bi bi-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer px-4 py-2.5" style="background: #FAF8F5; border-top: 1px solid rgba(184, 142, 45, 0.18);">
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm px-3" style="border-radius: 8px;" @onclick="() => IsDirectoryModalOpen = false">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private string SearchTenantCode = "";
     private string? SearchError;
     private bool IsScannerOpen = false;
     private int SelectedDemoTable = 1;
+    private string SelectedDemoTableNumber = "Meja 01";
 
-    protected override void OnInitialized()
+    private bool IsDirectoryModalOpen = false;
+    private bool IsLoadingOutlets = false;
+    private string DirectorySearchQuery = "";
+    private string DirectoryTab = "ALL";
+
+    public record PublicOutletDto(string TenantCode, string RestaurantName, string Status);
+    private List<PublicOutletDto> AllOutlets = new();
+
+    private List<PublicOutletDto> DemoOutlets => AllOutlets
+        .Where(o => o.Status.Equals("TRIAL", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    private List<PublicOutletDto> SubscribedOutlets => AllOutlets
+        .Where(o => o.Status.Equals("ACTIVE", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    private List<PublicOutletDto> FilteredOutlets
+    {
+        get
+        {
+            var query = AllOutlets.AsEnumerable();
+            if (DirectoryTab == "ACTIVE")
+            {
+                query = query.Where(o => o.Status.Equals("ACTIVE", StringComparison.OrdinalIgnoreCase));
+            }
+            else if (DirectoryTab == "TRIAL")
+            {
+                query = query.Where(o => o.Status.Equals("TRIAL", StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(DirectorySearchQuery))
+            {
+                var q = DirectorySearchQuery.Trim().ToLowerInvariant();
+                query = query.Where(o => o.RestaurantName.ToLowerInvariant().Contains(q) || o.TenantCode.ToLowerInvariant().Contains(q));
+            }
+            return query.ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
     {
         Lang.OnLanguageChanged += HandleLanguageChanged;
+        await LoadPublicOutletsAsync();
+    }
+
+    private async Task LoadPublicOutletsAsync()
+    {
+        IsLoadingOutlets = true;
+        try
+        {
+            var client = ClientFactory.CreateClient("ControlApi");
+            var res = await client.GetFromJsonAsync<PublicOutletsResponse>("/api/v1/public/outlets");
+            if (res != null && res.Success && res.Data != null)
+            {
+                AllOutlets = res.Data.Select(d => new PublicOutletDto(d.TenantCode ?? "", d.RestaurantName ?? "", d.Status ?? "ACTIVE")).ToList();
+            }
+        }
+        catch
+        {
+            // Fallback default demo outlets if ControlApi is seeding or unreachable
+        }
+        finally
+        {
+            if (!AllOutlets.Any())
+            {
+                AllOutlets = new List<PublicOutletDto>
+                {
+                    new PublicOutletDto("GRAND-BISTRO", "Grand Bistro Dining & Lounge", "ACTIVE"),
+                    new PublicOutletDto("WARUNG-SEDAP", "Warung Sedap Nusantara", "TRIAL"),
+                    new PublicOutletDto("KOPI-SENJA", "Kopi Senja Artisan Cafe", "TRIAL")
+                };
+            }
+            IsLoadingOutlets = false;
+        }
+    }
+
+    private class PublicOutletsResponse
+    {
+        public bool Success { get; set; }
+        public List<PublicOutletItem>? Data { get; set; }
+    }
+
+    private class PublicOutletItem
+    {
+        public string? TenantCode { get; set; }
+        public string? RestaurantName { get; set; }
+        public string? Status { get; set; }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -659,9 +899,10 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void SelectDemoTable(int tableNum)
+    private void SelectDemoTable(string tableNum, int id)
     {
-        SelectedDemoTable = tableNum;
+        SelectedDemoTableNumber = tableNum;
+        SelectedDemoTable = id;
     }
 
     private (string Zone, string Ambiance, int Seats, string MinSpend) GetTableInfo(int tableNum) => tableNum switch
@@ -677,6 +918,7 @@
 
     private void SelectDemoOutlet(string code)
     {
+        IsDirectoryModalOpen = false;
         SearchTenantCode = code;
         SearchError = null;
         Navigation.NavigateTo($"/booking?tenant={code}");
