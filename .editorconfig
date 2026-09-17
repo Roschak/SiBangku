@@ -1,0 +1,32 @@
+# EditorConfig - single source of truth for the repository's formatting rules.
+#
+# The CI job "format-check" runs `dotnet format --verify-no-changes`, so these
+# rules must resolve identically on Windows, Linux and macOS. Pin `end_of_line`
+# in particular: without it Roslyn follows the developer's OS newline, so an
+# all-LF repository would be reported as "incorrectly formatted" on Windows and
+# as clean on Linux - a gate that can never pass on both platforms.
+#
+# Only whitespace/encoding rules live here on purpose. Code-style opinions
+# (usings order, var preferences, ...) are not configured yet, so the gate cannot
+# start failing because of a style preference nobody agreed on.
+
+root = true
+
+[*]
+charset = utf-8
+# LF for every file the formatter inspects. The only exception lives in
+# .gitattributes: Windows batch launchers (*.bat) stay CRLF because cmd.exe can
+# mis-parse LF-only scripts.
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Configuration and data files conventionally use two spaces.
+[*.{json,yml,yaml,csproj,props,targets,slnx}]
+indent_size = 2
+
+# Markdown uses two trailing spaces as an explicit line break.
+[*.md]
+trim_trailing_whitespace = false

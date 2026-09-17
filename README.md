@@ -98,7 +98,7 @@ Apk_SiBangku/
 │   ├── SiBangku.Worker/        # Background Service (Auto-cancel Unpaid & Expire Trials)
 │   ├── SiBangku.Web/           # Blazor Server Web App (.NET 9 UI with 3 Dedicated Portals)
 │   ├── SiBangku.Cli/           # Command-Line Management Tool
-│   └── SiBangku.Tests/         # Unit & Integration Tests (xUnit + In-Memory Db)
+│   └── SiBangku.Tests/         # Unit, Integration & PostgreSQL End-to-End Tests (xUnit)
 ├── docker-compose.yml          # Multi-container orchestration
 └── SiBangku.slnx               # Visual Studio / .NET Solution File
 ```
@@ -149,13 +149,57 @@ Layanan akan aktif pada endpoint berikut:
 
 ---
 
-## 🧪 Pengujian Unit & Integrasi
+## 🧪 Pengujian Unit, Integrasi & End-to-End
 
-Seluruh pengujian unit generator dan integration testing API dapat dijalankan dengan perintah:
+Seluruh pengujian dapat dijalankan dengan perintah:
 ```bash
 dotnet test SiBangku.slnx
 ```
-> **Hasil Pengujian**: 14/14 Tests Passed (0 Warnings, 0 Errors).
+> **Hasil Pengujian**: 74/74 Tests Passed (0 Warnings, 0 Errors).
+
+### Tes End-to-End di PostgreSQL Nyata (20 tes)
+Tes `SiBangku.Tests/PostgresE2E` menjalankan alur lengkap tanpa mock:
+`TenantLifecycleE2ETests` (provisioning tenant lewat Control API hingga database fisik dibuat, login
+tenant admin, CRUD meja, isolasi antar-tenant, dan reservasi tamu), `StaffOperationsE2ETests`
+(perubahan status & pembayaran reservasi oleh staf, pembaruan branding/jam operasional, dan rotasi
+kata sandi admin), serta `BrandingIsolationE2ETests` (tema & jam operasional dua tenant tidak saling
+bocor, termasuk tenant ketiga yang tidak pernah ditulis tetap memakai default, permintaan lintas
+tenant ditolak `403`, dan baris pengaturan yang rusak tetap menghasilkan respons default alih-alih
+`500`). Semuanya diverifikasi ulang dengan query SQL langsung ke database tenant.
+
+Tes ini otomatis **dilewati** (bukan gagal) bila tidak ada server PostgreSQL, jadi kontributor
+tanpa Docker tetap mendapat hasil hijau. Untuk menjalankannya, sediakan server PostgreSQL:
+```bash
+# Server bawaan docker-compose (user 'sibangku' adalah superuser, dibutuhkan hak CREATE DATABASE)
+docker compose up -d postgres
+dotnet test SiBangku.slnx
+
+# Atau arahkan ke server tes Anda sendiri
+SIBANGKU_TEST_POSTGRES="Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=..." \
+  dotnet test SiBangku.slnx
+```
+Setiap kali dijalankan, tes membuat database sementara `sibangku_e2e_control_*` beserta database
+tenant-nya, lalu menghapusnya kembali setelah selesai.
+
+---
+
+## 🤖 Continuous Integration (GitHub Actions)
+Pipeline [`.github/workflows/ci.yml`](.github/workflows/ci.yml) berjalan pada setiap push dan pull request:
+1. **Build & Test .NET** - kompilasi seluruh solusi dan menjalankan seluruh tes di atas layanan
+   PostgreSQL 15 (termasuk 20 tes end-to-end).
+2. **Audit Kerentanan NuGet** - `NuGetAuditMode=all` (termasuk paket transitif) dengan advisory
+   moderate/tinggi/kritis sebagai **error**, ditambah laporan `dotnet list package --vulnerable`
+   yang gagal pada **semua** tingkat keparahan (ambang ini didefinisikan di `.github/workflows/ci.yml`).
+   *Jalankan lokal:* `dotnet list SiBangku.slnx package --vulnerable --include-transitive`.
+3. **Pemeriksaan Format Kode** - `dotnet format SiBangku.slnx --verify-no-changes` dengan aturan
+   dari [`.editorconfig`](.editorconfig) (newline LF dipatok, jadi hasilnya sama di Windows/Linux/macOS).
+   *Perbaiki lokal:* `dotnet format SiBangku.slnx`.
+4. **APK per Tenant** - mengompilasi APK Android untuk setiap folder `tenants/<KODE>/android`,
+   memverifikasi isinya (`classes.dex`, `resources.arsc`, `AndroidManifest.xml`), lalu
+   mengunggahnya sebagai artifact `sibangku-<KODE>-apk`.
+5. **APK Workspace Baru** - menjalankan `scripts/generate-tenant-workspace.ps1` untuk tenant baru
+   dan mengompilasi APK-nya, sehingga skrip generator tidak bisa lagi menghasilkan proyek yang
+   tidak bisa di-build.
 
 ---
 

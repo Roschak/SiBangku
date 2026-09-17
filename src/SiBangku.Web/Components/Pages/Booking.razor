@@ -702,11 +702,12 @@
         try
         {
             var client = GetClient();
+            // Field names follow the Tenant API reservation contract.
             var payload = new
             {
-                guestName = BookingName.Trim(),
-                guestEmail = BookingEmail.Trim(),
-                guestPhone = BookingPhone.Trim(),
+                name = BookingName.Trim(),
+                email = BookingEmail.Trim(),
+                phone = BookingPhone.Trim(),
                 date = BookingDate.ToString("yyyy-MM-dd"),
                 startTime = SelectedStartTime,
                 endTime = SelectedEndTime,
@@ -724,8 +725,7 @@
             }
             else
             {
-                var errDoc = await response.Content.ReadAsStringAsync();
-                Message = $"Gagal membuat reservasi: {errDoc}";
+                Message = await ReadApiErrorAsync(response) ?? "Gagal membuat reservasi. Silakan coba beberapa saat lagi.";
             }
         }
         catch (Exception ex)
@@ -736,6 +736,29 @@
         {
             IsSubmitting = false;
         }
+    }
+
+    /// <summary>
+    /// Surfaces the API's human-readable error message without ever echoing a
+    /// raw stack trace or server internals to the visitor.
+    /// </summary>
+    private static async Task<string?> ReadApiErrorAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (doc.TryGetProperty("error", out var error) && error.TryGetProperty("message", out var message))
+            {
+                var text = message.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    return text;
+                }
+            }
+        }
+        catch { }
+
+        return null;
     }
 
     private void ResetForm()

@@ -6,6 +6,7 @@ using Npgsql;
 using SiBangku.Db;
 using SiBangku.Shared;
 using SiBangku.Shared.Models;
+using SiBangku.Shared.Security;
 
 namespace SiBangku.ControlApi.Services
 {
@@ -54,11 +55,26 @@ namespace SiBangku.ControlApi.Services
             var packageId = Utils.GeneratePackageId(tenantSlug);
             var webIdentifier = $"{tenantSlug}.sibangku.example";
             var apkIdentifier = packageId;
-            var temporaryPassword = !string.IsNullOrWhiteSpace(paramsDto.AdminPassword) && paramsDto.AdminPassword.Trim().Length >= 5
-                ? paramsDto.AdminPassword.Trim()
-                : Utils.GenerateTemporaryPassword();
+            // An operator-supplied password must satisfy the platform password
+            // policy; the auto-generated fallback is high-entropy by construction.
+            string temporaryPassword;
+            if (!string.IsNullOrWhiteSpace(paramsDto.AdminPassword))
+            {
+                var supplied = paramsDto.AdminPassword.Trim();
+                var policyResult = PasswordPolicy.Validate(supplied, paramsDto.AdminEmail);
+                if (!policyResult.IsValid)
+                {
+                    throw new ArgumentException(policyResult.ErrorSummary, nameof(paramsDto));
+                }
 
-            Console.WriteLine($"[Provisioner] Starting C# provisioning for {paramsDto.TenantName} (ID: {tenantId}, DB: {dbName})");
+                temporaryPassword = supplied;
+            }
+            else
+            {
+                temporaryPassword = Utils.GenerateTemporaryPassword();
+            }
+
+            // provisioning step
 
             // 2. Create the physical database on PostgreSQL server
             var controlBuilder = new NpgsqlConnectionStringBuilder(_controlDbConnectionString);
@@ -90,18 +106,18 @@ namespace SiBangku.ControlApi.Services
 
                     if (exists == null)
                     {
-                        Console.WriteLine($"[Provisioner] Creating database \"{dbName}\"...");
+                        // provisioning step
                         // dbName is sanitized to a-z0-9_ so raw formatting is safe
                         var createQuery = $"CREATE DATABASE {dbName}";
                         await using (var createCmd = new NpgsqlCommand(createQuery, conn))
                         {
                             await createCmd.ExecuteNonQueryAsync();
                         }
-                        Console.WriteLine($"[Provisioner] Database \"{dbName}\" created.");
+                        // provisioning step
                     }
                     else
                     {
-                        Console.WriteLine($"[Provisioner] Database \"{dbName}\" already exists.");
+                        // provisioning step
                     }
                 }
             }
@@ -121,12 +137,12 @@ namespace SiBangku.ControlApi.Services
 
             using (var tenantContext = new TenantDbContext(optionsBuilder.Options))
             {
-                Console.WriteLine($"[Provisioner] Creating tables schema on \"{dbName}\"...");
+                // provisioning step
                 await tenantContext.Database.EnsureCreatedAsync();
-                Console.WriteLine($"[Provisioner] Schema created successfully.");
+                // provisioning step
 
                 // 4. Seed initial Tenant Admin user
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(temporaryPassword, 10);
+                var passwordHash = PasswordHasher.Hash(temporaryPassword);
                 var tenantAdmin = new User
                 {
                     UserId = "tenant-admin-init",
@@ -166,7 +182,7 @@ namespace SiBangku.ControlApi.Services
                 await tenantContext.Settings.AddRangeAsync(brandingSetting, slotsSetting);
                 await tenantContext.Tables.AddRangeAsync(defaultTables);
                 await tenantContext.SaveChangesAsync();
-                Console.WriteLine($"[Provisioner] Seeding completed for tenant owner admin and default tables.");
+                // provisioning step
             }
 
             // 5. Save tenant record and log audit details in Control Plane

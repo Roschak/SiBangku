@@ -10,19 +10,23 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SiBangku.Db;
 using SiBangku.Shared.Models;
+using SiBangku.Shared.Security;
 
 namespace SiBangku.Cli
 {
     class Program
     {
         private static string ConfigPath => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), 
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".sibangku-cli-config.json"
         );
 
         private static string ControlApiUrl = Environment.GetEnvironmentVariable("CONTROL_API_URL") ?? "http://localhost:3001";
         private static string ControlDbUrl = Environment.GetEnvironmentVariable("CONTROL_DATABASE_URL") ?? "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
-        private static string MasterKey = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_jwt_key_platform_admin_2026";
+        // Privileged host endpoints use a dedicated master key (never the JWT
+        // signing secret). Falls back to the local development default so a
+        // plain `dotnet run` against a development Control API keeps working.
+        private static string MasterKey = Environment.GetEnvironmentVariable("MASTER_API_KEY") ?? "dev-only-insecure-master-key";
         private static readonly HttpClient Client = new HttpClient();
 
         private static ControlDbContext CreateControlDbContext()
@@ -31,6 +35,29 @@ namespace SiBangku.Cli
                 .UseNpgsql(ControlDbUrl)
                 .Options;
             return new ControlDbContext(options);
+        }
+
+        /// <summary>
+        /// Applies the shared platform password policy and prints every unmet
+        /// requirement so the operator knows exactly what to fix.
+        /// </summary>
+        private static bool TryValidatePasswordPolicy(string password, string? context)
+        {
+            var result = PasswordPolicy.Validate(password, context);
+            if (result.IsValid)
+            {
+                return true;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\n[Error] Kata sandi tidak memenuhi kebijakan keamanan:");
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine($"  - {error}");
+            }
+            Console.WriteLine($"\nKetentuan: {PasswordPolicy.RequirementsSummary}\n");
+            Console.ResetColor();
+            return false;
         }
 
         static async Task<int> Main(string[] args)
@@ -173,6 +200,7 @@ namespace SiBangku.Cli
 
             var username = args[2].Trim();
             var password = args[3];
+            if (!TryValidatePasswordPolicy(password, username)) return 1;
             var displayName = args.Length > 4 ? args[4].Trim() : "Super Admin";
 
             if (password.Length < 5)
@@ -214,7 +242,7 @@ namespace SiBangku.Cli
             {
                 await using var db = CreateControlDbContext();
                 await db.Database.EnsureCreatedAsync();
-                
+
                 var existing = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == username.ToLower());
                 if (existing != null)
                 {
@@ -222,7 +250,7 @@ namespace SiBangku.Cli
                     Console.WriteLine($"Akun dengan username/email '{username}' sudah ada. Memperbarui password...");
                     Console.ResetColor();
 
-                    existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password, 10);
+                    existing.PasswordHash = PasswordHasher.Hash(password);
                     if (!string.IsNullOrWhiteSpace(displayName)) existing.Name = displayName;
                 }
                 else
@@ -231,7 +259,7 @@ namespace SiBangku.Cli
                     {
                         UserId = "admin-" + Guid.NewGuid().ToString("n").Substring(0, 8),
                         Email = username,
-                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(password, 10),
+                        PasswordHash = PasswordHasher.Hash(password),
                         Name = displayName,
                         Role = "SUPER_ADMIN",
                         CreatedAt = DateTime.UtcNow
@@ -253,7 +281,7 @@ namespace SiBangku.Cli
                 await db.SaveChangesAsync();
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\n[Sukses] Akun Super Admin berhasil disimpan dengan enkripsi BCrypt!");
+                Console.WriteLine("\n[Sukses] Akun Super Admin berhasil disimpan dengan enkripsi Argon2id!");
                 Console.WriteLine($"Username/Email : {username}");
                 Console.WriteLine($"Nama Tampilan  : {displayName}");
                 Console.WriteLine("Anda sekarang dapat login ke portal /control-admin menggunakan kredensial ini.\n");
@@ -281,11 +309,8 @@ namespace SiBangku.Cli
             var username = args[2].Trim();
             var newPassword = args[3];
 
-            if (newPassword.Length < 5)
+            if (!TryValidatePasswordPolicy(newPassword, username))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Kata sandi baru minimal harus 5 karakter.");
-                Console.ResetColor();
                 return 1;
             }
 
@@ -318,7 +343,7 @@ namespace SiBangku.Cli
                 await using var db = CreateControlDbContext();
                 await db.Database.EnsureCreatedAsync();
                 var user = await db.PlatformUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == username.ToLower() || u.UserId.ToLower() == username.ToLower());
-                
+
                 if (user == null)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -327,7 +352,7 @@ namespace SiBangku.Cli
                     return 1;
                 }
 
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+                user.PasswordHash = PasswordHasher.Hash(newPassword);
 
                 var audit = new AuditLog
                 {
@@ -448,7 +473,7 @@ namespace SiBangku.Cli
         {
             Console.WriteLine($"Menghubungkan ke Control API di {ControlApiUrl}...");
             var response = await Client.PostAsJsonAsync($"{ControlApiUrl}/api/v1/auth/login", new { email, password });
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -459,7 +484,7 @@ namespace SiBangku.Cli
 
             var resBody = await response.Content.ReadFromJsonAsync<JsonElement>();
             var token = resBody.GetProperty("data").GetProperty("token").GetString();
-            
+
             if (string.IsNullOrEmpty(token))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -505,7 +530,7 @@ namespace SiBangku.Cli
                 var subStatus = t.GetProperty("subscriptionStatus").GetString();
                 var database = t.GetProperty("databaseIdentifier").GetString();
 
-                Console.WriteLine(string.Format("| {0,-15} | {1,-15} | {2,-15} | {3,-10} | {4,-15} | {5,-20} |", 
+                Console.WriteLine(string.Format("| {0,-15} | {1,-15} | {2,-15} | {3,-10} | {4,-15} | {5,-20} |",
                     id?.Length > 15 ? id.Substring(0, 12) + "..." : id,
                     code?.Length > 15 ? code.Substring(0, 12) + "..." : code,
                     restaurant?.Length > 15 ? restaurant.Substring(0, 12) + "..." : restaurant,
@@ -531,7 +556,7 @@ namespace SiBangku.Cli
             var adminPassword = args.Length > 6 ? args[6] : null;
 
             Console.WriteLine($"Mengirim permintaan provisioning untuk '{tenantName}'...");
-            
+
             var payload = new { tenantName, restaurantName, adminEmail, trialDays, adminPassword };
             var response = await Client.PostAsJsonAsync($"{ControlApiUrl}/api/v1/tenants", payload);
 
@@ -657,7 +682,7 @@ namespace SiBangku.Cli
                 var tenantId = l.GetProperty("tenantId").GetString();
                 var action = l.GetProperty("action").GetString();
 
-                Console.WriteLine(string.Format("| {0,-25} | {1,-15} | {2,-15} | {3,-15} |", 
+                Console.WriteLine(string.Format("| {0,-25} | {1,-15} | {2,-15} | {3,-15} |",
                     createdAt,
                     userId?.Length > 15 ? userId.Substring(0, 12) + "..." : userId,
                     tenantId?.Length > 15 ? tenantId.Substring(0, 12) + "..." : tenantId,
@@ -679,11 +704,8 @@ namespace SiBangku.Cli
             var tenantCode = args[2].Trim().ToUpperInvariant();
             var newPassword = args[3];
 
-            if (newPassword.Length < 5)
+            if (!TryValidatePasswordPolicy(newPassword, tenantCode))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Kata sandi baru minimal harus 5 karakter.");
-                Console.ResetColor();
                 return 1;
             }
 
@@ -750,7 +772,7 @@ namespace SiBangku.Cli
                     return 1;
                 }
 
-                adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 10);
+                adminUser.PasswordHash = PasswordHasher.Hash(newPassword);
                 adminUser.MustChangePassword = false;
                 await tenantDb.SaveChangesAsync();
 

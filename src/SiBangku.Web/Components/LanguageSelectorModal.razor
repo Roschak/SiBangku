@@ -1,0 +1,202 @@
+@implements IDisposable
+@inject LanguageService Lang
+@inject IJSRuntime JS
+
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+         style="background-color: rgba(28, 22, 19, 0.45); backdrop-filter: blur(8px); z-index: 1060;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.25); border-radius: var(--ms-radius-lg); box-shadow: var(--ms-shadow-xl, 0 20px 50px rgba(0,0,0,0.15)); color: var(--ms-text-main, #1C1714); max-height: 85vh;">
+
+                <!-- Header -->
+                <div class="modal-header py-3 px-4" style="background: #F4EFE6; border-bottom: 1px solid rgba(184, 142, 45, 0.18);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-flex align-items-center justify-content-center"
+                              style="width: 36px; height: 36px; background: rgba(184, 142, 45, 0.12); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-xs); color: #B88E2D;">
+                            <i class="bi bi-globe2"></i>
+                        </span>
+                        <div>
+                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.02rem;">@Lang["Lang_Modal_Title"]</h6>
+                            <span class="small font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">
+                                @LanguageService.AvailableLanguages.Count @Lang["Lang_Available"]
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+
+                <!-- Search -->
+                <div class="px-4 pt-3 pb-2" style="background: #FFFFFF; border-bottom: 1px solid rgba(184, 142, 45, 0.12);">
+                    <div class="ms-input-group">
+                        <i class="bi bi-search ms-input-icon"></i>
+                        <input type="text" class="ms-form-control has-icon-left"
+                               placeholder="@Lang["Lang_Search_Placeholder"]"
+                               @bind="SearchQuery" @bind:event="oninput"
+                               style="font-size: 0.9rem;" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(SearchQuery))
+                    {
+                        <div class="font-mono mt-2" style="font-size: 0.72rem; color: var(--ms-text-dim);">
+                            @Lang["Lang_Showing"] <strong>@FilteredLanguages.Count</strong> @Lang["Lang_Results"]
+                        </div>
+                    }
+                </div>
+
+                <!-- Language Grid -->
+                <div class="modal-body p-4" style="overflow-y: auto;">
+                    @if (!FilteredLanguages.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-search" style="font-size: 2rem; color: var(--ms-text-dim);"></i>
+                            <p class="mt-2 small" style="color: var(--ms-text-muted);">@Lang["Lang_No_Results"]</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var group in GroupedLanguages)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom: 1px solid rgba(184, 142, 45, 0.12);">
+                                    <span class="font-mono fw-bold" style="font-size: 0.7rem; letter-spacing: 0.12em; color: #B88E2D; text-transform: uppercase;">
+                                        @group.Key
+                                    </span>
+                                    <span class="ms-badge ms-badge-neutral" style="font-size: 0.62rem;">@group.Value.Count</span>
+                                </div>
+                                <div class="row g-2">
+                                    @foreach (var lang in group.Value)
+                                    {
+                                        var isActive = lang.Code.Equals(Lang.CurrentLanguage, StringComparison.OrdinalIgnoreCase);
+                                        <div class="col-lg-4 col-md-6 col-6">
+                                            <button type="button"
+                                                    class="w-100 text-start p-2 border-0 d-flex align-items-center gap-2"
+                                                    style="background: @(isActive ? "rgba(184, 142, 45, 0.08)" : "#FAFAFA");
+                                                           border: 1px solid @(isActive ? "rgba(184, 142, 45, 0.5)" : "rgba(184, 142, 45, 0.12)") !important;
+                                                           border-radius: 10px; cursor: pointer; transition: all 0.15s;"
+                                                    @onclick="() => SelectLanguage(lang.Code)">
+                                                <span style="font-size: 1.3rem; line-height: 1;">@GetFlagEmoji(lang.Code)</span>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <div class="fw-semibold text-truncate" style="font-size: 0.85rem; color: var(--ms-text-main);">
+                                                        @lang.NativeName
+                                                    </div>
+                                                    <div class="font-mono text-truncate" style="font-size: 0.68rem; color: var(--ms-text-dim);">
+                                                        @lang.EnglishName
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex flex-column align-items-end gap-1 flex-shrink-0">
+                                                    <span class="font-mono fw-bold" style="font-size: 0.65rem; color: var(--ms-text-dim); text-transform: uppercase;">@lang.Code</span>
+                                                    @if (isActive)
+                                                    {
+                                                        <span class="ms-badge ms-badge-primary" style="font-size: 0.58rem; padding: 0.15rem 0.4rem;">
+                                                            <i class="bi bi-check-lg me-1"></i>@Lang["Lang_Current"]
+                                                        </span>
+                                                    }
+                                                    @if (lang.IsRtl)
+                                                    {
+                                                        <span class="font-mono" style="font-size: 0.58rem; color: var(--ms-text-dim);">RTL</span>
+                                                    }
+                                                </div>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer py-2 px-4 d-flex justify-content-between" style="background: #F4EFE6; border-top: 1px solid rgba(184, 142, 45, 0.18);">
+                    <span class="font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">
+                        <i class="bi bi-translate me-1" style="color: #B88E2D;"></i>
+                        @LanguageService.AvailableLanguages.Count @Lang["Lang_Available"]
+                    </span>
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="Close">
+                        <i class="bi bi-x-lg me-1"></i> @Lang["Common_Close"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string SearchQuery = "";
+
+    private List<LanguageInfo> FilteredLanguages =>
+        string.IsNullOrWhiteSpace(SearchQuery)
+            ? LanguageService.AvailableLanguages.ToList()
+            : LanguageService.SearchLanguages(SearchQuery).ToList();
+
+    private IOrderedEnumerable<KeyValuePair<string, List<LanguageInfo>>> GroupedLanguages =>
+        FilteredLanguages
+            .GroupBy(l => l.Region)
+            .ToDictionary(g => g.Key, g => g.ToList())
+            .OrderBy(g => GetRegionOrder(g.Key));
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private async Task SelectLanguage(string code)
+    {
+        Lang.SetLanguage(code);
+        try { await JS.InvokeVoidAsync("SiBangkuLang.setLanguage", code); } catch { }
+        SearchQuery = "";
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task Close()
+    {
+        SearchQuery = "";
+        await OnClose.InvokeAsync();
+    }
+
+    private void HandleLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Lang.OnLanguageChanged -= HandleLanguageChanged;
+
+    private static int GetRegionOrder(string region) => region switch
+    {
+        "Southeast Asia" => 0,
+        "East Asia" => 1,
+        "South Asia" => 2,
+        "Middle East" => 3,
+        "Central Asia" => 4,
+        "Europe" => 5,
+        "Africa" => 6,
+        "Americas" => 7,
+        _ => 99
+    };
+
+    private static readonly Dictionary<string, string> FlagMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["id"] = "🇮🇩", ["en"] = "🇬🇧", ["ms"] = "🇲🇾", ["fil"] = "🇵🇭", ["tl"] = "🇵🇭",
+        ["vi"] = "🇻🇳", ["th"] = "🇹🇭", ["my"] = "🇲🇲", ["km"] = "🇰🇭", ["lo"] = "🇱🇦",
+        ["jv"] = "🇮🇩", ["su"] = "🇮🇩", ["zh"] = "🇨🇳", ["zh-TW"] = "🇹🇼",
+        ["ja"] = "🇯🇵", ["ko"] = "🇰🇷", ["mn"] = "🇲🇳",
+        ["hi"] = "🇮🇳", ["bn"] = "🇧🇩", ["ta"] = "🇮🇳", ["te"] = "🇮🇳",
+        ["mr"] = "🇮🇳", ["gu"] = "🇮🇳", ["kn"] = "🇮🇳", ["ml"] = "🇮🇳",
+        ["pa"] = "🇮🇳", ["or"] = "🇮🇳", ["si"] = "🇱🇰", ["ne"] = "🇳🇵", ["ur"] = "🇵🇰",
+        ["ar"] = "🇸🇦", ["fa"] = "🇮🇷", ["he"] = "🇮🇱", ["ku"] = "🇮🇶", ["tr"] = "🇹🇷",
+        ["kk"] = "🇰🇿", ["ky"] = "🇰🇬", ["uz"] = "🇺🇿", ["tk"] = "🇹🇲", ["tg"] = "🇹🇯",
+        ["fr"] = "🇫🇷", ["de"] = "🇩🇪", ["es"] = "🇪🇸", ["pt"] = "🇧🇷", ["it"] = "🇮🇹",
+        ["nl"] = "🇳🇱", ["da"] = "🇩🇰", ["sv"] = "🇸🇪", ["no"] = "🇳🇴", ["fi"] = "🇫🇮",
+        ["is"] = "🇮🇸", ["ca"] = "🇪🇸", ["eu"] = "🇪🇸", ["gl"] = "🇪🇸", ["cy"] = "🇬🇧",
+        ["ga"] = "🇮🇪", ["mt"] = "🇲🇹", ["pl"] = "🇵🇱", ["cs"] = "🇨🇿", ["sk"] = "🇸🇰",
+        ["hu"] = "🇭🇺", ["ro"] = "🇷🇴", ["bg"] = "🇧🇬", ["hr"] = "🇭🇷", ["sr"] = "🇷🇸",
+        ["bs"] = "🇧🇦", ["sl"] = "🇸🇮", ["mk"] = "🇲🇰", ["sq"] = "🇦🇱", ["el"] = "🇬🇷",
+        ["et"] = "🇪🇪", ["lt"] = "🇱🇹", ["lv"] = "🇱🇻", ["uk"] = "🇺🇦", ["be"] = "🇧🇾",
+        ["ru"] = "🇷🇺", ["hy"] = "🇦🇲", ["ka"] = "🇬🇪", ["az"] = "🇦🇿",
+        ["sw"] = "🇹🇿", ["am"] = "🇪🇹", ["ha"] = "🇳🇬", ["yo"] = "🇳🇬", ["af"] = "🇿🇦",
+        ["zu"] = "🇿🇦", ["xh"] = "🇿🇦", ["sn"] = "🇿🇼", ["st"] = "🇱🇸", ["ny"] = "🇲🇼",
+        ["rw"] = "🇷🇼", ["so"] = "🇸🇴", ["ti"] = "🇪🇷", ["sd"] = "🇵🇰",
+    };
+
+    private static string GetFlagEmoji(string code) =>
+        FlagMap.TryGetValue(code, out var flag) ? flag : "🌐";
+}

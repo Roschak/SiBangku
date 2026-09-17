@@ -21,17 +21,47 @@ namespace SiBangku.Shared
         }
 
         /// <summary>
-        /// Generate a secure temporary password (PRD §55, §111)
+        /// Generate a secure temporary password (PRD §55, §111).
+        /// <para>
+        /// The result is URL-safe and guaranteed to satisfy
+        /// <see cref="SiBangku.Shared.Security.PasswordPolicy"/>: at least one
+        /// lowercase letter, uppercase letter, digit and symbol are placed before
+        /// the characters are shuffled, so a purely random draw can never produce
+        /// a password the platform itself would reject.
+        /// </para>
         /// </summary>
         public static string GenerateTemporaryPassword()
         {
-            var bytes = new byte[16];
-            RandomNumberGenerator.Fill(bytes);
-            // URL-safe Base64 conversion
-            return Convert.ToBase64String(bytes)
-                .Replace("+", "-")
-                .Replace("/", "_")
-                .Replace("=", "");
+            // RFC 4648 base64url alphabet: safe in URLs, logs and clipboard copies.
+            const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+            const string lower = "abcdefghijklmnopqrstuvwxyz";
+            const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "0123456789";
+            const string symbols = "-_";
+
+            // 22 characters carry the same entropy as 16 random bytes.
+            const int length = 22;
+
+            var chars = new char[length];
+            for (var i = 0; i < length; i++)
+            {
+                chars[i] = alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
+            }
+
+            // Guarantee every character class the policy counts.
+            foreach (var set in new[] { lower, upper, digits, symbols })
+            {
+                chars[RandomNumberGenerator.GetInt32(length)] = set[RandomNumberGenerator.GetInt32(set.Length)];
+            }
+
+            // Shuffle so the guaranteed characters cannot be guessed by position.
+            for (var i = length - 1; i > 0; i--)
+            {
+                var j = RandomNumberGenerator.GetInt32(i + 1);
+                (chars[i], chars[j]) = (chars[j], chars[i]);
+            }
+
+            return new string(chars);
         }
 
         /// <summary>
@@ -75,11 +105,11 @@ namespace SiBangku.Shared
             var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
             // Get last 6 chars of timestamp
             var suffix = timestamp.Length > 6 ? timestamp.Substring(timestamp.Length - 6) : timestamp;
-            
+
             var bytes = new byte[2];
             RandomNumberGenerator.Fill(bytes);
             var randomHex = Convert.ToHexString(bytes).ToUpper();
-            
+
             return $"RSV-{suffix}-{randomHex}";
         }
     }

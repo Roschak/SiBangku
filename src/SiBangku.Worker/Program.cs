@@ -7,7 +7,7 @@ var builder = Host.CreateApplicationBuilder(args);
 // Load environment variables
 builder.Configuration.AddEnvironmentVariables();
 
-var controlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ?? 
+var controlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
                    "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
 
 // Register Control DB

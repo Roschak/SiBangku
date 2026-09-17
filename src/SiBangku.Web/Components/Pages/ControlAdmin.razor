@@ -4,8 +4,10 @@
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using SiBangku.Shared.Models
+@using SiBangku.Shared.Security
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Portal Control Panel Super Admin - SiBangku SaaS Platform</PageTitle>
 
@@ -154,7 +156,7 @@ else
                             SA
                         </div>
                         <div class="overflow-hidden">
-                            <div class="text-white small fw-bold text-truncate">@AdminName</div>
+                            <div class="small fw-bold text-truncate" style="color: var(--ms-text-main);">@AdminName</div>
                             <div class="font-mono text-truncate" style="font-size: 0.68rem; color: var(--ms-text-dim);">@Email</div>
                         </div>
                     </div>
@@ -175,7 +177,7 @@ else
             <!-- Topbar -->
             <header class="ms-admin-topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">
+                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">
                         @if (ActiveTab == "tenants") { <span>Direktori Tenant & Database Multi-Tenant</span> }
                         else if (ActiveTab == "provision") { <span>Provisioning & Inisialisasi Database Tenant Baru</span> }
                         else if (ActiveTab == "audit") { <span>Log Audit Aktivitas Sistem Platform</span> }
@@ -236,7 +238,7 @@ else
                         <div class="d-flex align-items-center justify-content-between mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                             <div class="d-flex align-items-center gap-2 text-success">
                                 <i class="bi bi-check-circle-fill fs-5"></i>
-                                <h6 class="fw-bold mb-0 text-white">Tenant Baru Berhasil Dibuat & Di-provisioning!</h6>
+                                <h6 class="fw-bold mb-0" style="color: var(--ms-text-main);">Tenant Baru Berhasil Dibuat & Di-provisioning!</h6>
                             </div>
                             <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="() => ProvisionedSuccessModal = null">
                                 <i class="bi bi-x-lg"></i>
@@ -257,13 +259,13 @@ else
                             <div class="col-md-3">
                                 <div class="p-2.5" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs);">
                                     <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">NAMA RESTORAN</span>
-                                    <strong class="text-white">@ProvisionedSuccessModal.RestaurantName</strong>
+                                    <strong style="color: var(--ms-text-main);">@ProvisionedSuccessModal.RestaurantName</strong>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="p-2.5" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border); border-radius: var(--ms-radius-xs);">
                                     <span class="d-block" style="font-size: 0.68rem; color: var(--ms-text-dim);">EMAIL ADMIN</span>
-                                    <strong class="text-white text-truncate d-block">@ProvisionedSuccessModal.AdminEmail</strong>
+                                    <strong class="text-truncate d-block" style="color: var(--ms-text-main);">@ProvisionedSuccessModal.AdminEmail</strong>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -411,7 +413,7 @@ else
                                         {
                                             <tr>
                                                 <td>
-                                                    <strong class="text-white">@tenant.RestaurantName</strong>
+                                                    <strong style="color: var(--ms-text-main);">@tenant.RestaurantName</strong>
                                                     <small class="d-block" style="color: var(--ms-text-dim);">@tenant.TenantName</small>
                                                 </td>
                                                 <td>
@@ -459,7 +461,7 @@ else
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="d-inline-flex gap-1.5">
-                                                        <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-success" @onclick="() => SelectedPackageTenant = tenant" title="Unduh Paket APK & Desktop">
+                                                        <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-success" @onclick="() => SelectedPackageTenant = tenant" title="Unduh Paket Aplikasi (Mobile & Desktop)">
                                                             <i class="bi bi-box-seam"></i> Paket
                                                         </button>
                                                         <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-info" @onclick="() => PromptModifyTenant(tenant)" title="Modifikasi per Tenant & Buka di VS Code">
@@ -498,7 +500,7 @@ else
                                             <i class="bi bi-plus-circle"></i>
                                         </div>
                                         <div>
-                                            <h5 class="fw-bold text-white mb-0">Provisioning Tenant Baru</h5>
+                                            <h5 class="fw-bold mb-0" style="color: var(--ms-text-main);">Provisioning Tenant Baru</h5>
                                             <span class="small font-mono text-muted">Inisialisasi Database Fisik PostgreSQL & Hak Akses Mitra</span>
                                         </div>
                                     </div>
@@ -512,7 +514,7 @@ else
                                     <div class="mb-4">
                                         <div class="d-flex align-items-center gap-2 mb-3">
                                             <span class="ms-badge ms-badge-primary font-mono">01</span>
-                                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.88rem;">Identitas Organisasi & Restoran</h6>
+                                            <h6 class="fw-bold mb-0" style="font-size: 0.88rem; color: var(--ms-text-main);">Identitas Organisasi & Restoran</h6>
                                         </div>
 
                                         <div class="row g-3">
@@ -542,7 +544,7 @@ else
                                     <div class="mb-4">
                                         <div class="d-flex align-items-center gap-2 mb-3">
                                             <span class="ms-badge ms-badge-primary font-mono">02</span>
-                                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.88rem;">Kredensial Administrator Mitra</h6>
+                                            <h6 class="fw-bold mb-0" style="font-size: 0.88rem; color: var(--ms-text-main);">Kredensial Administrator Mitra</h6>
                                         </div>
 
                                         <div class="row g-3">
@@ -561,8 +563,10 @@ else
                                                     <label class="ms-form-label" for="adminPassword">
                                                         <i class="bi bi-key me-1 text-warning"></i> Kata Sandi Admin (Opsional)
                                                     </label>
-                                                    <input type="text" class="ms-form-control font-mono" id="adminPassword" @bind="NewTenant.AdminPassword" placeholder="Buat kata sandi sendiri (min 5)" />
-                                                    <div class="small mt-1" style="font-size: 0.72rem; color: var(--ms-text-dim);">Kosongkan jika ingin generate acak otomatis</div>
+                                                    <input type="text" class="ms-form-control font-mono" id="adminPassword" @bind="NewTenant.AdminPassword" minlength="12" placeholder="Buat kata sandi sendiri (min. 12 karakter)" />
+                                                    <div class="small mt-1" style="font-size: 0.72rem; color: var(--ms-text-dim);">
+                                                        Kosongkan jika ingin generate acak otomatis. @PasswordPolicy.RequirementsSummary
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -572,7 +576,7 @@ else
                                     <div class="mb-4">
                                         <div class="d-flex align-items-center gap-2 mb-3">
                                             <span class="ms-badge ms-badge-primary font-mono">03</span>
-                                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.88rem;">Skema Lisensi & Durasi Evaluasi</h6>
+                                            <h6 class="fw-bold mb-0" style="font-size: 0.88rem; color: var(--ms-text-main);">Skema Lisensi & Durasi Evaluasi</h6>
                                         </div>
 
                                         <div class="row g-3 align-items-center">
@@ -583,10 +587,10 @@ else
                                             <div class="col-md-7">
                                                 <label class="ms-form-label d-block text-muted" style="font-size: 0.75rem;">Preset Cepat:</label>
                                                 <div class="d-flex gap-1.5 flex-wrap">
-                                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm font-mono @(NewTenant.TrialDays == 14 ? "border-primary text-white" : "")" @onclick="() => NewTenant.TrialDays = 14">14 Hari</button>
-                                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm font-mono @(NewTenant.TrialDays == 30 ? "border-primary text-white" : "")" @onclick="() => NewTenant.TrialDays = 30">30 Hari</button>
-                                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm font-mono @(NewTenant.TrialDays == 60 ? "border-primary text-white" : "")" @onclick="() => NewTenant.TrialDays = 60">60 Hari (Std)</button>
-                                                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm font-mono @(NewTenant.TrialDays == 365 ? "border-primary text-white" : "")" @onclick="() => NewTenant.TrialDays = 365">1 Tahun</button>
+                                                    <button type="button" class="ms-btn @(NewTenant.TrialDays == 14 ? "ms-btn-primary" : "ms-btn-secondary") ms-btn-sm font-mono" @onclick="() => NewTenant.TrialDays = 14">14 Hari</button>
+                                                    <button type="button" class="ms-btn @(NewTenant.TrialDays == 30 ? "ms-btn-primary" : "ms-btn-secondary") ms-btn-sm font-mono" @onclick="() => NewTenant.TrialDays = 30">30 Hari</button>
+                                                    <button type="button" class="ms-btn @(NewTenant.TrialDays == 60 ? "ms-btn-primary" : "ms-btn-secondary") ms-btn-sm font-mono" @onclick="() => NewTenant.TrialDays = 60">60 Hari (Std)</button>
+                                                    <button type="button" class="ms-btn @(NewTenant.TrialDays == 365 ? "ms-btn-primary" : "ms-btn-secondary") ms-btn-sm font-mono" @onclick="() => NewTenant.TrialDays = 365">1 Tahun</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -616,7 +620,7 @@ else
                             <div class="ms-card p-4 h-100" style="background: var(--ms-surface-card); border: 1px solid var(--ms-border);">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-diagram-3 text-primary"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Pratinjau Arsitektur Tenant</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem; color: var(--ms-text-main);">Pratinjau Arsitektur Tenant</h6>
                                 </div>
 
                                 <p class="small mb-4" style="color: var(--ms-text-dim); line-height: 1.5;">
@@ -633,7 +637,7 @@ else
 
                                     <div class="mb-2 pb-2" style="border-bottom: 1px dashed var(--ms-border);">
                                         <span class="text-muted d-block" style="font-size: 0.68rem;">NAMA BASIS DATA FISIK</span>
-                                        <strong class="text-white">
+                                        <strong style="color: var(--ms-text-main);">
                                             @(string.IsNullOrWhiteSpace(NewTenant.TenantName) ? "tenant_..." : "tenant_" + GeneratePreviewSlug(NewTenant.TenantName))
                                         </strong>
                                     </div>
@@ -652,7 +656,7 @@ else
                                 </div>
 
                                 <div class="p-3" style="background: rgba(212, 175, 55, 0.06); border: 1px solid var(--ms-primary-border); border-radius: var(--ms-radius-xs);">
-                                    <div class="small text-white fw-bold mb-1">
+                                    <div class="small fw-bold mb-1" style="color: var(--ms-text-main);">
                                         <i class="bi bi-shield-check text-primary me-1"></i> Standar Keamanan SiBangku
                                     </div>
                                     <p class="small mb-0" style="font-size: 0.75rem; color: var(--ms-text-muted);">
@@ -732,7 +736,7 @@ else
                             <div class="ms-card p-4 h-100">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-person-gear text-primary fs-5"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Profil Super Admin Platform</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">Profil Super Admin Platform</h6>
                                 </div>
                                 <p class="small mb-3" style="color: var(--ms-text-dim);">
                                     Ubah nama tampilan administrator dan email / username yang digunakan untuk login ke Control Panel.
@@ -782,7 +786,7 @@ else
                             <div class="ms-card p-4 h-100">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-shield-lock text-primary fs-5"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Ganti Kata Sandi Super Admin</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">Ganti Kata Sandi Super Admin</h6>
                                 </div>
                                 <p class="small mb-3" style="color: var(--ms-text-dim);">
                                     Gunakan kombinasi kata sandi yang aman minimal 5 karakter untuk menjaga keamanan cluster multi-tenant.
@@ -796,7 +800,7 @@ else
                                         <div class="ms-input-group">
                                             <i class="bi bi-lock ms-input-icon"></i>
                                             <input type="password" class="ms-form-control has-icon-left font-mono" 
-                                                   id="newPassword" name="password" autocomplete="new-password" @bind="NewPassword" required minlength="5" placeholder="Minimal 5 karakter" />
+                                                   id="newPassword" name="password" autocomplete="new-password" @bind="NewPassword" required minlength="12" placeholder="Minimal 12 karakter (kombinasi huruf, angka, simbol)" />
                                         </div>
                                     </div>
 
@@ -807,7 +811,7 @@ else
                                         <div class="ms-input-group">
                                             <i class="bi bi-lock-fill ms-input-icon"></i>
                                             <input type="password" class="ms-form-control has-icon-left font-mono" 
-                                                   id="confirmPassword" name="password_confirm" autocomplete="new-password" @bind="ConfirmPassword" required minlength="5" placeholder="Ulangi kata sandi baru" />
+                                                   id="confirmPassword" name="password_confirm" autocomplete="new-password" @bind="ConfirmPassword" required minlength="12" placeholder="Ulangi kata sandi baru" />
                                         </div>
                                     </div>
 
@@ -860,7 +864,7 @@ else
 
                     <div class="ms-form-group mb-3">
                         <label class="ms-form-label" for="modalResetNewPassword">Kata Sandi Baru <span class="text-danger">*</span></label>
-                        <input type="@(ShowResetPasswordText ? "text" : "password")" class="ms-form-control font-mono" id="modalResetNewPassword" @bind="ResetNewPassword" placeholder="Minimal 5 karakter (contoh: 12345)" />
+                        <input type="@(ShowResetPasswordText ? "text" : "password")" class="ms-form-control font-mono" id="modalResetNewPassword" @bind="ResetNewPassword" minlength="12" placeholder="Minimal 12 karakter (kombinasi huruf, angka, simbol)" />
                     </div>
 
                     <div class="ms-form-group mb-3">
@@ -916,19 +920,23 @@ else
                         </div>
                     </div>
 
-                    <p class="mb-3">
-                        Untuk melanjutkan, ketik konfirmasi <strong>@DeleteTargetTenant.TenantCode</strong> di bawah ini:
+                    <p class="mb-2">
+                        Ketik konfirmasi kode tenant <strong class="text-danger font-mono">@DeleteTargetTenant.TenantCode</strong> untuk melanjutkan:
                     </p>
 
-                    <div class="ms-form-group mb-0">
-                        <input type="text" class="ms-form-control font-mono fw-bold text-uppercase" 
-                               @bind="DeleteConfirmationInput" placeholder="Ketik @DeleteTargetTenant.TenantCode" />
+                    <div class="input-group mb-0">
+                        <input type="text" class="form-control font-mono fw-bold text-uppercase" 
+                               @bind="DeleteConfirmationInput" @bind:event="oninput" placeholder="Ketik @DeleteTargetTenant.TenantCode" />
+                        <button class="btn btn-outline-secondary font-mono small" type="button" 
+                                @onclick="() => DeleteConfirmationInput = DeleteTargetTenant.TenantCode">
+                            Ketik Otomatis
+                        </button>
                     </div>
                 </div>
                 <div class="ms-modal-footer">
                     <button type="button" class="ms-btn ms-btn-secondary" @onclick="() => DeleteTargetTenant = null">Batal</button>
                     <button type="button" class="ms-btn ms-btn-danger" @onclick="HandleConfirmDeleteTenant" 
-                            disabled="@(IsSubmitting || string.IsNullOrWhiteSpace(DeleteConfirmationInput) || !DeleteConfirmationInput.Equals(DeleteTargetTenant.TenantCode, StringComparison.OrdinalIgnoreCase))">
+                            disabled="@(IsSubmitting || string.IsNullOrWhiteSpace(DeleteConfirmationInput) || !DeleteConfirmationInput.Trim().Equals(DeleteTargetTenant.TenantCode.Trim(), StringComparison.OrdinalIgnoreCase))">
                         @if (IsSubmitting)
                         {
                             <span class="spinner-border spinner-border-sm me-1"></span>
@@ -1028,16 +1036,24 @@ else
                     </p>
 
                     <div class="d-grid gap-2 mb-3">
-                        <a href="/downloads/SiBangku-Universal-App.apk" download="SiBangku-@(ProvisionedSuccessModal.TenantCode.ToLowerInvariant()).apk" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
+                        <button type="button" @onclick="InstallMobileAppAsync" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
                             <div class="d-flex align-items-center gap-3">
-                                <i class="bi bi-android2 fs-3 text-success"></i>
+                                <i class="bi bi-phone fs-3 text-success"></i>
                                 <div class="text-start">
-                                    <div class="fw-bold" style="color: var(--ms-text-main);">Paket APK Android (.apk)</div>
-                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Untuk HP / Tablet Android staf & kasir (Ringan & hemat RAM)</small>
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Pasang Aplikasi Android / iOS</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Instalasi PWA resmi dari browser (ringan, tanpa toko aplikasi)</small>
                                 </div>
                             </div>
-                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh APK</span>
-                        </a>
+                            <span class="ms-badge ms-badge-primary"><i class="bi bi-phone me-1"></i> Pasang</span>
+                        </button>
+
+                        @if (!string.IsNullOrEmpty(PwaInstallNotice))
+                        {
+                            <div class="ms-alert ms-alert-info mb-0 py-2 px-3" role="status">
+                                <i class="bi bi-info-circle ms-alert-icon"></i>
+                                <div class="ms-alert-content" style="font-size: 0.8rem;">@PwaInstallNotice</div>
+                            </div>
+                        }
 
                         <a href="/downloads/SiBangku-Desktop-App.exe" download="SiBangku-Desktop-@(ProvisionedSuccessModal.TenantCode.ToLowerInvariant()).exe" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
                             <div class="d-flex align-items-center gap-3">
@@ -1063,7 +1079,7 @@ else
                     </div>
 
                     <div class="p-2.5 rounded text-center small font-mono" style="background: rgba(184, 142, 45, 0.08); border: 1px solid var(--ms-border); color: var(--ms-text-muted); font-size: 0.74rem;">
-                        <i class="bi bi-shield-check text-success me-1"></i> PWA Terpasang • Kompatibel Spek Rendah • Sinkronisasi PostgreSQL Real-Time
+                        <i class="bi bi-shield-check text-success me-1"></i> Instalasi PWA Resmi • Kompatibel Spek Rendah • Sinkronisasi PostgreSQL Real-Time
                     </div>
                 </div>
                 <div class="ms-modal-footer">
@@ -1095,39 +1111,59 @@ else
                         Unduh paket aplikasi yang siap dipasang langsung di smartphone staf Android atau PC kasir desktop outlet <strong>@SelectedPackageTenant.RestaurantName</strong> (<span class="font-mono text-primary">@SelectedPackageTenant.TenantCode</span>).
                     </p>
 
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="/downloads/SiBangku-Universal-App.apk" download="SiBangku-@(SelectedPackageTenant.TenantCode.ToLowerInvariant()).apk" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
+                    <div class="d-grid gap-2.5 mb-3">
+                        <!-- 1. Desktop Launcher BAT -->
+                        <a href="@GetBatDownloadUri(SelectedPackageTenant.TenantCode, SelectedPackageTenant.RestaurantName)" 
+                           download="SiBangku-Launcher-@(SelectedPackageTenant.TenantCode.ToLowerInvariant()).bat" 
+                           class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
                             <div class="d-flex align-items-center gap-3">
-                                <i class="bi bi-android2 fs-3 text-success"></i>
+                                <i class="bi bi-terminal fs-3 text-warning"></i>
                                 <div class="text-start">
-                                    <div class="fw-bold" style="color: var(--ms-text-main);">Paket APK Android (.apk)</div>
-                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Ringan & hemat baterai, cocok untuk HP spesifikasi standar</small>
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Desktop Launcher Kasir (.bat)</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Otomatis buka Edge/Chrome mode POS ke outlet ini (Port 3000)</small>
                                 </div>
                             </div>
-                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh APK</span>
+                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh BAT</span>
                         </a>
 
-                        <a href="/downloads/SiBangku-Desktop-App.exe" download="SiBangku-Desktop-@(SelectedPackageTenant.TenantCode.ToLowerInvariant()).exe" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
+                        <!-- 2. Web App Launcher HTML -->
+                        <a href="@GetHtmlLauncherUri(SelectedPackageTenant.TenantCode, SelectedPackageTenant.RestaurantName)" 
+                           download="SiBangku-Web-@(SelectedPackageTenant.TenantCode.ToLowerInvariant()).html" 
+                           class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none">
                             <div class="d-flex align-items-center gap-3">
-                                <i class="bi bi-windows fs-3 text-primary"></i>
+                                <i class="bi bi-globe fs-3 text-primary"></i>
                                 <div class="text-start">
-                                    <div class="fw-bold" style="color: var(--ms-text-main);">Paket Desktop Windows (.exe)</div>
-                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Native Windows launcher instan (~4 KB, RAM &lt; 30MB)</small>
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Web App Launcher (.html)</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Klik untuk langsung buka reservasi & menu outlet ini</small>
                                 </div>
                             </div>
-                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh EXE</span>
+                            <span class="ms-badge ms-badge-secondary"><i class="bi bi-download me-1"></i> Unduh HTML</span>
                         </a>
 
-                        <a href="/downloads/SiBangku-Desktop-Launcher.bat" download="SiBangku-Launcher-@(SelectedPackageTenant.TenantCode.ToLowerInvariant()).bat" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-2.5 text-decoration-none">
+                        <!-- 3. Buka Folder Kode Tenant di VS Code -->
+                        <a href="@GetVsCodeUri(SelectedPackageTenant)" class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(13, 202, 240, 0.45);">
                             <div class="d-flex align-items-center gap-3">
-                                <i class="bi bi-terminal fs-4 text-warning"></i>
+                                <i class="bi bi-code-square fs-3 text-info"></i>
                                 <div class="text-start">
-                                    <div class="fw-semibold small" style="color: var(--ms-text-main);">Desktop Script Launcher (.bat)</div>
-                                    <small class="text-muted font-mono" style="font-size: 0.7rem;">Skrip batch untuk POS kasir Windows</small>
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Buka Kode Tenant & Proyek APK di VS Code</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Folder terpisah: <code>tenants/@SelectedPackageTenant.TenantCode/</code> (Android source, CSS, config)</small>
                                 </div>
                             </div>
-                            <span class="ms-badge ms-badge-secondary"><i class="bi bi-download me-1"></i> Unduh BAT</span>
+                            <span class="ms-badge ms-badge-info"><i class="bi bi-box-arrow-up-right me-1"></i> Buka VS Code</span>
                         </a>
+                    </div>
+
+                    <!-- Android Phone Guide -->
+                    <div class="p-3 rounded small mb-2" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.35);">
+                        <div class="fw-bold mb-1" style="color: #D4AF37;">
+                            <i class="bi bi-phone me-1"></i> Akses dari HP Android (Solusi Anti "No Connection Localhost"):
+                        </div>
+                        <div class="font-mono text-white mb-2 p-1.5 rounded" style="background: rgba(0,0,0,0.3); font-size: 0.78rem;">
+                            http://192.168.68.103:3000/booking?tenant=@SelectedPackageTenant.TenantCode
+                        </div>
+                        <small class="text-muted d-block" style="font-size: 0.72rem; line-height: 1.4;">
+                            * Di HP Android, jangan ketik <code>localhost</code> (karena HP akan mencari ke dirinya sendiri). Gunakan alamat IP di atas, lalu di Chrome ketuk <strong>⋮ &gt; "Tambahkan ke Layar Utama"</strong>.
+                        </small>
                     </div>
                 </div>
                 <div class="ms-modal-footer">
@@ -1180,7 +1216,7 @@ else
 
                     <div class="ms-form-group mb-0">
                         <label class="ms-form-label"><i class="bi bi-key me-1 text-warning"></i> Ganti Kata Sandi Baru (Opsional)</label>
-                        <input type="password" class="ms-form-control font-mono" @bind="EditNewPassword" placeholder="Biarkan kosong jika tidak diubah" />
+                        <input type="password" class="ms-form-control font-mono" @bind="EditNewPassword" minlength="12" placeholder="Biarkan kosong jika tidak diubah (min. 12 karakter)" />
                         <small class="text-muted font-mono" style="font-size: 0.7rem;">Minimal 5 karakter. Di-hash dengan enkripsi BCrypt aman.</small>
                     </div>
                 </div>
@@ -1335,9 +1371,11 @@ else
                     <div class="p-3 mb-3 rounded d-flex align-items-center justify-content-between" style="background: var(--ms-surface-elevated); border: 1px solid var(--ms-border);">
                         <div>
                             <div class="fw-bold" style="color: var(--ms-text-main);">
-                                <i class="bi bi-code-square text-primary me-1"></i> Buka Langsung di VS Code Lokal
+                                <i class="bi bi-code-square text-primary me-1"></i> Buka Folder Khusus Tenant di VS Code
                             </div>
-                            <small class="text-muted" style="font-size: 0.75rem;">Membuka folder proyek ini langsung di aplikasi Visual Studio Code di komputer Anda.</small>
+                            <small class="text-muted font-mono" style="font-size: 0.75rem;">
+                                Folder terpisah: <code>tenants/@ModifyTargetTenant.TenantCode/</code> (Proyek Android APK, Desktop .bat, Web)
+                            </small>
                         </div>
                         <a href="@GetVsCodeUri(ModifyTargetTenant)" class="ms-btn ms-btn-primary ms-btn-sm text-decoration-none">
                             <i class="bi bi-box-arrow-up-right me-1"></i> Buka VS Code
@@ -1450,6 +1488,55 @@ else
     private Tenant? ModifyTargetTenant;
     private string ModifyCustomCss = "/* Custom CSS per-tenant */\n:root {\n  --tenant-accent: #B88E2D;\n}\n";
     private string ModifyTerminalLogs = "Terminal ready. Ketik 'help' untuk daftar perintah simulasi, atau klik 'Buka VS Code'.";
+
+    /// <summary>
+    /// Surfaces the API's human-readable error message without echoing raw
+    /// JSON envelopes or server internals into the console UI.
+    /// </summary>
+    private static async Task<string?> ReadApiErrorAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (doc.TryGetProperty("error", out var error) && error.TryGetProperty("message", out var message))
+            {
+                var text = message.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    return text;
+                }
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
+    private string? PwaInstallNotice;
+
+    /// <summary>
+    /// Installs the official PWA companion app on the operator's device. Uses the
+    /// browser's native install prompt when available and otherwise explains the
+    /// manual "Add to Home screen" steps - no broken package download involved.
+    /// </summary>
+    private async Task InstallMobileAppAsync()
+    {
+        try
+        {
+            var result = await JS.InvokeAsync<string>("SiBangkuPwa.promptInstall");
+            PwaInstallNotice = result switch
+            {
+                "accepted" => "Aplikasi sedang dipasang di perangkat ini. Buka dari ikon SiBangku setelah selesai.",
+                "installed" => "Aplikasi SiBangku sudah terpasang di perangkat ini.",
+                "dismissed" => "Pemasangan dibatalkan. Anda dapat mencoba lagi kapan saja.",
+                _ => "Browser Anda belum menyediakan pemasangan otomatis. Buka portal ini di Android/iOS/Chrome lalu pilih menu browser \u2192 'Tambahkan ke Layar Utama'."
+            };
+        }
+        catch
+        {
+            PwaInstallNotice = "Instruksi pemasangan tidak dapat ditampilkan. Buka portal ini di browser ponsel lalu pilih 'Tambahkan ke Layar Utama'.";
+        }
+    }
     private string ModifyTerminalInput = "";
 
     private string GeneratePreviewSlug(string name)
@@ -1616,9 +1703,13 @@ else
             return;
         }
 
-        if (NewPassword.Length < 5)
+        // Same policy the API enforces, so the hint and the server never disagree.
+        var policyError = PasswordPolicy.Validate(NewPassword, Email) is { IsValid: false } policyResult
+            ? policyResult.ErrorSummary
+            : null;
+        if (policyError is not null)
         {
-            ErrorAlert = "Kata sandi minimal harus 5 karakter.";
+            ErrorAlert = policyError;
             return;
         }
 
@@ -1639,8 +1730,7 @@ else
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync();
-                ErrorAlert = $"Gagal mengubah kata sandi: {body}";
+                ErrorAlert = await ReadApiErrorAsync(response) ?? "Gagal mengubah kata sandi. Silakan coba lagi.";
             }
         }
         catch (Exception ex)
@@ -1755,6 +1845,18 @@ else
         try
         {
             var client = GetClient();
+            if (!string.IsNullOrWhiteSpace(NewTenant.AdminPassword))
+            {
+                var policyError = PasswordPolicy.Validate(NewTenant.AdminPassword.Trim(), NewTenant.AdminEmail) is { IsValid: false } policyResult
+                    ? policyResult.ErrorSummary
+                    : null;
+                if (policyError is not null)
+                {
+                    ErrorAlert = policyError;
+                    return;
+                }
+            }
+
             var response = await client.PostAsJsonAsync("/api/v1/tenants", new
             {
                 tenantName = NewTenant.TenantName.Trim(),
@@ -1822,9 +1924,12 @@ else
             return;
         }
 
-        if (ResetNewPassword.Length < 5)
+        var policyError = PasswordPolicy.Validate(ResetNewPassword, ResetTargetTenant.TenantCode) is { IsValid: false } policyResult
+            ? policyResult.ErrorSummary
+            : null;
+        if (policyError is not null)
         {
-            ResetModalError = "Kata sandi minimal harus 5 karakter.";
+            ResetModalError = policyError;
             return;
         }
 
@@ -1852,8 +1957,7 @@ else
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync();
-                ResetModalError = $"Gagal mereset kata sandi: {body}";
+                ResetModalError = await ReadApiErrorAsync(response) ?? "Gagal mereset kata sandi. Silakan coba lagi.";
             }
         }
         catch (Exception ex)
@@ -1876,7 +1980,7 @@ else
     private async Task HandleConfirmDeleteTenant()
     {
         if (DeleteTargetTenant == null) return;
-        if (!DeleteConfirmationInput.Equals(DeleteTargetTenant.TenantCode, StringComparison.OrdinalIgnoreCase))
+        if (!DeleteConfirmationInput.Trim().Equals(DeleteTargetTenant.TenantCode.Trim(), StringComparison.OrdinalIgnoreCase))
         {
             ErrorAlert = "Konfirmasi kode tenant tidak cocok.";
             return;
@@ -1980,26 +2084,31 @@ else
 
             if (!res.IsSuccessStatusCode)
             {
-                var err = await res.Content.ReadAsStringAsync();
-                EditModalError = $"Gagal menyimpan perubahan: {err}";
+                EditModalError = await ReadApiErrorAsync(res) ?? "Gagal menyimpan perubahan. Silakan coba lagi.";
                 return;
             }
 
             if (!string.IsNullOrWhiteSpace(EditNewPassword))
             {
-                if (EditNewPassword.Trim().Length < 5)
+                var policyError = PasswordPolicy.Validate(EditNewPassword.Trim(), EditAdminEmail) is { IsValid: false } policyResult
+                    ? policyResult.ErrorSummary
+                    : null;
+                if (policyError is not null)
                 {
-                    EditModalError = "Kata sandi baru minimal harus 5 karakter.";
+                    EditModalError = policyError;
                     return;
                 }
+
                 var pwRes = await client.PostAsJsonAsync($"/api/v1/tenants/{EditTargetTenant.TenantId}/reset-password", new
                 {
                     newPassword = EditNewPassword.Trim()
                 });
                 if (!pwRes.IsSuccessStatusCode)
                 {
-                    var err = await pwRes.Content.ReadAsStringAsync();
-                    EditModalError = $"Perubahan nama berhasil, namun gagal memperbarui kata sandi: {err}";
+                    var reason = await ReadApiErrorAsync(pwRes);
+                    EditModalError = reason is null
+                        ? "Perubahan nama berhasil, namun gagal memperbarui kata sandi."
+                        : $"Perubahan nama berhasil, namun kata sandi ditolak: {reason}";
                     return;
                 }
             }
@@ -2073,8 +2182,25 @@ else
 
     private string GetVsCodeUri(Tenant? t)
     {
-        var rootPath = "d:/mydokumen/myproject/Apk_SiBangku/Apk_SiBangku";
-        return $"vscode://file/{rootPath}";
+        if (t == null) return "vscode://file/d:/mydokumen/myproject/Apk_SiBangku/Apk_SiBangku";
+        var code = t.TenantCode.Trim().ToUpperInvariant();
+        return $"vscode://file/d:/mydokumen/myproject/Apk_SiBangku/Apk_SiBangku/tenants/{code}";
+    }
+
+    private string GetBatDownloadUri(string tenantCode, string restaurantName)
+    {
+        var code = tenantCode.Trim().ToUpperInvariant();
+        var script = $"@echo off\r\ntitle SiBangku POS - {restaurantName} ({code})\r\necho ========================================================\r\necho  SiBangku POS Client - Outlet: {restaurantName}\r\necho  Kode Tenant: {code}\r\necho ========================================================\r\necho  Menghubungkan ke server SiBangku di port 3000...\r\n\r\nset TARGET_URL=http://localhost:3000/tenant-admin?tenant={code}\r\n\r\nif exist \"%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe\" (\r\n    start \"\" \"%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe\" --app=\"%TARGET_URL%\" --window-size=1280,800\r\n    exit /b 0\r\n)\r\nif exist \"%ProgramFiles%\\Microsoft\\Edge\\Application\\msedge.exe\" (\r\n    start \"\" \"%ProgramFiles%\\Microsoft\\Edge\\Application\\msedge.exe\" --app=\"%TARGET_URL%\" --window-size=1280,800\r\n    exit /b 0\r\n)\r\nif exist \"%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe\" (\r\n    start \"\" \"%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe\" --app=\"%TARGET_URL%\" --window-size=1280,800\r\n    exit /b 0\r\n)\r\nif exist \"%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe\" (\r\n    start \"\" \"%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe\" --app=\"%TARGET_URL%\" --window-size=1280,800\r\n    exit /b 0\r\n)\r\nstart \"\" \"%TARGET_URL%\"\r\nexit /b 0\r\n";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(script);
+        return $"data:text/plain;charset=utf-8;base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private string GetHtmlLauncherUri(string tenantCode, string restaurantName)
+    {
+        var code = tenantCode.Trim().ToUpperInvariant();
+        var html = $"<!DOCTYPE html><html><head><meta charset='utf-8'><title>{restaurantName} - SiBangku</title><script>const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);const target=isMobile?'http://192.168.68.103:3000/booking?tenant={code}':'http://localhost:3000/booking?tenant={code}';window.location.href=target;</script></head><body style='background:#1C1714;color:#D4AF37;text-align:center;padding:50px;font-family:sans-serif;'><h3>Membuka {restaurantName}...</h3><p><a href='http://localhost:3000/booking?tenant={code}' style='color:#FFF;'>Buka Langsung</a></p></body></html>";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(html);
+        return $"data:text/html;charset=utf-8;base64,{Convert.ToBase64String(bytes)}";
     }
 
     private void ExecuteTerminalCommand()
@@ -2098,7 +2224,7 @@ else
         }
         else if (cmd == "build-info")
         {
-            ModifyTerminalLogs += "APK: SiBangku-Universal-App.apk (~2 KB)\nEXE: SiBangku-Desktop-App.exe (4.6 KB, RAM < 30MB)";
+            ModifyTerminalLogs += "Mobile: PWA resmi (manifest + service worker aktif)\nDesktop: SiBangku-Desktop-App.exe (launcher native, RAM < 30 MB)\nAlternatif: SiBangku-Desktop-Launcher.bat";
         }
         else if (cmd == "clear")
         {

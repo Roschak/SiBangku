@@ -15,13 +15,27 @@
 </button>
 
 <!-- Floating Section Quick-Jump Rail for Desktop -->
-<aside class="ms-quick-jump-rail d-none d-xl-flex" aria-label="Navigasi Bagian Cepat">
-    <a href="#hero" class="ms-quick-jump-dot active" data-target="#hero" title="Beranda"></a>
-    <a href="#simulasi" class="ms-quick-jump-dot" data-target="#simulasi" title="Simulasi Meja"></a>
-    <a href="#keunggulan" class="ms-quick-jump-dot" data-target="#keunggulan" title="Keunggulan"></a>
-    <a href="#alur" class="ms-quick-jump-dot" data-target="#alur" title="Cara Kerja"></a>
-    <a href="#teknologi" class="ms-quick-jump-dot" data-target="#teknologi" title="Teknologi"></a>
-    <a href="#cta" class="ms-quick-jump-dot" data-target="#cta" title="Mulai Reservasi"></a>
+<aside id="sibangku-quick-jump-rail" class="ms-quick-jump-rail d-none d-xl-flex" aria-label="Navigasi Bagian Cepat">
+    <div class="ms-quick-jump-track"></div>
+    <div class="ms-quick-jump-thumb" id="quick-jump-thumb"></div>
+    <a href="#hero" class="ms-quick-jump-dot active" data-target="#hero" title="Beranda">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
+    <a href="#simulasi" class="ms-quick-jump-dot" data-target="#simulasi" title="Denah Meja">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
+    <a href="#keunggulan" class="ms-quick-jump-dot" data-target="#keunggulan" title="Keunggulan">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
+    <a href="#alur" class="ms-quick-jump-dot" data-target="#alur" title="Cara Kerja">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
+    <a href="#teknologi" class="ms-quick-jump-dot" data-target="#teknologi" title="Teknologi">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
+    <a href="#cta" class="ms-quick-jump-dot" data-target="#cta" title="Mulai Reservasi">
+        <span class="ms-quick-jump-inner"></span>
+    </a>
 </aside>
 
 <div class="ms-customer-portal d-flex flex-column min-vh-100">
@@ -56,23 +70,17 @@
                 </nav>
             </div>
 
-            <!-- Customer Fast Actions & Spacious Language Switcher -->
             <div class="d-flex align-items-center gap-2.5">
-                <!-- Multi-Language Gold Pill Switcher -->
-                <div class="d-flex align-items-center p-1" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.30); border-radius: 999px; gap: 4px; box-shadow: 0 2px 6px rgba(45,35,20,0.05);">
-                    <button type="button"
-                            class="btn btn-sm font-mono"
-                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.Indonesian ? "rgba(184,142,45,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "#FFFFFF" : "var(--ms-text-muted)"); background: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "linear-gradient(135deg,#D4AF37,#B88E2D)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.Indonesian ? "0 4px 12px -3px rgba(184,142,45,0.5)" : "none");"
-                            @onclick='() => ChangeLanguage(LanguageService.Indonesian)'>
-                        ID
-                    </button>
-                    <button type="button"
-                            class="btn btn-sm font-mono"
-                            style="font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid @(Lang.CurrentLanguage == LanguageService.English ? "rgba(184,142,45,0.6)" : "transparent"); min-width: 44px; transition: all 0.2s; color: @(Lang.CurrentLanguage == LanguageService.English ? "#FFFFFF" : "var(--ms-text-muted)"); background: @(Lang.CurrentLanguage == LanguageService.English ? "linear-gradient(135deg,#D4AF37,#B88E2D)" : "transparent"); box-shadow: @(Lang.CurrentLanguage == LanguageService.English ? "0 4px 12px -3px rgba(184,142,45,0.5)" : "none");"
-                            @onclick='() => ChangeLanguage(LanguageService.English)'>
-                        EN
-                    </button>
-                </div>
+                <!-- Language Selector Button -->
+                <button type="button"
+                        class="btn btn-sm font-mono d-inline-flex align-items-center gap-1.5 px-3 py-1.5"
+                        style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.30); border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: var(--ms-text-main); box-shadow: 0 2px 6px rgba(45,35,20,0.05); transition: all 0.2s;"
+                        @onclick="() => IsLanguageSelectorOpen = true"
+                        title="@Lang["Nav_Language"]">
+                    <i class="bi bi-globe2" style="color: #B88E2D; font-size: 0.9rem;"></i>
+                    <span class="text-uppercase">@Lang.CurrentLanguage</span>
+                    <i class="bi bi-chevron-down" style="font-size: 0.6rem; color: var(--ms-text-dim);"></i>
+                </button>
 
                 <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap d-none d-sm-inline-flex gold-shimmer-btn">
                     <i class="bi bi-calendar-plus me-1"></i>
@@ -127,7 +135,13 @@
     </footer>
 </div>
 
+<!-- Language Selector Modal -->
+<LanguageSelectorModal IsOpen="IsLanguageSelectorOpen"
+                       OnClose="() => IsLanguageSelectorOpen = false" />
+
 @code {
+    private bool IsLanguageSelectorOpen = false;
+
     protected override void OnInitialized()
     {
         Lang.OnLanguageChanged += HandleLanguageChanged;
@@ -153,16 +167,6 @@
             }
             catch { }
         }
-    }
-
-    private async Task ChangeLanguage(string code)
-    {
-        Lang.SetLanguage(code);
-        try
-        {
-            await JS.InvokeVoidAsync("SiBangkuLang.setLanguage", code);
-        }
-        catch { }
     }
 
     private void HandleLanguageChanged()

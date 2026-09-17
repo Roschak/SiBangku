@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>komik caffe - SiBangku App</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#D4AF37">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1C1714;
+      color: #FAF8F5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+    .card {
+      background: #251F1B;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid #D4AF37;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #D4AF37;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 8px 0; color: #FAF8F5; }
+    p { font-size: 0.85rem; color: #A89B8C; margin: 0 0 20px 0; line-height: 1.5; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 0;
+      background: #D4AF37;
+      color: #1C1714;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #D4AF37;
+    }
+    .status {
+      font-size: 0.75rem;
+      font-family: monospace;
+      color: #8F8371;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🍽️</div>
+    <h1>komik caffe</h1>
+    <p>Sistem Pemesanan Meja & Kasir Outlet Resmi</p>
+
+    <a id="btnBooking" href="#" class="btn">Buka Portal Pemesanan Tamu</a>
+    <a id="btnAdmin" href="#" class="btn btn-secondary">Masuk Dashboard Kasir / Mitra</a>
+
+    <div class="status" id="statusText">Mendeteksi koneksi server SiBangku...</div>
+  </div>
+
+  <script>
+    const tenantCode = "PTKOMIKCAFFE";
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const host = window.location.hostname;
+
+    // Jika dibuka di HP atau di luar localhost, arahkan ke IP LAN host
+    let baseUrl = "http://localhost:3000";
+    if (host !== "localhost" && host !== "127.0.0.1" && host !== "") {
+      baseUrl = window.location.origin;
+    } else if (isMobile) {
+      baseUrl = "http://192.168.68.103:3000";
+    }
+
+    const bookingUrl = baseUrl + "/booking?tenant=" + tenantCode;
+    const adminUrl = baseUrl + "/admin?tenant=" + tenantCode;
+
+    document.getElementById("btnBooking").href = bookingUrl;
+    document.getElementById("btnAdmin").href = adminUrl;
+    document.getElementById("statusText").innerText = "Terkoneksi ke: " + baseUrl;
+
+    // Auto-redirect jika mode standalone (PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      window.location.href = bookingUrl;
+    }
+  </script>
+</body>
+</html>

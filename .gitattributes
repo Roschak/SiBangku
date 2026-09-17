@@ -1,0 +1,27 @@
+# Normalise line endings in the repository so a checkout on any OS produces the
+# same bytes, and so the CI `dotnet format` gate cannot be defeated by the
+# developer's core.autocrlf setting.
+#
+# All text files are stored *and* checked out with LF; see .editorconfig.
+* text=auto eol=lf
+
+# Windows batch launchers keep CRLF: cmd.exe can mis-parse LF-only scripts.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets must never be line-ending converted.
+*.apk binary
+*.aab binary
+*.exe binary
+*.dll binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+# Generated/vendored content keeps whatever the upstream tool wrote.
+*.min.js -text
+src/SiBangku.Web/wwwroot/lib/** -text

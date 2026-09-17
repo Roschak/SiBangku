@@ -55,10 +55,14 @@ Sistem SiBangku telah ditingkatkan untuk mendukung kebutuhan operasional bisnis 
 
 ### D. Paket Distribusi Ringan (Low-Spec Device Optimized)
 Tersedia di `wwwroot/downloads/` dan terintegrasi di modal hasil provisioning:
-1. **`SiBangku-Universal-App.apk`**: Paket Android berbasis PWA Shell (~2 KB).
-2. **`SiBangku-Desktop-App.exe`**: Executable native Windows (4.6 KB) yang membuka jendela mandiri via engine Chromium Edge/Chrome bawaan Windows (penggunaan RAM `< 30 MB`).
-3. **`SiBangku-Desktop-Launcher.bat`**: Skrip batch alternatif untuk PC POS kasir lama.
+1. **Aplikasi Mobile (Android / iOS)**: dipasang langsung sebagai **PWA resmi** melalui tombol *Pasang Aplikasi* di modal provisioning (`manifest.json` + `service-worker.js`). Tidak diperlukan toko aplikasi dan tidak ada berkas `.apk` yang diunduh.
+2. **`SiBangku-Desktop-App.exe`**: Executable native Windows (4.6 KB, .NET Framework) yang membuka jendela mandiri via engine Chromium Edge/Chrome bawaan Windows (penggunaan RAM `< 30 MB`). Terverifikasi berjalan.
+3. **`SiBangku-Desktop-Launcher.bat`**: Skrip batch alternatif untuk PC POS kasir lama (menerima kode tenant sebagai argumen pertama).
 4. **PWA & Service Worker**: `manifest.json` dan `service-worker.js` dengan strategi *Cache-First* untuk aset statis dan *Network-First* untuk reservasi real-time.
+
+> **Catatan**: Berkas `SiBangku-Universal-App.apk` lama telah dihapus karena bukan paket Android yang valid
+> (tidak memiliki `classes.dex`/`resources.arsc` dan tidak ditandatangani sehingga gagal dipasang).
+> Untuk APK native sungguhan, diperlukan build Gradle/Android SDK di CI (lihat *Remaining Human Tasks*).
 
 ---
 

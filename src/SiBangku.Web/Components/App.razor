@@ -30,13 +30,11 @@
     <script src="_framework/blazor.web.js"></script>
     <script src="lib/animejs/anime.min.js"></script>
     <script src="lib/html5-qrcode/html5-qrcode.min.js"></script>
-    <script src="js/sibangku-app.js"></script>
+    <script src="js/sibangku-app.js?v=2.2"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/service-worker.js').catch(function (err) {
-                    console.log('SW registration note:', err);
-                });
+                navigator.serviceWorker.register('/service-worker.js').catch(function () {});
             });
         }
     </script>

@@ -31,3 +31,22 @@ Desktop.ini
 # Node modules
 node_modules/
 package-lock.json
+
+# Android / Gradle build output (per-tenant wrapper projects)
+tenants/*/android/.gradle/
+tenants/*/android/build/
+tenants/*/android/app/build/
+tenants/*/android/.cxx/
+tenants/*/android/local.properties
+
+# Packaged mobile binaries are produced by CI and published as artifacts,
+# never committed: the previous hand-made download was not a valid package.
+src/SiBangku.Web/wwwroot/downloads/*.apk
+src/SiBangku.Web/wwwroot/downloads/*.aab
+tenants/*/android/**/*.apk
+tenants/*/android/**/*.aab
+
+# Test output
+test-results/
+TestResults/
+*.trx

@@ -1,0 +1,18 @@
+/* ========================================================
+   Kustomisasi Visual Khusus: komik caffe (PTKOMIKCAFFE)
+   Diterapkan pada portal booking dan tenant admin outlet ini.
+   ======================================================== */
+
+:root {
+  --tenant-brand-primary: #D4AF37;
+  --tenant-brand-secondary: #A07E3F;
+  --tenant-surface-dark: #1C1714;
+}
+
+/* Kustomisasi gaya tombol & aksen outlet */
+.btn-tenant-accent {
+  background: linear-gradient(135deg, #D4AF37 0%, #A07E3F 100%);
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-weight: 600;
+}

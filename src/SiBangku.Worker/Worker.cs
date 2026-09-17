@@ -38,9 +38,9 @@ namespace SiBangku.Worker
             {
                 try
                 {
-                    _logger.LogInformation("Worker starting job execution cycles...");
+                    _logger.LogDebug("Worker starting job execution cycles...");
                     await ProcessJobsAsync();
-                    _logger.LogInformation("Worker execution cycle finished.");
+                    _logger.LogDebug("Worker execution cycle finished.");
                 }
                 catch (Exception ex)
                 {
@@ -81,7 +81,7 @@ namespace SiBangku.Worker
                     };
 
                     await controlDb.AuditLogs.AddAsync(audit);
-                    _logger.LogWarning("Tenant '{tenantName}' (ID: {tenantId}) trial expired on {trialEnd}.", 
+                    _logger.LogWarning("Tenant '{tenantName}' (ID: {tenantId}) trial expired on {trialEnd}.",
                         tenant.TenantName, tenant.TenantId, tenant.TrialEnd);
                 }
 
@@ -118,7 +118,7 @@ namespace SiBangku.Worker
                             // Ensure database is online/reachable before querying
                             if (!await tenantDb.Database.CanConnectAsync())
                             {
-                                _logger.LogWarning("Database '{dbName}' for tenant '{tenantName}' is not reachable. Skipping.", 
+                                _logger.LogWarning("Database '{dbName}' for tenant '{tenantName}' is not reachable. Skipping.",
                                     tenant.DatabaseIdentifier, tenant.TenantName);
                                 continue;
                             }
@@ -133,7 +133,7 @@ namespace SiBangku.Worker
                             {
                                 rsv.Status = "CANCELLED";
                                 rsv.Notes += " (Sistem: Batalkan otomatis karena batas waktu pembayaran 15 menit habis)";
-                                _logger.LogInformation("Auto-cancelled unpaid reservation {rsvNo} for tenant '{tenantName}' due to timeout.", 
+                                _logger.LogInformation("Auto-cancelled unpaid reservation {rsvNo} for tenant '{tenantName}' due to timeout.",
                                     rsv.ReservationNumber, tenant.TenantName);
                             }
 
@@ -152,7 +152,7 @@ namespace SiBangku.Worker
                                 {
                                     rsv.Status = "CANCELLED"; // or EXPIRED
                                     rsv.Notes += " (Sistem: Batalkan otomatis karena tidak hadir setelah 30 menit jadwal)";
-                                    _logger.LogWarning("Auto-marked no-show reservation {rsvNo} for tenant '{tenantName}' expired.", 
+                                    _logger.LogWarning("Auto-marked no-show reservation {rsvNo} for tenant '{tenantName}' expired.",
                                         rsv.ReservationNumber, tenant.TenantName);
                                 }
                             }
@@ -162,7 +162,7 @@ namespace SiBangku.Worker
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Failed to process reservation jobs for tenant '{tenantName}' (DB: {dbName}). Continuing.", 
+                        _logger.LogError(ex, "Failed to process reservation jobs for tenant '{tenantName}' (DB: {dbName}). Continuing.",
                             tenant.TenantName, tenant.DatabaseIdentifier);
                     }
                 }

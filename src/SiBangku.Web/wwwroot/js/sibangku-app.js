@@ -75,7 +75,6 @@
         getAvailableCameras: async function () {
             try {
                 if (typeof Html5Qrcode === 'undefined') {
-                    console.warn('Html5Qrcode library not loaded yet');
                     return [];
                 }
                 const devices = await Html5Qrcode.getCameras();
@@ -87,7 +86,6 @@
                 }
                 return [];
             } catch (err) {
-                console.warn('Error fetching camera devices:', err);
                 return [];
             }
         },
@@ -98,7 +96,6 @@
 
             const container = document.getElementById(containerId);
             if (!container) {
-                console.error(`QR Scanner container #${containerId} not found`);
                 return { success: false, error: 'Container element not found' };
             }
 
@@ -154,14 +151,12 @@
                         await html5QrScannerInstance.start({ facingMode: "environment" }, qrConfig, onScanSuccess, onScanFailure);
                     } catch (mobileRearErr) {
                         // Laptop webcam or single camera fallback
-                        console.info('Rear camera unavailable, falling back to default/webcam camera');
                         await html5QrScannerInstance.start({ facingMode: "user" }, qrConfig, onScanSuccess, onScanFailure);
                     }
                 }
 
                 return { success: true };
             } catch (err) {
-                console.error('Failed to start camera scanner:', err);
                 return { success: false, error: err.message || 'Camera permission denied' };
             }
         },
@@ -202,7 +197,6 @@
                     }
                     html5QrScannerInstance.clear();
                 } catch (e) {
-                    console.warn('Error stopping scanner:', e);
                 } finally {
                     html5QrScannerInstance = null;
                 }
@@ -211,98 +205,137 @@
     };
 
     // ------------------------------------------------------------------------
-    // 3. High-End Animated Scroll & Interactive Experience Engine
+    // 3. Scroll & Interactive Experience Engine
     // ------------------------------------------------------------------------
     window.SiBangkuScroll = {
-        init: function () {
-            const progressBar = document.getElementById('sibangku-scroll-progress');
-            const backToTopBtn = document.getElementById('sibangku-back-to-top');
-            const circle = backToTopBtn ? backToTopBtn.querySelector('.progress-ring-circle') : null;
-            const ambient1 = document.querySelector('.ambient-float-1');
-            const ambient2 = document.querySelector('.ambient-float-2');
-            const circumference = 138; // 2 * PI * 22
+        _initialized: false,
+        _scrollHandler: null,
 
-            let ticking = false;
+        init: function () {
+            if (window.SiBangkuScroll._initialized && window.SiBangkuScroll._scrollHandler) {
+                // Re-run an update in case DOM elements were freshly mounted
+                window.SiBangkuScroll.updateScrollSpy();
+                return;
+            }
+            window.SiBangkuScroll._initialized = true;
+
+            var progressBar = document.getElementById('sibangku-scroll-progress');
+            var backToTopBtn = document.getElementById('sibangku-back-to-top');
+            var circle = backToTopBtn ? backToTopBtn.querySelector('.progress-ring-circle') : null;
+            var circumference = 138;
+            var sectionIds = ['hero', 'simulasi', 'keunggulan', 'alur', 'teknologi', 'cta'];
+            var ticking = false;
+
+            function getAbsoluteTop(el) {
+                if (!el) return 0;
+                return el.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
+            }
 
             function onScrollUpdate() {
-                const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-                const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                var scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+                var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                var scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-                // 1. Update Top Gold Progress Bar
+                // 1. Top Gold Progress Bar
                 if (progressBar) {
-                    progressBar.style.width = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+                    progressBar.style.width = Math.min(100, Math.max(0, scrollPercent)) + '%';
                 }
 
-                // 2. Update Back-to-Top Button & Circular Indicator
+                // 2. Back-to-Top Button & Circular Ring
                 if (backToTopBtn) {
                     if (scrollTop > 260) {
                         backToTopBtn.classList.add('show');
                     } else {
                         backToTopBtn.classList.remove('show');
                     }
-
                     if (circle) {
-                        const offset = circumference - (scrollPercent / 100) * circumference;
-                        circle.style.strokeDashoffset = offset;
+                        circle.style.strokeDashoffset = circumference - (scrollPercent / 100) * circumference;
                     }
                 }
 
-                // 3. Subtle Parallax for Ambient Light Blooms
-                if (ambient1 && ambient2) {
-                    ambient1.style.transform = `translateY(${scrollTop * 0.08}px)`;
-                    ambient2.style.transform = `translateY(-${scrollTop * 0.06}px)`;
+                // 3. Quick-Jump Scrollspy Dots & Sliding Gold Indicator Thumb
+                var rail = document.getElementById('sibangku-quick-jump-rail') || document.querySelector('.ms-quick-jump-rail');
+                var dots = document.querySelectorAll('.ms-quick-jump-dot');
+                var thumb = document.getElementById('quick-jump-thumb');
+
+                var heroEl = document.getElementById('hero');
+                if (rail) {
+                    if (!heroEl) {
+                        rail.style.display = 'none';
+                    } else {
+                        rail.style.display = 'flex';
+                    }
                 }
 
-                // 4. Update Quick-Jump Scrollspy Dots
-                const sections = [
-                    { id: 'hero', dot: document.querySelector('.ms-quick-jump-dot[data-target="#hero"]') },
-                    { id: 'simulasi', dot: document.querySelector('.ms-quick-jump-dot[data-target="#simulasi"]') },
-                    { id: 'keunggulan', dot: document.querySelector('.ms-quick-jump-dot[data-target="#keunggulan"]') },
-                    { id: 'alur', dot: document.querySelector('.ms-quick-jump-dot[data-target="#alur"]') },
-                    { id: 'teknologi', dot: document.querySelector('.ms-quick-jump-dot[data-target="#teknologi"]') },
-                    { id: 'cta', dot: document.querySelector('.ms-quick-jump-dot[data-target="#cta"]') }
-                ];
+                if (heroEl && dots.length > 0) {
+                    var viewportThreshold = scrollTop + Math.min(window.innerHeight * 0.42, 380);
+                    var isNearBottom = (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 60);
+                    var activeIndex = 0;
 
-                const scrollMiddle = scrollTop + window.innerHeight * 0.35;
-                for (let i = sections.length - 1; i >= 0; i--) {
-                    const el = document.getElementById(sections[i].id);
-                    if (el && el.offsetTop <= scrollMiddle) {
-                        document.querySelectorAll('.ms-quick-jump-dot').forEach(d => d.classList.remove('active'));
-                        if (sections[i].dot) sections[i].dot.classList.add('active');
-                        break;
+                    if (isNearBottom) {
+                        activeIndex = sectionIds.length - 1;
+                    } else {
+                        for (var i = sectionIds.length - 1; i >= 0; i--) {
+                            var sec = document.getElementById(sectionIds[i]);
+                            if (sec && getAbsoluteTop(sec) <= viewportThreshold) {
+                                activeIndex = i;
+                                break;
+                            }
+                        }
                     }
+
+                    dots.forEach(function (d, idx) {
+                        if (idx === activeIndex) {
+                            d.classList.add('active');
+                            if (thumb) {
+                                var dotTop = d.offsetTop + (d.offsetHeight / 2);
+                                thumb.style.top = dotTop + 'px';
+                            }
+                        } else {
+                            d.classList.remove('active');
+                        }
+                    });
                 }
 
                 ticking = false;
             }
 
-            window.addEventListener('scroll', function () {
+            window.SiBangkuScroll.updateScrollSpy = onScrollUpdate;
+
+            window.SiBangkuScroll._scrollHandler = function () {
                 if (!ticking) {
                     window.requestAnimationFrame(onScrollUpdate);
                     ticking = true;
                 }
-            }, { passive: true });
+            };
 
-            // Initial call
-            onScrollUpdate();
+            window.addEventListener('scroll', window.SiBangkuScroll._scrollHandler, { passive: true });
 
-            // Smooth Anchor Scrolling for all # links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            // Initial positioning after short delay for full layout calculation
+            setTimeout(onScrollUpdate, 150);
+
+            // Smooth Anchor Scrolling for quick-jump-dots and hash anchors
+            document.querySelectorAll('.ms-quick-jump-dot, a[href^="#"]').forEach(function (anchor) {
                 anchor.addEventListener('click', function (e) {
-                    const targetId = this.getAttribute('href');
+                    var targetId = this.getAttribute('data-target') || this.getAttribute('href');
                     if (targetId && targetId !== '#') {
-                        const targetEl = document.querySelector(targetId);
+                        var targetEl = document.querySelector(targetId);
                         if (targetEl) {
                             e.preventDefault();
-                            const topOffset = 70; // Header height
-                            const elementPosition = targetEl.getBoundingClientRect().top;
-                            const offsetPosition = elementPosition + window.pageYOffset - topOffset;
+                            var topOffset = 70;
+                            var elementPosition = targetEl.getBoundingClientRect().top;
+                            var offsetPosition = elementPosition + (window.pageYOffset || window.scrollY || 0) - topOffset;
+                            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
 
-                            window.scrollTo({
-                                top: offsetPosition,
-                                behavior: 'smooth'
-                            });
+                            // Animate dot immediately
+                            var dots = document.querySelectorAll('.ms-quick-jump-dot');
+                            var thumb = document.getElementById('quick-jump-thumb');
+                            dots.forEach(function (d) { d.classList.remove('active'); });
+                            this.classList.add('active');
+                            if (thumb && this.classList.contains('ms-quick-jump-dot')) {
+                                var dotTop = this.offsetTop + (this.offsetHeight / 2);
+                                thumb.style.top = dotTop + 'px';
+                            }
                         }
                     }
                 });
@@ -310,27 +343,28 @@
         },
 
         scrollToTop: function () {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
         scrollToElement: function (elementId) {
-            const el = document.getElementById(elementId);
+            var el = document.getElementById(elementId);
             if (el) {
-                const topOffset = 70;
-                const elementPosition = el.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - topOffset;
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+                var topOffset = 70;
+                var elementPosition = el.getBoundingClientRect().top;
+                var offsetPosition = elementPosition + (window.pageYOffset || window.scrollY || 0) - topOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
             }
         }
     };
 
+    function prefersReducedMotion() {
+        return typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
     window.SiBangkuAnime = {
+        prefersReducedMotion: prefersReducedMotion,
+
         initLandingAnimations: function () {
             // Initialize global scroll listener & indicators
             if (window.SiBangkuScroll && typeof window.SiBangkuScroll.init === 'function') {
@@ -338,7 +372,18 @@
             }
 
             if (typeof anime === 'undefined') {
-                console.warn('Anime.js library is not loaded');
+                return;
+            }
+
+            // Users who prefer reduced motion get the finished layout with no
+            // entrance, scroll or looping animation. Reveal-on-scroll markers are
+            // shown immediately so nothing stays hidden.
+            if (prefersReducedMotion()) {
+                document.querySelectorAll('.ms-scroll-divider').forEach(function (div) {
+                    div.classList.add('is-revealed');
+                });
+                var track = document.querySelector('.step-flow-track-progress');
+                if (track) track.style.width = '100%';
                 return;
             }
 
@@ -380,25 +425,6 @@
             }, '-=650');
 
             // B. Ambient Continuous Floating Mesh Shapes
-            anime({
-                targets: '.ambient-float-1',
-                translateY: [-14, 14],
-                translateX: [-10, 10],
-                duration: 6000,
-                direction: 'alternate',
-                loop: true,
-                easing: 'easeInOutSine'
-            });
-
-            anime({
-                targets: '.ambient-float-2',
-                translateY: [16, -16],
-                translateX: [12, -12],
-                duration: 7000,
-                direction: 'alternate',
-                loop: true,
-                easing: 'easeInOutSine'
-            });
 
             // C. Pulse Indicator
             anime({
@@ -453,9 +479,10 @@
                             }
 
                             // 3. Product Feature Cards Stagger
-                            if (target.classList.contains('observe-product-cards')) {
+                            var productCardContainer = target.classList.contains('observe-product-cards') ? target : target.querySelector('.observe-product-cards');
+                            if (productCardContainer) {
                                 anime({
-                                    targets: target.querySelectorAll('.product-feature-card'),
+                                    targets: productCardContainer.querySelectorAll('.product-feature-card'),
                                     opacity: [0, 1],
                                     translateY: [35, 0],
                                     scale: [0.96, 1],
@@ -513,7 +540,7 @@
                     });
                 }, { threshold: 0.12 });
 
-                document.querySelectorAll('.observe-section').forEach(el => {
+                document.querySelectorAll('.observe-section, .observe-product-cards').forEach(el => {
                     scrollObserver.observe(el);
                 });
             }
@@ -554,7 +581,56 @@
     };
 
     // ------------------------------------------------------------------------
-    // 4. User Language Preference Helpers
+    // 4. Progressive Web App Install Helper
+    // The mobile companion app is delivered as an installable PWA (the manifest
+    // and service worker are already registered). Browsers expose a native
+    // install prompt which we capture and replay on demand.
+    // ------------------------------------------------------------------------
+    window.SiBangkuPwa = {
+        deferredPrompt: null,
+
+        isStandalone: function () {
+            const displayModeStandalone = typeof window.matchMedia === 'function'
+                && window.matchMedia('(display-mode: standalone)').matches;
+            return displayModeStandalone || window.navigator.standalone === true;
+        },
+
+        init: function () {
+            window.addEventListener('beforeinstallprompt', function (event) {
+                event.preventDefault();
+                window.SiBangkuPwa.deferredPrompt = event;
+            });
+        },
+
+        /**
+         * Triggers the native install prompt when the browser offers one.
+         * Returns: 'installed' | 'accepted' | 'dismissed' | 'unavailable'.
+         */
+        promptInstall: async function () {
+            if (window.SiBangkuPwa.isStandalone()) {
+                return 'installed';
+            }
+
+            const prompt = window.SiBangkuPwa.deferredPrompt;
+            if (!prompt) {
+                return 'unavailable';
+            }
+
+            try {
+                prompt.prompt();
+                const choice = await prompt.userChoice;
+                window.SiBangkuPwa.deferredPrompt = null;
+                return (choice && choice.outcome === 'accepted') ? 'accepted' : 'dismissed';
+            } catch (error) {
+                return 'unavailable';
+            }
+        }
+    };
+
+    window.SiBangkuPwa.init();
+
+    // ------------------------------------------------------------------------
+    // 5. User Language Preference Helpers
     // ------------------------------------------------------------------------
     window.SiBangkuLang = {
         getLanguage: function () {

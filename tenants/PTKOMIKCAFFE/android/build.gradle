@@ -1,0 +1,6 @@
+// Root build script for the PTKOMIKCAFFE tenant Android wrapper.
+// Only the Android Gradle Plugin is declared here; it is applied by :app.
+// AGP 8.5.2 requires Gradle 8.7+ and JDK 17 (see gradle.properties / CI workflow).
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}

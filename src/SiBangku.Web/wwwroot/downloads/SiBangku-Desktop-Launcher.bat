@@ -4,11 +4,15 @@ echo ========================================================
 echo  SiBangku SaaS Platform - Desktop Client (Ultra-Light)
 echo ========================================================
 echo  Menghubungkan ke server SiBangku...
-set TARGET_URL=http://localhost:5000/tenant-admin
+set "BASE_URL=http://localhost:3000"
+set "TARGET_URL=%BASE_URL%/admin"
 
 if not "%~1"=="" (
-    set TARGET_URL=%~1
+    set "TARGET_URL=%BASE_URL%/admin?tenant=%~1"
 )
+
+echo  Tujuan: %TARGET_URL%
+echo.
 
 :: Cek Microsoft Edge (Bawaan Windows 10/11)
 if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" (
@@ -33,5 +37,6 @@ if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" (
 )
 
 :: Fallback ke browser default sistem
+echo  Edge/Chrome tidak ditemukan - membuka browser default...
 start "" "%TARGET_URL%"
 exit /b 0

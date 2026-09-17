@@ -488,7 +488,7 @@ select option {
 .ms-stat-card:hover {
     border-color: var(--ms-gold-border);
     transform: translateY(-2px);
-    box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(201, 169, 110, 0.18);
+    box-shadow: 0 14px 32px -8px rgba(45, 35, 20, 0.08), 0 0 0 1px rgba(184, 142, 45, 0.25);
 }
 .ms-stat-header {
     display: flex;
@@ -611,19 +611,20 @@ select option {
 }
 
 .ms-btn-danger {
-    background-color: rgba(248, 113, 113, 0.12);
-    color: #FCA5A5;
-    border-color: var(--ms-danger-border);
+    background-color: #FEF2F2;
+    color: #991B1B;
+    border-color: rgba(220, 38, 38, 0.28);
 }
 .ms-btn-danger:hover:not(:disabled) {
-    background-color: var(--ms-danger);
-    border-color: var(--ms-danger);
-    color: #2B0A0A;
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
 }
 
 .ms-btn-sm {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.775rem;
+    padding: 0.38rem 0.75rem;
+    font-size: 0.785rem;
     border-radius: var(--ms-radius-sm);
 }
 .ms-btn-lg {
@@ -633,13 +634,13 @@ select option {
 }
 
 /* ==========================================================================
-   Badges (Refined Gold-Edge Micro Tags)
+   Badges (Refined High-Contrast Micro Tags)
    ========================================================================== */
 .ms-badge {
     font-family: var(--ms-font-mono);
     font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.22rem 0.55rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
     border-radius: var(--ms-radius-full);
     display: inline-flex;
     align-items: center;
@@ -649,50 +650,57 @@ select option {
     border: 1px solid transparent;
 }
 .ms-badge-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     display: inline-block;
     box-shadow: 0 0 6px currentColor;
 }
 
 .ms-badge-success {
-    background-color: var(--ms-success-subtle);
-    color: #6EE7B7;
-    border-color: var(--ms-success-border);
+    background-color: #ECFDF5;
+    color: #065F46;
+    border-color: rgba(5, 150, 105, 0.28);
 }
-.ms-badge-success .ms-badge-dot { background-color: #34D399; }
+.ms-badge-success .ms-badge-dot { background-color: #059669; }
 
 .ms-badge-warning {
-    background-color: var(--ms-warning-subtle);
-    color: #FCD34D;
-    border-color: var(--ms-warning-border);
+    background-color: #FFFBEB;
+    color: #92400E;
+    border-color: rgba(217, 119, 6, 0.28);
 }
-.ms-badge-warning .ms-badge-dot { background-color: #FBBF24; }
+.ms-badge-warning .ms-badge-dot { background-color: #D97706; }
 
 .ms-badge-danger {
-    background-color: var(--ms-danger-subtle);
-    color: #FCA5A5;
-    border-color: var(--ms-danger-border);
+    background-color: #FEF2F2;
+    color: #991B1B;
+    border-color: rgba(220, 38, 38, 0.28);
 }
-.ms-badge-danger .ms-badge-dot { background-color: #F87171; }
+.ms-badge-danger .ms-badge-dot { background-color: #DC2626; }
 
 .ms-badge-primary {
-    background-color: var(--ms-gold-subtle);
-    color: var(--ms-gold-bright);
-    border-color: var(--ms-gold-border);
+    background-color: #FDF8ED;
+    color: #8C6819;
+    border-color: rgba(184, 142, 45, 0.35);
 }
-.ms-badge-primary .ms-badge-dot { background-color: #D4AF37; }
+.ms-badge-primary .ms-badge-dot { background-color: #B88E2D; }
+
+.ms-badge-info {
+    background-color: #F0F9FF;
+    color: #075985;
+    border-color: rgba(2, 132, 199, 0.28);
+}
+.ms-badge-info .ms-badge-dot { background-color: #0284C7; }
 
 .ms-badge-neutral {
-    background-color: var(--ms-surface-elevated);
-    color: var(--ms-text-muted);
-    border-color: var(--ms-border);
+    background-color: #F3F4F6;
+    color: #374151;
+    border-color: #E5E7EB;
 }
-.ms-badge-neutral .ms-badge-dot { background-color: var(--ms-text-dim); }
+.ms-badge-neutral .ms-badge-dot { background-color: #6B7280; }
 
 /* ==========================================================================
-   Alerts (Dark Editorial Banners with Gold Edge)
+   Alerts (Refined High-Contrast Editorial Banners)
    ========================================================================== */
 .ms-alert {
     padding: 0.9rem 1.15rem;
@@ -704,7 +712,7 @@ select option {
     border: 1px solid transparent;
     font-size: 0.85rem;
     line-height: 1.5;
-    background-color: var(--ms-surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 .ms-alert-icon {
     font-size: 1.15rem;
@@ -716,7 +724,7 @@ select option {
     flex: 1;
 }
 .ms-alert-title {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.885rem;
     margin-bottom: 0.15rem;
 }
@@ -735,32 +743,32 @@ select option {
 }
 
 .ms-alert-danger {
-    background-color: rgba(248, 113, 113, 0.08);
-    border-color: var(--ms-danger-border);
-    color: #FECACA;
+    background-color: #FEF2F2;
+    border-color: #FECACA;
+    color: #991B1B;
 }
-.ms-alert-danger .ms-alert-icon { color: var(--ms-danger); }
+.ms-alert-danger .ms-alert-icon { color: #DC2626; }
 
 .ms-alert-success {
-    background-color: rgba(52, 211, 153, 0.08);
-    border-color: var(--ms-success-border);
-    color: #A7F3D0;
+    background-color: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #065F46;
 }
-.ms-alert-success .ms-alert-icon { color: var(--ms-success); }
+.ms-alert-success .ms-alert-icon { color: #059669; }
 
 .ms-alert-warning {
-    background-color: rgba(251, 191, 36, 0.08);
-    border-color: var(--ms-warning-border);
-    color: #FDE68A;
+    background-color: #FFFBEB;
+    border-color: #FDE68A;
+    color: #92400E;
 }
-.ms-alert-warning .ms-alert-icon { color: var(--ms-warning); }
+.ms-alert-warning .ms-alert-icon { color: #D97706; }
 
 .ms-alert-info {
-    background-color: rgba(125, 211, 252, 0.08);
-    border-color: var(--ms-info-border);
-    color: #BAE6FD;
+    background-color: #F0F9FF;
+    border-color: #BAE6FD;
+    color: #075985;
 }
-.ms-alert-info .ms-alert-icon { color: var(--ms-info); }
+.ms-alert-info .ms-alert-icon { color: #0284C7; }
 
 /* ==========================================================================
    Data Tables (Compact Gold-Edge Tracking)
@@ -1049,6 +1057,7 @@ select option {
     background: radial-gradient(circle, rgba(212, 175, 55, 0.16), transparent 65%);
     top: -140px;
     left: -120px;
+    animation: ambientFloat1 6s ease-in-out infinite;
 }
 .ambient-float-2 {
     width: 520px;
@@ -1056,6 +1065,17 @@ select option {
     background: radial-gradient(circle, rgba(184, 142, 45, 0.14), transparent 65%);
     bottom: -180px;
     right: -140px;
+    animation: ambientFloat2 7s ease-in-out infinite;
+}
+
+/* Ambient Floating Animations (GPU-accelerated CSS, replaces JS loops) */
+@keyframes ambientFloat1 {
+    0%, 100% { transform: translateY(-14px) translateX(-10px); }
+    50% { transform: translateY(14px) translateX(10px); }
+}
+@keyframes ambientFloat2 {
+    0%, 100% { transform: translateY(16px) translateX(12px); }
+    50% { transform: translateY(-16px) translateX(-12px); }
 }
 
 /* Interactive Table Simulation (Home Preview) */
@@ -1181,6 +1201,7 @@ select option {
 }
 
 /* 4. Luxury Floating Quick-Jump Rail */
+/* 4. Luxury Floating Quick-Jump Rail with Sliding Tracker */
 .ms-quick-jump-rail {
     position: fixed;
     right: 1.5rem;
@@ -1189,36 +1210,107 @@ select option {
     z-index: 1010;
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    padding: 0.6rem 0.4rem;
-    background: rgba(255, 255, 255, 0.90);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(184, 142, 45, 0.22);
+    align-items: center;
+    gap: 1.15rem;
+    padding: 0.9rem 0.5rem;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(184, 142, 45, 0.28);
     border-radius: 999px;
-    box-shadow: 0 8px 25px -8px rgba(45, 35, 20, 0.10);
+    box-shadow: 0 10px 30px -8px rgba(45, 35, 20, 0.12), 0 0 0 1px rgba(184, 142, 45, 0.08);
+}
+
+/* Connecting track line inside rail */
+.ms-quick-jump-track {
+    position: absolute;
+    top: 1.25rem;
+    bottom: 1.25rem;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(184, 142, 45, 0.15) 0%, rgba(184, 142, 45, 0.35) 50%, rgba(184, 142, 45, 0.15) 100%);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Active sliding thumb/bubble that moves down along the rail as user scrolls */
+.ms-quick-jump-thumb {
+    position: absolute;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-left: -10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #E8C98F 0%, #D4AF37 55%, #B88E2D 100%);
+    box-shadow: 0 0 14px rgba(184, 142, 45, 0.75), 0 0 0 3px rgba(184, 142, 45, 0.22);
+    pointer-events: none;
+    z-index: 1;
+    transition: top 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.25s ease;
+    transform: translateY(-50%);
 }
 
 .ms-quick-jump-dot {
-    width: 10px;
-    height: 10px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: rgba(184, 142, 45, 0.30);
-    border: 1px solid transparent;
-    transition: all 0.25s ease;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     position: relative;
+    z-index: 2;
+    text-decoration: none;
+    outline: none;
+    transition: transform 0.25s ease;
 }
 
-.ms-quick-jump-dot:hover {
+.ms-quick-jump-dot .ms-quick-jump-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(184, 142, 45, 0.32);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ms-quick-jump-dot:hover .ms-quick-jump-inner {
     background: #D4AF37;
-    transform: scale(1.3);
+    transform: scale(1.35);
 }
 
-.ms-quick-jump-dot.active {
-    background: #B88E2D;
-    box-shadow: 0 0 10px #B88E2D, 0 0 0 2px rgba(184, 142, 45, 0.3);
-    transform: scale(1.35);
+.ms-quick-jump-dot.active .ms-quick-jump-inner {
+    background: #FFFFFF;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+    transform: scale(1.15);
+}
+
+/* Tooltip on hover */
+.ms-quick-jump-dot::before {
+    content: attr(title);
+    position: absolute;
+    right: calc(100% + 14px);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-family: var(--ms-font-mono, monospace);
+    font-weight: 600;
+    color: var(--ms-text-main, #1C1714);
+    background: #FFFFFF;
+    border: 1px solid rgba(184, 142, 45, 0.30);
+    padding: 0.3rem 0.65rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px -3px rgba(45, 35, 20, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ms-quick-jump-dot:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
 }
 
 /* 5. Stat Counter Cards with Gold Radiance */
@@ -1482,5 +1574,230 @@ select option {
         right: 1.25rem;
         width: 44px;
         height: 44px;
+    }
+}
+
+/* 11. Modern Slim Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #FAF8F5;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(184, 142, 45, 0.28);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(184, 142, 45, 0.5);
+}
+
+/* 12. Micro-Interactions & Accessible Focus States */
+button:active, .ms-btn:active {
+    transform: scale(0.98);
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid #B88E2D !important;
+    outline-offset: 2px !important;
+}
+
+/* 13. Elevated Frosted Admin Topbar */
+.ms-admin-topbar {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(184, 142, 45, 0.18) !important;
+    box-shadow: 0 1px 4px rgba(45, 35, 20, 0.03);
+}
+
+/* 14. Polished Empty & Loading States */
+.ms-empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--ms-text-muted);
+}
+.ms-empty-state-icon {
+    font-size: 2.5rem;
+    color: rgba(184, 142, 45, 0.4);
+    margin-bottom: 0.75rem;
+}
+
+/* Custom Fractional Spacing Utilities (Bootstrap .5 steps) */
+.me-1\.5 { margin-right: 0.375rem !important; }
+.ms-1\.5 { margin-left: 0.375rem !important; }
+.me-2\.5 { margin-right: 0.625rem !important; }
+.ms-2\.5 { margin-left: 0.625rem !important; }
+.mb-2\.5 { margin-bottom: 0.625rem !important; }
+.mt-2\.5 { margin-top: 0.625rem !important; }
+.p-2\.5 { padding: 0.625rem !important; }
+.p-3\.5 { padding: 0.875rem !important; }
+.px-3\.5 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+.px-4\.5 { padding-left: 1.125rem !important; padding-right: 1.125rem !important; }
+.py-3\.5 { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
+.gap-2\.5 { gap: 0.625rem !important; }
+
+/* ==========================================================================
+   15. Three.js Ambient Hero Canvas
+   Decorative only: sits behind the hero, never receives pointer input, and is
+   disabled on small screens / for users who prefer reduced motion.
+   ========================================================================== */
+.sibangku-hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 660px;
+    display: block;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.9;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+}
+
+/* Keep every hero element above the ambient canvas. */
+.sibangku-hero-canvas ~ .container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 767.98px) {
+    .sibangku-hero-canvas {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   16. Icon Precision
+   Every fixed-size icon tile centres its glyph optically, regardless of the
+   icon set's baseline metrics, so icons never look 1px off-centre.
+   ========================================================================== */
+.ms-stat-icon,
+.ms-sidebar-brand-icon,
+.ms-empty-state-icon,
+[class*="rounded-circle"] > .bi,
+[class*="rounded-3"] > .bi,
+[class*="rounded-2"] > .bi {
+    line-height: 1;
+}
+
+[class*="rounded-circle"] > .bi,
+[class*="rounded-3"] > .bi,
+[class*="rounded-2"] > .bi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+}
+
+/* Icons that sit inline with text keep a consistent optical alignment. */
+.ms-btn > .bi,
+.ms-card-title > .bi,
+.ms-badge > .bi,
+.ms-public-nav-link > .bi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   17. Skeleton Loading States
+   Used instead of spinners wherever the final layout is already known.
+   ========================================================================== */
+.ms-skeleton {
+    display: block;
+    border-radius: var(--ms-radius-sm);
+    background: linear-gradient(90deg, #F1EADF 25%, #FAF6EF 37%, #F1EADF 63%);
+    background-size: 400% 100%;
+    animation: msSkeleton 1.4s ease infinite;
+}
+
+.ms-skeleton-text {
+    height: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes msSkeleton {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/* ==========================================================================
+   18. Page & Surface Transitions
+   Short, GPU-friendly (transform/opacity only) and never blocking navigation.
+   ========================================================================== */
+@keyframes msSurfaceIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ms-admin-wrapper,
+.ms-customer-portal {
+    animation: msSurfaceIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ms-alert {
+    animation: msSurfaceIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Keyboard focus for interactive surfaces that are not native controls. */
+.ms-sidebar-item:focus-visible,
+.ms-slot-card:focus-visible,
+.outlet-chip:focus-visible,
+.ms-quick-jump-dot:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--ms-gold) !important;
+    outline-offset: 2px !important;
+}
+
+/* Respect Bootstrap Icons' decorative role by default. */
+.ms-btn .bi[aria-hidden="true"] {
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   19. Reduced Motion
+   Users who ask for reduced motion get the finished layout with decorative
+   animation removed - nothing is hidden and no functionality is lost.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .ambient-float-1,
+    .ambient-float-2,
+    .live-radar-dot,
+    .ms-skeleton,
+    .gold-shimmer-btn::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* The 3D scene is skipped by JavaScript as well; hide it defensively. */
+    .sibangku-hero-canvas {
+        display: none !important;
+    }
+
+    /* Reveal-on-scroll elements start hidden in markup; show them immediately. */
+    .ms-scroll-divider {
+        width: 72px !important;
+    }
+
+    .step-flow-track-progress {
+        width: 100% !important;
     }
 }

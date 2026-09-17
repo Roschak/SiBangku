@@ -1,4 +1,5 @@
 @page "/admin"
+@page "/tenant-admin"
 @layout Layout.PortalLayout
 @rendermode InteractiveServer
 @using System.Net.Http.Headers
@@ -192,7 +193,7 @@ else
                             <i class="bi bi-person"></i>
                         </div>
                         <div class="overflow-hidden">
-                            <div class="text-white small fw-bold text-truncate">@Email</div>
+                            <div class="small fw-bold text-truncate" style="color: var(--ms-text-main);">@Email</div>
                             <div class="font-mono text-truncate" style="font-size: 0.68rem; color: var(--ms-text-dim);">Admin Mitra</div>
                         </div>
                     </div>
@@ -213,7 +214,7 @@ else
             <!-- Topbar -->
             <header class="ms-admin-topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">
+                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">
                         @if (ActiveTab == "overview") { <span>Ringkasan Operasional Restoran</span> }
                         else if (ActiveTab == "reservations") { <span>Daftar Reservasi Meja</span> }
                         else if (ActiveTab == "tables") { <span>Katalog & Denah Meja Interaktif</span> }
@@ -267,6 +268,25 @@ else
                         <button type="button" class="ms-alert-close" @onclick="() => ErrorAlert = null">
                             <i class="bi bi-x"></i>
                         </button>
+                    </div>
+                }
+
+                <!-- Trial-Expired Conditional Alert Banner (Only shown if trial is expired, hidden during active trial) -->
+                @if (ActiveTenant != null && (ActiveTenant.Status == "TRIAL_EXPIRED" || (ActiveTenant.TrialEnd != null && ActiveTenant.TrialEnd.Value < DateTime.UtcNow)))
+                {
+                    <div class="ms-card p-3 mb-4" style="border: 1px solid rgba(220, 38, 38, 0.35); background: rgba(220, 38, 38, 0.04); border-left: 4px solid var(--ms-danger);">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                                <div>
+                                    <strong class="text-danger">Masa Uji Coba (Trial) Outlet Telah Berakhir</strong>
+                                    <div class="small text-muted font-mono" style="font-size: 0.74rem;">
+                                        Masa trial selesai pada @(ActiveTenant.TrialEnd?.ToString("yyyy-MM-dd") ?? "-"). Silakan hubungi Super Admin untuk perpanjangan lisensi.
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="ms-badge ms-badge-danger font-mono"><i class="bi bi-lock-fill me-1"></i> TRIAL EXPIRED</span>
+                        </div>
                     </div>
                 }
 
@@ -342,7 +362,7 @@ else
                                     <div class="col-sm-4">
                                         <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                             <i class="bi bi-people fs-3 text-primary d-block mb-1"></i>
-                                            <div class="font-mono fw-bold fs-5 text-white">@ReservationsList.Where(r => r.Status == "CONFIRMED").Sum(r => r.GuestCount)</div>
+                                            <div class="font-mono fw-bold fs-5" style="color: var(--ms-text-main);">@ReservationsList.Where(r => r.Status == "CONFIRMED").Sum(r => r.GuestCount)</div>
                                             <div class="small text-muted font-mono" style="font-size: 0.72rem;">Estimasi Tamu Hadir</div>
                                         </div>
                                     </div>
@@ -449,13 +469,13 @@ else
                                                     <small class="d-block font-mono" style="font-size: 0.7rem; color: var(--ms-text-dim);">@rsv.Id</small>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-semibold text-white"><i class="bi bi-people me-1 text-primary"></i> @rsv.GuestCount Orang</div>
+                                                    <div class="fw-semibold" style="color: var(--ms-text-main);"><i class="bi bi-people me-1 text-primary"></i> @rsv.GuestCount Orang</div>
                                                     <small class="text-truncate d-block" style="max-width: 200px; color: var(--ms-text-dim);">
                                                         @(string.IsNullOrEmpty(rsv.Notes) ? "Tanpa catatan" : rsv.Notes)
                                                     </small>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-semibold text-white font-mono"><i class="bi bi-calendar3 me-1 text-primary"></i> @rsv.Date.ToString("yyyy-MM-dd")</div>
+                                                    <div class="fw-semibold font-mono" style="color: var(--ms-text-main);"><i class="bi bi-calendar3 me-1 text-primary"></i> @rsv.Date.ToString("yyyy-MM-dd")</div>
                                                     <small class="font-mono" style="color: var(--ms-text-dim);"><i class="bi bi-clock me-1"></i> @rsv.StartTime.ToString(@"hh\:mm") - @rsv.EndTime.ToString(@"hh\:mm") WIB</small>
                                                 </td>
                                                 <td>
@@ -528,7 +548,7 @@ else
                             <div class="ms-card p-3.5 mb-4">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-plus-circle text-primary"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Meja Baru</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem; color: var(--ms-text-main);">Tambah Meja Baru</h6>
                                 </div>
 
                                 <form @onsubmit="HandleAddTable">
@@ -606,9 +626,9 @@ else
                                     <span class="small font-mono text-muted">Klik meja untuk memilih & mengatur posisi</span>
                                 </div>
 
-                                <!-- 2D Floor Plan Container -->
+                                <!-- 2D Floor Plan Container (Architect Warm Luxury Grid) -->
                                 <div class="p-3 position-relative overflow-hidden rounded"
-                                     style="background: #0C0A09; border: 1px dashed rgba(201, 169, 110, 0.35); min-height: 320px; height: 340px;">
+                                     style="background: #F8F5EE; background-image: radial-gradient(rgba(184, 142, 45, 0.28) 1px, transparent 1px); background-size: 24px 24px; border: 1px solid rgba(184, 142, 45, 0.28); min-height: 320px; height: 340px; box-shadow: inset 0 2px 8px rgba(45,35,20,0.04);">
                                     
                                     @if (!TablesList.Any())
                                     {
@@ -625,10 +645,10 @@ else
                                             var leftPx = Math.Max(10, Math.Min(560, tbl.PosX));
                                             var topPx = Math.Max(10, Math.Min(260, tbl.PosY));
 
-                                            <div class="position-absolute p-2 rounded text-center border font-mono @(isSel ? "border-primary bg-primary-subtle text-primary shadow" : "bg-dark text-white")"
-                                                 style="left: @(leftPx)px; top: @(topPx)px; cursor: pointer; transition: transform 0.15s ease; min-width: 80px;"
+                                            <div class="position-absolute p-2 rounded text-center border font-mono @(isSel ? "border-primary shadow" : "")"
+                                                 style="left: @(leftPx)px; top: @(topPx)px; cursor: pointer; transition: all 0.15s ease; min-width: 80px; background: @(isSel ? "#FDF8ED" : "#FFFFFF"); color: @(isSel ? "#8C6819" : "var(--ms-text-main)"); border: @(isSel ? "2px solid #B88E2D !important" : "1px solid rgba(184, 142, 45, 0.35) !important"); box-shadow: 0 4px 12px -2px rgba(45,35,20,0.08);"
                                                  @onclick="() => SelectCanvasTable(tbl)">
-                                                <i class="bi bi-square-fill d-block fs-6" style="color: @(isSel ? "var(--ms-gold)" : "#8F8371");"></i>
+                                                <i class="bi bi-square-fill d-block fs-6" style="color: @(isSel ? "#B88E2D" : "#8A7C6D");"></i>
                                                 <div class="fw-bold" style="font-size: 0.78rem;">@tbl.TableNumber</div>
                                                 <div style="font-size: 0.68rem; color: var(--ms-text-dim);">@tbl.Capacity Kursi</div>
                                             </div>
@@ -675,7 +695,7 @@ else
                                                 {
                                                     <tr>
                                                         <td>
-                                                            <strong class="text-white font-mono">@tbl.TableNumber</strong>
+                                                            <strong class="font-mono" style="color: var(--ms-text-main);">@tbl.TableNumber</strong>
                                                             <small class="d-block font-mono" style="font-size: 0.7rem; color: var(--ms-text-dim);">@tbl.TableId</small>
                                                         </td>
                                                         <td>
@@ -723,7 +743,7 @@ else
                             <div class="ms-card p-3.5 mb-4">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-plus-circle text-primary"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Item Menu Baru</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem; color: var(--ms-text-main);">Tambah Item Menu Baru</h6>
                                 </div>
 
                                 <form @onsubmit="HandleAddMenuItem">
@@ -765,7 +785,7 @@ else
 
                             <!-- Bulk Operations Box -->
                             <div class="ms-card p-3.5">
-                                <h6 class="fw-bold text-white mb-2" style="font-size: 0.88rem;">Operasi Massal (CSV)</h6>
+                                <h6 class="fw-bold mb-2" style="font-size: 0.88rem; color: var(--ms-text-main);">Operasi Massal (CSV)</h6>
                                 <p class="small text-muted mb-3" style="font-size: 0.76rem;">
                                     Gunakan format CSV standar untuk ekspor cadangan menu atau impor massal ke katalog restoran Anda.
                                 </p>
@@ -839,7 +859,7 @@ else
                                                 {
                                                     <tr>
                                                         <td>
-                                                            <strong class="text-white">@item.Name</strong>
+                                                            <strong style="color: var(--ms-text-main);">@item.Name</strong>
                                                             <span class="ms-badge ms-badge-neutral ms-1 font-mono" style="font-size: 0.65rem;">@item.Category</span>
                                                             <div class="small text-muted text-truncate" style="max-width: 250px; font-size: 0.74rem;">@item.Description</div>
                                                         </td>
@@ -888,7 +908,7 @@ else
                             <div class="ms-card p-4">
                                 <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-palette text-primary fs-5"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Branding Customization (Warna & Aset)</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">Branding Customization (Warna & Aset)</h6>
                                 </div>
 
                                 <form @onsubmit="SaveSettings">
@@ -933,7 +953,7 @@ else
                                         </div>
                                     </div>
 
-                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                    <h6 class="fw-bold mb-3" style="font-size: 0.85rem; color: var(--ms-text-main);">
                                         <i class="bi bi-image text-primary me-1"></i> Aset Visual (Logo, Favicon, Banner):
                                     </h6>
 
@@ -993,13 +1013,13 @@ else
                     <div class="ms-card p-4">
                         <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                             <i class="bi bi-clock-history text-primary fs-5"></i>
-                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Jam Operasional & Konfigurasi Slot</h6>
+                            <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">Jam Operasional & Konfigurasi Slot</h6>
                         </div>
 
                         <form @onsubmit="SaveSettings">
                             <div class="row g-4">
                                 <div class="col-lg-6">
-                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                    <h6 class="fw-bold mb-3" style="font-size: 0.85rem; color: var(--ms-text-main);">
                                         <i class="bi bi-calendar-week text-primary me-1"></i> Hari & Jam Buka Restoran:
                                     </h6>
 
@@ -1027,7 +1047,7 @@ else
                                 </div>
 
                                 <div class="col-lg-6">
-                                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.85rem;">
+                                    <h6 class="fw-bold mb-3" style="font-size: 0.85rem; color: var(--ms-text-main);">
                                         <i class="bi bi-hourglass-split text-primary me-1"></i> Durasi & Kapasitas Tamu:
                                     </h6>
 
@@ -1075,7 +1095,7 @@ else
                             <div class="ms-card p-3.5">
                                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                                     <i class="bi bi-person-plus text-primary"></i>
-                                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">Tambah Akun Staff Baru</h6>
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem; color: var(--ms-text-main);">Tambah Akun Staff Baru</h6>
                                 </div>
 
                                 <form @onsubmit="HandleAddStaff">
@@ -1124,7 +1144,7 @@ else
                                             {
                                                 <tr>
                                                     <td>
-                                                        <strong class="text-white">@staff.Name</strong>
+                                                        <strong style="color: var(--ms-text-main);">@staff.Name</strong>
                                                         <small class="d-block text-muted font-mono" style="font-size: 0.72rem;">@staff.Email</small>
                                                     </td>
                                                     <td>
@@ -1158,7 +1178,7 @@ else
                     <div class="ms-card p-4">
                         <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                             <i class="bi bi-credit-card text-primary fs-5"></i>
-                            <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Pengaturan Metode Pembayaran & QRIS</h6>
+                            <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: var(--ms-text-main);">Pengaturan Metode Pembayaran & QRIS</h6>
                         </div>
 
                         <div class="row g-4">
@@ -1166,7 +1186,7 @@ else
                             <div class="col-md-6">
                                 <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="fw-bold text-white"><i class="bi bi-qr-code me-1 text-primary"></i> QRIS (Indonesian Standard)</span>
+                                        <span class="fw-bold" style="color: var(--ms-text-main);"><i class="bi bi-qr-code me-1 text-primary"></i> QRIS (Indonesian Standard)</span>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" checked />
                                         </div>
@@ -1183,7 +1203,7 @@ else
                             <div class="col-md-6">
                                 <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="fw-bold text-white"><i class="bi bi-bank me-1 text-primary"></i> Transfer Bank Manual</span>
+                                        <span class="fw-bold" style="color: var(--ms-text-main);"><i class="bi bi-bank me-1 text-primary"></i> Transfer Bank Manual</span>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" checked />
                                         </div>
@@ -1209,7 +1229,7 @@ else
                             <div class="col-md-6">
                                 <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="fw-bold text-white"><i class="bi bi-whatsapp me-1 text-success"></i> Konfirmasi Pembayaran WhatsApp</span>
+                                        <span class="fw-bold" style="color: var(--ms-text-main);"><i class="bi bi-whatsapp me-1 text-success"></i> Konfirmasi Pembayaran WhatsApp</span>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" checked />
                                         </div>
@@ -1224,7 +1244,7 @@ else
                             <div class="col-md-6">
                                 <div class="p-3 rounded border h-100" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="fw-bold text-white"><i class="bi bi-wallet2 me-1 text-warning"></i> Bayar di Tempat (Cash on Arrival)</span>
+                                        <span class="fw-bold" style="color: var(--ms-text-main);"><i class="bi bi-wallet2 me-1 text-warning"></i> Bayar di Tempat (Cash on Arrival)</span>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" checked />
                                         </div>
@@ -1253,7 +1273,7 @@ else
                         <div class="d-flex align-items-center justify-content-between mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-graph-up text-primary fs-5"></i>
-                                <h6 class="fw-bold text-white mb-0">Laporan & Analitik Okupansi Meja</h6>
+                                <h6 class="fw-bold mb-0" style="color: var(--ms-text-main);">Laporan & Analitik Okupansi Meja</h6>
                             </div>
                             <div class="d-flex gap-2">
                                 <button class="ms-btn ms-btn-secondary ms-btn-sm" @onclick='() => SuccessAlert = "Laporan berhasil diekspor ke CSV."'>
@@ -1292,7 +1312,7 @@ else
                             <div class="col-md-3">
                                 <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                                     <span class="small font-mono text-muted">Rata-rata Tamu per Meja</span>
-                                    <div class="fs-4 fw-bold font-mono text-white my-1">3.4 Orang</div>
+                                    <div class="fs-4 fw-bold font-mono my-1" style="color: var(--ms-text-main);">3.4 Orang</div>
                                     <span class="small text-muted font-mono" style="font-size: 0.68rem;">Efisiensi kursi optimal</span>
                                 </div>
                             </div>
@@ -1309,7 +1329,7 @@ else
                         <div class="d-flex align-items-center justify-content-between mb-4 pb-2" style="border-bottom: 1px solid var(--ms-border);">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-phone text-primary fs-5"></i>
-                                <h6 class="fw-bold text-white mb-0">Status Sinkronisasi Otomatis APK Android</h6>
+                                <h6 class="fw-bold mb-0" style="color: var(--ms-text-main);">Status Sinkronisasi Otomatis APK Android</h6>
                             </div>
                             <span class="badge bg-success-subtle text-success font-mono">
                                 <i class="bi bi-check-circle-fill me-1"></i> Auto-Sync Engine Active
@@ -1384,7 +1404,7 @@ else
                     <div class="ms-card p-4">
                         <div class="text-center mb-4">
                             <span class="ms-badge ms-badge-primary mb-2">Hospitality Standee Kit</span>
-                            <h5 class="fw-bold text-white mb-1">Poster QR Code Reservasi Mandiri</h5>
+                            <h5 class="fw-bold mb-1" style="color: var(--ms-text-main);">Poster QR Code Reservasi Mandiri</h5>
                             <p class="small" style="color: var(--ms-text-dim); max-width: 520px; margin: 0 auto;">
                                 Cetak poster ini untuk akrilik meja atau banner resepsionis. Tamu dapat langsung memindai kamera HP untuk memesan meja secara mandiri.
                             </p>

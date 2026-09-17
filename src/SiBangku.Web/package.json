@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "animejs": "^4.5.0",
-    "html5-qrcode": "^2.3.8"
+    "html5-qrcode": "^2.3.8",
+    "three": "^0.186.0"
   }
 }

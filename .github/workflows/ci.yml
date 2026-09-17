@@ -1,0 +1,326 @@
+name: SiBangku CI
+
+# Continuous integration for the whole platform:
+#   1. compiles every .NET project and runs the test suite - including the
+#      end-to-end suite against a real PostgreSQL 15 server,
+#   2. compiles one installable debug APK for every tenant workspace that owns a
+#      project under tenants/<KODE>/android and publishes it as an artifact,
+#   3. compiles the APK of a freshly generated tenant workspace, so the
+#      generator can never silently emit an unbuildable project again.
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_VERSION: '8.7'
+  ANDROID_COMPILE_SDK: '34'
+  ANDROID_BUILD_TOOLS: '34.0.0'
+
+jobs:
+  dotnet:
+    name: Build & test (.NET + PostgreSQL)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: sibangku
+          POSTGRES_PASSWORD: sibangku_dev
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sibangku -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # The end-to-end suite creates and drops its own databases on this server.
+      # Without this variable those tests are reported as skipped, not failed.
+      SIBANGKU_TEST_POSTGRES: "Host=localhost;Port=5432;Database=postgres;Username=sibangku;Password=sibangku_dev"
+      JWT_SECRET: "ci-only-jwt-signing-secret-0123456789abcdef"
+      MASTER_API_KEY: "ci-only-master-api-key-0123456789abcdef"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # A .NET 9 SDK is required by global.json; the .NET 10 SDK is what supports
+      # the .slnx solution format used by this repository.
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore SiBangku.slnx
+
+      - name: Build
+        run: dotnet build SiBangku.slnx --no-restore --configuration Release
+
+      - name: Test (unit + integration + PostgreSQL end-to-end)
+        run: >
+          dotnet test SiBangku.slnx
+          --no-build
+          --configuration Release
+          --logger "console;verbosity=normal"
+          --results-directory ./TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+  nuget-audit:
+    name: NuGet vulnerability audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      # NuGetAuditMode=all extends the built-in audit to transitive packages.
+      # Low severity advisories (NU1901) stay warnings; moderate, high and
+      # critical (NU1902-NU1904) fail the build. Warnings are only raised during
+      # restore, so the gate must be applied to `dotnet restore`.
+      - name: Restore with the vulnerability gate
+        run: dotnet restore SiBangku.slnx -p:NuGetAuditMode=all -warnaserror:NU1902,NU1903,NU1904
+
+      - name: Audit report (direct + transitive)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          dotnet list SiBangku.slnx package --vulnerable --include-transitive \
+            | tee /tmp/nuget-audit.txt
+
+          {
+            echo "### NuGet vulnerability audit"
+            echo '```'
+            cat /tmp/nuget-audit.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # `dotnet list package --vulnerable` always exits 0, so the report
+          # itself is the signal. This catches every severity, including the low
+          # ones the restore gate deliberately tolerates.
+          if grep -q 'has the following vulnerable packages' /tmp/nuget-audit.txt; then
+            echo "::error::Paket NuGet rentan terdeteksi. Perbarui dependensi sebelum merge."
+            exit 1
+          fi
+
+          echo "Tidak ada paket rentan yang dilaporkan."
+
+  format-check:
+    name: Code format check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      # .editorconfig pins end_of_line=lf so this verdict is identical on Linux,
+      # Windows and macOS instead of following the developer's OS newline.
+      - name: Verify formatting
+        run: |
+          if ! dotnet format SiBangku.slnx --verify-no-changes --verbosity minimal; then
+            echo "::error::Format kode tidak sesuai .editorconfig. Jalankan 'dotnet format SiBangku.slnx' secara lokal lalu commit hasilnya."
+            exit 1
+          fi
+
+          echo "Seluruh berkas sesuai .editorconfig."
+
+  discover-tenants:
+    name: Discover tenant Android projects
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.scan.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan tenants/<KODE>/android
+        id: scan
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tenants="$(find tenants -mindepth 2 -maxdepth 2 -type d -name android -printf '%h\n' 2>/dev/null \
+            | xargs -r -n1 basename \
+            | sort -u || true)"
+
+          if [ -z "$tenants" ]; then
+            echo "Tidak ada workspace tenant dengan proyek Android."
+            echo 'matrix=[]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Workspace tenant yang akan dikompilasi:"
+          echo "$tenants"
+
+          matrix="$(printf '%s\n' "$tenants" | jq -R -s -c 'split("\n") | map(select(length > 0))')"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "matrix=$matrix" >> "$GITHUB_STEP_SUMMARY"
+
+  android-apk:
+    name: APK - ${{ matrix.tenant }}
+    needs: discover-tenants
+    if: needs.discover-tenants.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tenant: ${{ fromJSON(needs.discover-tenants.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: >-
+            platform-tools
+            platforms;android-${{ env.ANDROID_COMPILE_SDK }}
+            build-tools;${{ env.ANDROID_BUILD_TOOLS }}
+
+      # The tenant workspaces intentionally ship without a Gradle wrapper, so the
+      # pipeline provides Gradle itself (no committed binary required).
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Compile APK
+        working-directory: tenants/${{ matrix.tenant }}/android
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Assert the APK is an installable package
+        working-directory: tenants/${{ matrix.tenant }}/android
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apk="$(find app/build/outputs/apk/debug -name '*.apk' -type f | head -1)"
+          test -n "$apk" || { echo "APK tidak dihasilkan"; exit 1; }
+
+          unzip -l "$apk" > /tmp/apk-contents.txt
+          # A package without dex/arsc data is not installable - the exact failure
+          # mode of the previously committed artifact.
+          grep -q 'classes.dex' /tmp/apk-contents.txt
+          grep -q 'resources.arsc' /tmp/apk-contents.txt
+          grep -q 'AndroidManifest.xml' /tmp/apk-contents.txt
+
+          ls -lh "$apk"
+          {
+            echo "### APK ${{ matrix.tenant }}"
+            echo '```'
+            grep -E 'classes.dex|resources.arsc|AndroidManifest.xml' /tmp/apk-contents.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sibangku-${{ matrix.tenant }}-apk
+          path: tenants/${{ matrix.tenant }}/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  android-generated-workspace:
+    name: APK - freshly generated workspace
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: >-
+            platform-tools
+            platforms;android-${{ env.ANDROID_COMPILE_SDK }}
+            build-tools;${{ env.ANDROID_BUILD_TOOLS }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      # Guards scripts/generate-tenant-workspace.ps1: the workspace it produces
+      # for a new outlet must compile as-is.
+      - name: Generate a tenant workspace
+        shell: pwsh
+        run: ./scripts/generate-tenant-workspace.ps1 -TenantCode CI-SMOKE -RestaurantName "CI Smoke Cafe"
+
+      - name: Compile APK
+        working-directory: tenants/CI-SMOKE/android
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Assert the APK is an installable package
+        working-directory: tenants/CI-SMOKE/android
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apk="$(find app/build/outputs/apk/debug -name '*.apk' -type f | head -1)"
+          test -n "$apk" || { echo "APK tidak dihasilkan"; exit 1; }
+
+          unzip -l "$apk" > /tmp/apk-contents.txt
+          grep -q 'classes.dex' /tmp/apk-contents.txt
+          grep -q 'resources.arsc' /tmp/apk-contents.txt
+
+          ls -lh "$apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sibangku-generated-CI-SMOKE-apk
+          path: tenants/CI-SMOKE/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7

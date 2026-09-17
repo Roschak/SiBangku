@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SiBangku.Web.Services;
+
+public record LanguageInfo(string Code, string NativeName, string EnglishName, string Region, bool IsRtl = false);
 
 public class LanguageService
 {
@@ -12,9 +15,141 @@ public class LanguageService
 
     public event Action? OnLanguageChanged;
 
+    private static readonly List<LanguageInfo> _languages = new()
+    {
+        // Southeast Asia
+        new("id", "Indonesia", "Indonesian", "Southeast Asia"),
+        new("ms", "Bahasa Melayu", "Malay", "Southeast Asia"),
+        new("fil", "Filipino", "Filipino", "Southeast Asia"),
+        new("tl", "Tagalog", "Tagalog", "Southeast Asia"),
+        new("vi", "Tiếng Việt", "Vietnamese", "Southeast Asia"),
+        new("th", "ไทย", "Thai", "Southeast Asia"),
+        new("my", "မြန်မာ", "Burmese", "Southeast Asia"),
+        new("km", "ភាសាខ្មែរ", "Khmer", "Southeast Asia"),
+        new("lo", "ລາວ", "Lao", "Southeast Asia"),
+        new("jv", "Basa Jawa", "Javanese", "Southeast Asia"),
+        new("su", "Basa Sunda", "Sundanese", "Southeast Asia"),
+
+        // East Asia
+        new("zh", "中文", "Chinese (Simplified)", "East Asia"),
+        new("zh-TW", "繁體中文", "Chinese (Traditional)", "East Asia"),
+        new("ja", "日本語", "Japanese", "East Asia"),
+        new("ko", "한국어", "Korean", "East Asia"),
+        new("mn", "Монгол", "Mongolian", "East Asia"),
+
+        // South Asia
+        new("hi", "हिन्दी", "Hindi", "South Asia"),
+        new("bn", "বাংলা", "Bengali", "South Asia"),
+        new("ta", "தமிழ்", "Tamil", "South Asia"),
+        new("te", "తెలుగు", "Telugu", "South Asia"),
+        new("mr", "मराठी", "Marathi", "South Asia"),
+        new("gu", "ગુજરાતી", "Gujarati", "South Asia"),
+        new("kn", "ಕನ್ನಡ", "Kannada", "South Asia"),
+        new("ml", "മലയാളം", "Malayalam", "South Asia"),
+        new("pa", "ਪੰਜਾਬੀ", "Punjabi", "South Asia"),
+        new("or", "ଓଡ଼ିଆ", "Odia", "South Asia"),
+        new("si", "සිංහල", "Sinhala", "South Asia"),
+        new("ne", "नेपाली", "Nepali", "South Asia"),
+        new("ur", "اردو", "Urdu", "South Asia", IsRtl: true),
+
+        // Middle East
+        new("ar", "العربية", "Arabic", "Middle East", IsRtl: true),
+        new("fa", "فارسی", "Persian", "Middle East", IsRtl: true),
+        new("he", "עברית", "Hebrew", "Middle East", IsRtl: true),
+        new("ku", "Kurdî", "Kurdish", "Middle East"),
+        new("tr", "Türkçe", "Turkish", "Middle East"),
+
+        // Central Asia
+        new("kk", "Қазақ", "Kazakh", "Central Asia"),
+        new("ky", "Кыргызча", "Kyrgyz", "Central Asia"),
+        new("uz", "Oʻzbek", "Uzbek", "Central Asia"),
+        new("tk", "Türkmen", "Turkmen", "Central Asia"),
+        new("tg", "Тоҷикӣ", "Tajik", "Central Asia"),
+
+        // Europe (Western)
+        new("en", "English", "English", "Europe"),
+        new("fr", "Français", "French", "Europe"),
+        new("de", "Deutsch", "German", "Europe"),
+        new("es", "Español", "Spanish", "Europe"),
+        new("pt", "Português", "Portuguese", "Europe"),
+        new("it", "Italiano", "Italian", "Europe"),
+        new("nl", "Nederlands", "Dutch", "Europe"),
+        new("da", "Dansk", "Danish", "Europe"),
+        new("sv", "Svenska", "Swedish", "Europe"),
+        new("no", "Norsk", "Norwegian", "Europe"),
+        new("fi", "Suomi", "Finnish", "Europe"),
+        new("is", "Íslenska", "Icelandic", "Europe"),
+        new("ca", "Català", "Catalan", "Europe"),
+        new("eu", "Euskara", "Basque", "Europe"),
+        new("gl", "Galego", "Galician", "Europe"),
+        new("cy", "Cymraeg", "Welsh", "Europe"),
+        new("ga", "Gaeilge", "Irish", "Europe"),
+        new("mt", "Malti", "Maltese", "Europe"),
+
+        // Europe (Eastern)
+        new("pl", "Polski", "Polish", "Europe"),
+        new("cs", "Čeština", "Czech", "Europe"),
+        new("sk", "Slovenčina", "Slovak", "Europe"),
+        new("hu", "Magyar", "Hungarian", "Europe"),
+        new("ro", "Română", "Romanian", "Europe"),
+        new("bg", "Български", "Bulgarian", "Europe"),
+        new("hr", "Hrvatski", "Croatian", "Europe"),
+        new("sr", "Српски", "Serbian", "Europe"),
+        new("bs", "Bosanski", "Bosnian", "Europe"),
+        new("sl", "Slovenščina", "Slovenian", "Europe"),
+        new("mk", "Македонски", "Macedonian", "Europe"),
+        new("sq", "Shqip", "Albanian", "Europe"),
+        new("el", "Ελληνικά", "Greek", "Europe"),
+        new("et", "Eesti", "Estonian", "Europe"),
+        new("lt", "Lietuvių", "Lithuanian", "Europe"),
+        new("lv", "Latviešu", "Latvian", "Europe"),
+        new("uk", "Українська", "Ukrainian", "Europe"),
+        new("be", "Беларуская", "Belarusian", "Europe"),
+        new("ru", "Русский", "Russian", "Europe"),
+        new("hy", "Հայերեն", "Armenian", "Europe"),
+        new("ka", "ქართული", "Georgian", "Europe"),
+        new("az", "Azərbaycan", "Azerbaijani", "Europe"),
+
+        // Africa
+        new("sw", "Kiswahili", "Swahili", "Africa"),
+        new("am", "አማርኛ", "Amharic", "Africa"),
+        new("ha", "Hausa", "Hausa", "Africa"),
+        new("yo", "Yorùbá", "Yoruba", "Africa"),
+        new("af", "Afrikaans", "Afrikaans", "Africa"),
+        new("zu", "isiZulu", "Zulu", "Africa"),
+        new("xh", "isiXhosa", "Xhosa", "Africa"),
+        new("sn", "Shona", "Shona", "Africa"),
+        new("st", "Sesotho", "Sesotho", "Africa"),
+        new("ny", "Chichewa", "Chichewa", "Africa"),
+        new("rw", "Kinyarwanda", "Kinyarwanda", "Africa"),
+        new("so", "Soomaali", "Somali", "Africa"),
+        new("ti", "ትግርኛ", "Tigrinya", "Africa"),
+        new("sd", "سنڌي", "Sindhi", "Africa", IsRtl: true),
+    };
+
+    private static readonly HashSet<string> _supportedCodes =
+        new(_languages.Select(l => l.Code), StringComparer.OrdinalIgnoreCase);
+
+    public static IReadOnlyList<LanguageInfo> AvailableLanguages => _languages;
+
+    public static IReadOnlyList<LanguageInfo> SearchLanguages(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return _languages;
+
+        var q = query.Trim();
+        return _languages
+            .Where(l =>
+                l.Code.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                l.NativeName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                l.EnglishName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                l.Region.Contains(q, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
     public void SetLanguage(string lang)
     {
-        if (lang != Indonesian && lang != English)
+        if (string.IsNullOrWhiteSpace(lang) || !_supportedCodes.Contains(lang))
             lang = Indonesian;
 
         if (CurrentLanguage != lang)
@@ -33,15 +168,19 @@ public class LanguageService
 
     public string Get(string key, string? fallback = null)
     {
+        // Try current language dictionary
         if (Translations.TryGetValue(CurrentLanguage, out var langDict) && langDict.TryGetValue(key, out var val))
-        {
             return val;
-        }
 
-        if (Translations[Indonesian].TryGetValue(key, out var idVal))
-        {
+        // Fallback to English
+        if (CurrentLanguage != English &&
+            Translations.TryGetValue(English, out var enDict) && enDict.TryGetValue(key, out var enVal))
+            return enVal;
+
+        // Fallback to Indonesian
+        if (CurrentLanguage != Indonesian &&
+            Translations.TryGetValue(Indonesian, out var idDict) && idDict.TryGetValue(key, out var idVal))
             return idVal;
-        }
 
         return fallback ?? key;
     }
@@ -81,7 +220,7 @@ public class LanguageService
             ["Hero_Stat_Uptime"] = "99.9% Keandalan",
             ["Hero_Stat_Uptime_Sub"] = "Kesiapan operasional di jam tersibuk",
 
-            // Product Explanation ("Apa Itu SiBangku")
+            // Product Explanation
             ["Product_Badge"] = "MENGENAL SIBANGKU",
             ["Product_Title"] = "Platform All-in-One untuk Tamu & Pengelola Restoran",
             ["Product_Subtitle"] = "SiBangku dirancang untuk mengatasi masalah antrean panjang, ketidakpastian meja, dan kehilangan omzet akibat reservasi yang terbengkalai.",
@@ -205,6 +344,16 @@ public class LanguageService
             ["Scanner_Close_Btn"] = "Tutup Pemindai",
             ["Scanner_Success"] = "QR Berhasil Dideteksi! Mengalihkan ke outlet...",
             ["Scanner_Permission_Denied"] = "Izin kamera ditolak atau perangkat kamera tidak ditemukan. Silakan izinkan akses kamera di browser Anda atau gunakan upload gambar.",
+
+            // Language Selector
+            ["Lang_Modal_Title"] = "Pilih Bahasa",
+            ["Lang_Modal_Subtitle"] = "Pilih bahasa tampilan yang Anda inginkan",
+            ["Lang_Search_Placeholder"] = "Cari bahasa... (mis. Japanese, العربية, Français)",
+            ["Lang_Available"] = "bahasa tersedia",
+            ["Lang_Showing"] = "Menampilkan",
+            ["Lang_Results"] = "hasil",
+            ["Lang_No_Results"] = "Tidak ada bahasa yang cocok dengan pencarian Anda.",
+            ["Lang_Current"] = "Aktif",
         },
         [English] = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -239,7 +388,7 @@ public class LanguageService
             ["Hero_Stat_Uptime"] = "99.9% Cloud Uptime",
             ["Hero_Stat_Uptime_Sub"] = "High availability during rush hours",
 
-            // Product Explanation ("Apa Itu SiBangku")
+            // Product Explanation
             ["Product_Badge"] = "ABOUT SIBANGKU",
             ["Product_Title"] = "All-in-One Hospitality Engine for Diners & Restaurateurs",
             ["Product_Subtitle"] = "SiBangku is engineered to eliminate endless queues, seating guesswork, and lost revenue caused by unmanaged reservations.",
@@ -363,6 +512,16 @@ public class LanguageService
             ["Scanner_Close_Btn"] = "Close Scanner",
             ["Scanner_Success"] = "QR Detected! Redirecting to outlet...",
             ["Scanner_Permission_Denied"] = "Camera permission denied or camera device not found. Please grant camera permission in your browser or upload an image.",
+
+            // Language Selector
+            ["Lang_Modal_Title"] = "Select Language",
+            ["Lang_Modal_Subtitle"] = "Choose your preferred display language",
+            ["Lang_Search_Placeholder"] = "Search language... (e.g. Japanese, العربية, Français)",
+            ["Lang_Available"] = "languages available",
+            ["Lang_Showing"] = "Showing",
+            ["Lang_Results"] = "results",
+            ["Lang_No_Results"] = "No languages match your search.",
+            ["Lang_Current"] = "Active",
         }
     };
 }
