@@ -33,6 +33,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./tenants:/app/tenants
     restart: unless-stopped
 
   tenant-api:
@@ -77,6 +79,8 @@ services:
     depends_on:
       - control-api
       - tenant-api
+    volumes:
+      - ./tenants:/app/tenants
     restart: unless-stopped
 
 volumes:

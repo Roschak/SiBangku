@@ -106,6 +106,8 @@ namespace SiBangku.TenantApi.Middleware
             else
             {
                 var controlBuilder = new NpgsqlConnectionStringBuilder(_controlDbConnectionString);
+                await EnsurePhysicalDatabaseExistsAsync(controlBuilder, tenant.DatabaseIdentifier);
+
                 var tenantBuilder = new NpgsqlConnectionStringBuilder
                 {
                     Host = controlBuilder.Host,
@@ -134,6 +136,41 @@ namespace SiBangku.TenantApi.Middleware
                 {
                     await tenantContext.DbContext.DisposeAsync();
                 }
+            }
+        }
+
+        private static async Task EnsurePhysicalDatabaseExistsAsync(NpgsqlConnectionStringBuilder controlBuilder, string dbName)
+        {
+            try
+            {
+                var maintenanceDb = !string.IsNullOrWhiteSpace(controlBuilder.Database) ? controlBuilder.Database : "postgres";
+                var sysConnBuilder = new NpgsqlConnectionStringBuilder
+                {
+                    Host = controlBuilder.Host,
+                    Port = controlBuilder.Port,
+                    Username = controlBuilder.Username,
+                    Password = controlBuilder.Password,
+                    Database = maintenanceDb
+                };
+
+                await using var conn = new NpgsqlConnection(sysConnBuilder.ConnectionString);
+                await conn.OpenAsync();
+
+                var checkQuery = "SELECT 1 FROM pg_database WHERE datname = @dbName";
+                await using var checkCmd = new NpgsqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("dbName", dbName);
+                var exists = await checkCmd.ExecuteScalarAsync();
+
+                if (exists == null)
+                {
+                    var createQuery = $"CREATE DATABASE \"{dbName}\"";
+                    await using var createCmd = new NpgsqlCommand(createQuery, conn);
+                    await createCmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch
+            {
+                // Safe ignore if database already exists or in case of concurrent initialization
             }
         }
     }

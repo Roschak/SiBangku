@@ -53,16 +53,16 @@
                         <i class="bi bi-house"></i> @Lang["Nav_Home"]
                     </NavLink>
                     <a class="ms-public-nav-link" href="#simulasi">
-                        <i class="bi bi-grid-1x2"></i> Denah Meja
+                        <i class="bi bi-grid-1x2"></i> @Lang.Get("Nav_Floorplan", "Denah Meja")
                     </a>
                     <a class="ms-public-nav-link" href="#keunggulan">
-                        <i class="bi bi-gem"></i> Keunggulan
+                        <i class="bi bi-gem"></i> @Lang.Get("Nav_Features", "Keunggulan")
                     </a>
                     <a class="ms-public-nav-link" href="#alur">
-                        <i class="bi bi-signpost-split"></i> 3 Langkah
+                        <i class="bi bi-signpost-split"></i> @Lang.Get("Nav_HowItWorks", "3 Langkah")
                     </a>
                     <a class="ms-public-nav-link" href="#teknologi">
-                        <i class="bi bi-cpu"></i> Arsitektur
+                        <i class="bi bi-cpu"></i> @Lang.Get("Nav_Tech", "Arsitektur")
                     </a>
                     <NavLink class="ms-public-nav-link" href="booking">
                         <i class="bi bi-calendar2-check"></i> @Lang["Nav_Booking"]
@@ -104,18 +104,16 @@
                         <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku" style="height: 36px; width: auto;" />
                     </div>
                     <p class="small mb-0" style="color: var(--ms-text-muted); max-width: 480px; line-height: 1.7;">
-                        @(Lang.CurrentLanguage == LanguageService.English
-                            ? "Enterprise multi-tenant table reservation, interactive floorplan visualization, and high-density restaurant operations platform."
-                            : "Platform reservasi meja restoran multi-tenant modern dengan visualisasi denah meja akurat, pencegahan bentrok waktu, dan operasional kuliner efisien.")
+                        @Lang["Footer_Description"]
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small mb-2.5">
                         <a href="/" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang["Nav_Home"]</a>
                         <span style="color: rgba(184, 142, 45, 0.35);">•</span>
-                        <a href="#simulasi" class="text-decoration-none" style="color: var(--ms-text-muted);">Denah Meja</a>
+                        <a href="#simulasi" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang.Get("Nav_Floorplan", "Denah Meja")</a>
                         <span style="color: rgba(184, 142, 45, 0.35);">•</span>
-                        <a href="#alur" class="text-decoration-none" style="color: var(--ms-text-muted);">Alur Pemesanan</a>
+                        <a href="#alur" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang.Get("Nav_HowItWorks", "Alur Pemesanan")</a>
                         <span style="color: rgba(184, 142, 45, 0.35);">•</span>
                         <a href="/booking" class="text-decoration-none" style="color: var(--ms-text-muted);">@Lang["Nav_Booking"]</a>
                     </div>

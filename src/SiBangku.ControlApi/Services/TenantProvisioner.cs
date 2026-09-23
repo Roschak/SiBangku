@@ -83,20 +83,32 @@ namespace SiBangku.ControlApi.Services
             var controlUser = controlBuilder.Username;
             var controlPassword = controlBuilder.Password;
 
-            // Connect to postgres default DB to run CREATE DATABASE
+            // Connect to maintenance DB (control DB first, fallback to postgres) to run CREATE DATABASE
+            var maintenanceDb = !string.IsNullOrWhiteSpace(controlBuilder.Database) ? controlBuilder.Database : "postgres";
             var systemBuilder = new NpgsqlConnectionStringBuilder
             {
                 Host = controlHost,
                 Port = controlPort,
                 Username = controlUser,
                 Password = controlPassword,
-                Database = "postgres"
+                Database = maintenanceDb
             };
 
-            await using (var conn = new NpgsqlConnection(systemBuilder.ConnectionString))
+            NpgsqlConnection? conn = null;
+            try
             {
+                conn = new NpgsqlConnection(systemBuilder.ConnectionString);
                 await conn.OpenAsync();
+            }
+            catch
+            {
+                systemBuilder.Database = "postgres";
+                conn = new NpgsqlConnection(systemBuilder.ConnectionString);
+                await conn.OpenAsync();
+            }
 
+            await using (conn)
+            {
                 // Check if database exists
                 var checkQuery = "SELECT 1 FROM pg_database WHERE datname = @dbName";
                 await using (var checkCmd = new NpgsqlCommand(checkQuery, conn))
@@ -106,18 +118,11 @@ namespace SiBangku.ControlApi.Services
 
                     if (exists == null)
                     {
-                        // provisioning step
-                        // dbName is sanitized to a-z0-9_ so raw formatting is safe
-                        var createQuery = $"CREATE DATABASE {dbName}";
+                        var createQuery = $"CREATE DATABASE \"{dbName}\"";
                         await using (var createCmd = new NpgsqlCommand(createQuery, conn))
                         {
                             await createCmd.ExecuteNonQueryAsync();
                         }
-                        // provisioning step
-                    }
-                    else
-                    {
-                        // provisioning step
                     }
                 }
             }
@@ -219,6 +224,14 @@ namespace SiBangku.ControlApi.Services
 
             await _controlContext.AuditLogs.AddAsync(audit);
             await _controlContext.SaveChangesAsync();
+
+            // Automatically scaffold tenant workspace files (desktop bat, web launcher, android project, config)
+            TenantWorkspaceScaffolder.ScaffoldWorkspace(
+                tenantCode,
+                paramsDto.RestaurantName,
+                tenantId,
+                paramsDto.TenantName,
+                dbName);
 
             return new ProvisionResult
             {

@@ -52,7 +52,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-shop ms-input-icon"></i>
                                     <input type="text" class="ms-form-control has-icon-left font-mono fw-bold text-uppercase @(HasAttemptedLogin && string.IsNullOrWhiteSpace(TenantCode) ? "is-invalid" : "")" 
-                                           id="tenantCode" name="tenantCode" autocomplete="organization" @bind="TenantCode" placeholder="KODE RESTORAN (e.g. GRAND-BISTRO)" />
+                                           id="tenantCode" name="tenantCode" autocomplete="organization" @bind="TenantCode" @bind:event="oninput" placeholder="KODE RESTORAN (e.g. GRAND-BISTRO)" />
                                 </div>
                             </div>
 
@@ -63,7 +63,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-person ms-input-icon"></i>
                                     <input type="email" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
-                                           id="loginEmail" name="username" autocomplete="username" @bind="Email" placeholder="admin@outlet.com" />
+                                           id="loginEmail" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="admin@outlet.com" />
                                 </div>
                             </div>
 
@@ -74,7 +74,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-lock ms-input-icon"></i>
                                     <input type="password" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
-                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" placeholder="Masukkan kata sandi" />
+                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
                                 </div>
                             </div>
 

@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using SiBangku.Shared;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -613,6 +615,77 @@ app.MapGet("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (str
     return Results.Ok(new { success = true, data = tenant });
 });
 
+app.MapGet("/api/v1/tenants/{id}/package", async (string id, ControlDbContext db) =>
+{
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantId == id || t.TenantCode == id.ToUpperInvariant());
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant not found" } }, statusCode: 404);
+    }
+
+    var baseDir = ResolveTenantsDirectory();
+    if (string.IsNullOrEmpty(baseDir))
+    {
+        return Results.Json(new { success = false, error = new { code = "DIRECTORY_NOT_FOUND", message = "Folder tenants tidak ditemukan pada server." } }, statusCode: 500);
+    }
+
+    var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+    if (!Directory.Exists(tenantDir))
+    {
+        TenantWorkspaceScaffolder.ScaffoldWorkspace(tenant.TenantCode, tenant.RestaurantName, tenant.TenantId, tenant.TenantName, tenant.DatabaseIdentifier, baseDir);
+    }
+
+    var tempZip = Path.Combine(Path.GetTempPath(), $"SiBangku-{tenant.TenantCode}-{Guid.NewGuid():N}.zip");
+    if (File.Exists(tempZip)) File.Delete(tempZip);
+
+    ZipFile.CreateFromDirectory(tenantDir, tempZip, CompressionLevel.Fastest, false);
+    var bytes = await File.ReadAllBytesAsync(tempZip);
+    try { File.Delete(tempZip); } catch { }
+
+    return Results.File(bytes, "application/zip", $"SiBangku-{tenant.TenantCode}-package.zip");
+});
+
+app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
+{
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantId == id || t.TenantCode == id.ToUpperInvariant());
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var baseDir = ResolveTenantsDirectory();
+    if (!string.IsNullOrEmpty(baseDir))
+    {
+        var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+        var apkCandidates = new[]
+        {
+            Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
+            Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "release", "app-release.apk"),
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk")
+        };
+
+        foreach (var candidate in apkCandidates)
+        {
+            if (File.Exists(candidate))
+            {
+                var bytes = await File.ReadAllBytesAsync(candidate);
+                return Results.File(bytes, "application/vnd.android.package-archive", $"SiBangku-{tenant.TenantCode}.apk");
+            }
+        }
+    }
+
+    return Results.Json(new
+    {
+        success = false,
+        error = new
+        {
+            code = "APK_NOT_COMPILED",
+            message = $"Paket APK belum dikompilasi secara biner untuk {tenant.RestaurantName}. Anda dapat membuka folder source di VS Code ('tenants/{tenant.TenantCode}/android') atau mengunduh paket ZIP."
+        }
+    }, statusCode: 404);
+});
+
 app.MapPost("/api/v1/tenants", [Authorize(Roles = "SUPER_ADMIN")] async (ProvisionTenantParams paramDto, ITenantProvisioner provisioner, ILogger<Program> logger) =>
 {
     if (string.IsNullOrWhiteSpace(paramDto.TenantName) || string.IsNullOrWhiteSpace(paramDto.RestaurantName) || string.IsNullOrWhiteSpace(paramDto.AdminEmail))
@@ -1038,6 +1111,34 @@ app.MapGet("/api/v1/audit", [Authorize(Roles = "SUPER_ADMIN")] async (ControlDbC
     var logs = await db.AuditLogs.OrderByDescending(a => a.CreatedAt).Take(100).ToListAsync();
     return Results.Ok(new { success = true, data = logs });
 });
+
+static string? ResolveTenantsDirectory()
+{
+    var candidates = new[]
+    {
+        Path.Combine(Directory.GetCurrentDirectory(), "tenants"),
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "tenants"),
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "tenants"),
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "tenants"),
+        Path.Combine(AppContext.BaseDirectory, "tenants"),
+        Path.Combine(AppContext.BaseDirectory, "..", "tenants"),
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "tenants"),
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "tenants"),
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "tenants"),
+        @"D:\mydokumen\myproject\Apk_SiBangku\Apk_SiBangku\tenants"
+    };
+
+    foreach (var c in candidates)
+    {
+        try
+        {
+            var full = Path.GetFullPath(c);
+            if (Directory.Exists(full)) return full;
+        }
+        catch { }
+    }
+    return null;
+}
 
 app.Run();
 

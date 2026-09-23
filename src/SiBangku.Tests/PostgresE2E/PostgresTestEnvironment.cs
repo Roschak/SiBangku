@@ -28,11 +28,18 @@ namespace SiBangku.Tests.PostgresE2E
         internal const string DefaultConnectionString =
             "Host=localhost;Port=5432;Database=postgres;Username=sibangku;Password=sibangku_dev";
 
+        private static string _resolvedConnectionString = string.Empty;
+
         /// <summary>Connection string of the maintenance database ("postgres").</summary>
-        internal static string AdminConnectionString { get; } =
-            Environment.GetEnvironmentVariable(ConnectionStringVariable) is { Length: > 0 } configured
-                ? configured
-                : DefaultConnectionString;
+        internal static string AdminConnectionString
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_resolvedConnectionString)) return _resolvedConnectionString;
+                _ = Probe.Value;
+                return !string.IsNullOrEmpty(_resolvedConnectionString) ? _resolvedConnectionString : DefaultConnectionString;
+            }
+        }
 
         private static readonly Lazy<(bool Available, string Reason)> Probe = new(ProbeServer);
 
@@ -47,25 +54,43 @@ namespace SiBangku.Tests.PostgresE2E
                 return (false, $"{SkipVariable}=1 diatur, sehingga tes PostgreSQL dilewati.");
             }
 
-            try
+            var envConn = Environment.GetEnvironmentVariable(ConnectionStringVariable);
+            var candidates = new System.Collections.Generic.List<string>();
+            if (!string.IsNullOrWhiteSpace(envConn))
             {
-                // Keep the probe short: it also runs during test discovery.
-                var builder = new NpgsqlConnectionStringBuilder(AdminConnectionString) { Timeout = 5 };
-
-                using var connection = new NpgsqlConnection(builder.ConnectionString);
-                connection.Open();
-
-                using var command = new NpgsqlCommand("SELECT current_setting('server_version')", connection);
-                var version = command.ExecuteScalar() as string;
-
-                return (true, $"PostgreSQL {version}");
+                candidates.Add(envConn);
             }
-            catch (Exception ex)
+            else
             {
-                return (false,
-                    $"server PostgreSQL tidak terjangkau via {ConnectionStringVariable} ({ex.GetType().Name}). " +
-                    "Jalankan 'docker compose up -d postgres' atau set variabel tersebut ke server tes Anda.");
+                candidates.Add(DefaultConnectionString);
+                candidates.Add("Host=172.19.57.143;Port=5432;Database=postgres;Username=sibangku;Password=sibangku_dev");
+                candidates.Add("Host=127.0.0.1;Port=5432;Database=postgres;Username=sibangku;Password=sibangku_dev");
             }
+
+            Exception? lastEx = null;
+            foreach (var connStr in candidates)
+            {
+                try
+                {
+                    var builder = new NpgsqlConnectionStringBuilder(connStr) { Timeout = 3 };
+                    using var connection = new NpgsqlConnection(builder.ConnectionString);
+                    connection.Open();
+
+                    using var command = new NpgsqlCommand("SELECT current_setting('server_version')", connection);
+                    var version = command.ExecuteScalar() as string;
+
+                    _resolvedConnectionString = connStr;
+                    return (true, $"PostgreSQL {version} ({builder.Host}:{builder.Port})");
+                }
+                catch (Exception ex)
+                {
+                    lastEx = ex;
+                }
+            }
+
+            return (false,
+                $"server PostgreSQL tidak terjangkau via {ConnectionStringVariable} ({lastEx?.GetType().Name}: {lastEx?.Message}). " +
+                "Jalankan 'docker compose up -d postgres' atau set variabel tersebut ke server tes Anda.");
         }
     }
 

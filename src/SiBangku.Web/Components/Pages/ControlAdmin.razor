@@ -66,7 +66,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-person ms-input-icon"></i>
                                     <input type="text" class="ms-form-control has-icon-left font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
-                                           id="loginUsername" name="username" autocomplete="username" @bind="Email" placeholder="Username / Email" />
+                                           id="loginUsername" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="Username / Email" />
                                 </div>
                             </div>
 
@@ -77,7 +77,7 @@
                                 <div class="ms-input-group">
                                     <i class="bi bi-lock ms-input-icon"></i>
                                     <input type="password" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
-                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" placeholder="Masukkan kata sandi" />
+                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
                                 </div>
                             </div>
 
@@ -1150,6 +1150,34 @@ else
                                 </div>
                             </div>
                             <span class="ms-badge ms-badge-info"><i class="bi bi-box-arrow-up-right me-1"></i> Buka VS Code</span>
+                        </a>
+
+                        <!-- 4. Unduh Paket Lengkap ZIP -->
+                        <a href="@($"http://localhost:3001/api/v1/tenants/{SelectedPackageTenant.TenantCode}/package")" 
+                           download="SiBangku-@(SelectedPackageTenant.TenantCode)-package.zip" 
+                           class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(40, 167, 69, 0.45);">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-file-earmark-zip fs-3 text-success"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Unduh Paket Lengkap (.zip)</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Seluruh source code Android, launcher desktop BAT, custom CSS, dan config</small>
+                                </div>
+                            </div>
+                            <span class="ms-badge ms-badge-success"><i class="bi bi-download me-1"></i> Unduh ZIP</span>
+                        </a>
+
+                        <!-- 5. Unduh Paket Android APK (.apk) -->
+                        <a href="@($"http://localhost:3001/api/v1/tenants/{SelectedPackageTenant.TenantCode}/apk")" 
+                           download="SiBangku-@(SelectedPackageTenant.TenantCode).apk" 
+                           class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(25, 135, 84, 0.45);">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-android2 fs-3 text-success"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Unduh Paket Android APK (.apk)</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">File biner Android siap pasang (tersedia jika sudah dikompilasi)</small>
+                                </div>
+                            </div>
+                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh APK</span>
                         </a>
                     </div>
 

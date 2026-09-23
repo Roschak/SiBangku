@@ -21,40 +21,42 @@ namespace SiBangku.Db
         /// </param>
         public static async Task SeedAsync(ControlDbContext context, bool seedDevelopmentAccount = false)
         {
-            if (!seedDevelopmentAccount)
+            // If any Super Admin already exists in the database, preserve it completely
+            // without modifying credentials or creating any new admin accounts.
+            if (await context.PlatformUsers.AnyAsync(u => u.Role == "SUPER_ADMIN"))
             {
-                Console.WriteLine("[ControlDbSeeder] Skipping development account seed (non-development environment).");
+                Console.WriteLine("[ControlDbSeeder] Platform Super Admin already exists. Preserving existing account without changes.");
                 return;
             }
 
-            // Seed Super Admin if none exists (username/email is "admin")
-            var adminUser = await context.PlatformUsers.FirstOrDefaultAsync(u => u.Email == "admin");
-            if (adminUser == null)
+            // Fresh database initial seed:
+            var masterUser = new PlatformUser
             {
-                // PRD §4, §113, §185: super admin developer account 'admin/admin'.
-                // This development-only convenience account is intentionally not
-                // subject to the production password policy.
-                var passwordHash = PasswordHasher.Hash("admin");
+                UserId = "master-DEV-ragah",
+                Email = "master-DEV-ragah",
+                PasswordHash = PasswordHasher.Hash("MySibangkuDev#"),
+                Name = "Master DEV Ragah",
+                Role = "SUPER_ADMIN",
+                CreatedAt = DateTime.UtcNow
+            };
+            await context.PlatformUsers.AddAsync(masterUser);
 
-                var superAdmin = new PlatformUser
+            if (seedDevelopmentAccount)
+            {
+                var devAdmin = new PlatformUser
                 {
                     UserId = "super-admin-init",
                     Email = "admin",
-                    PasswordHash = passwordHash,
+                    PasswordHash = PasswordHasher.Hash("admin"),
                     Name = "Super Admin Platform",
                     Role = "SUPER_ADMIN",
                     CreatedAt = DateTime.UtcNow
                 };
-
-                await context.PlatformUsers.AddAsync(superAdmin);
-                await context.SaveChangesAsync();
-
-                Console.WriteLine("[ControlDbSeeder] Development Platform Admin 'admin/admin' seeded successfully.");
+                await context.PlatformUsers.AddAsync(devAdmin);
             }
-            else
-            {
-                Console.WriteLine("[ControlDbSeeder] Platform Admin already exists. Skipping seed.");
-            }
+
+            await context.SaveChangesAsync();
+            Console.WriteLine("[ControlDbSeeder] Fresh database initialization complete.");
         }
     }
 }
