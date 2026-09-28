@@ -646,4 +646,279 @@
             } catch (e) { }
         }
     };
+
+    // ------------------------------------------------------------------------
+    // 6. Cursor-Driven 3D Table Transition Video (video-transisi)
+    // ------------------------------------------------------------------------
+    window.SiBangkuHeroRotator = {
+        state: {
+            currentProgress: 0.5,
+            targetProgress: 0.5,
+            mouseNormY: 0,
+            isUserInteracting: false,
+            lastUserTime: Date.now(),
+            idleTime: 0,
+            isSeeking: false,
+            rafId: null,
+            initialized: false
+        },
+
+        init: function () {
+            return; // heroTransisiVideo tidak ada, cursor control dinonaktifkan
+            const self = window.SiBangkuHeroRotator;
+            const heroSection = document.getElementById("hero") || document.getElementById("heroRotatorStage");
+            const viewport = document.getElementById("heroRotatorViewport");
+            const video = document.getElementById("heroTransisiVideo");
+            const specular = document.getElementById("heroSpecular");
+            const angleText = document.getElementById("heroAngleText");
+            const hintPill = document.getElementById("heroHintPill");
+
+            if (!viewport || !video) return;
+
+            // Ensure video starts ready and muted for universal browser compatibility
+            video.muted = true;
+            video.playsInline = true;
+            video.pause();
+
+            // When metadata loaded, set initial frame to center (50%)
+            function setInitialFrame() {
+                if (video.duration) {
+                    video.currentTime = video.duration * 0.5;
+                }
+            }
+
+            if (video.readyState >= 1) {
+                setInitialFrame();
+            } else {
+                video.addEventListener("loadedmetadata", setInitialFrame, { once: true });
+            }
+
+            // Function to handle cursor / pointer coordinates
+            function handleCursorMove(clientX, clientY, sourceEl) {
+                self.state.isUserInteracting = true;
+                self.state.lastUserTime = Date.now();
+                if (hintPill) hintPill.style.opacity = "0";
+
+                const rect = (sourceEl || viewport).getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    // Normalize X from 0.0 (left) to 1.0 (right)
+                    let normX = (clientX - rect.left) / rect.width;
+                    normX = Math.max(0.0, Math.min(1.0, normX));
+                    self.state.targetProgress = normX;
+
+                    // Normalize Y from -1.0 (top) to 1.0 (bottom) for subtle 3D tilt
+                    let normY = ((clientY - rect.top) / rect.height - 0.5) * 2;
+                    self.state.mouseNormY = Math.max(-1.0, Math.min(1.0, normY));
+                }
+            }
+
+            // Track mouse moving anywhere across the Hero section for effortless interaction
+            if (heroSection) {
+                heroSection.addEventListener("pointermove", function (e) {
+                    handleCursorMove(e.clientX, e.clientY, heroSection);
+                }, { passive: true });
+
+                heroSection.addEventListener("pointerenter", function (e) {
+                    handleCursorMove(e.clientX, e.clientY, heroSection);
+                }, { passive: true });
+            }
+
+            // Direct viewport pointer & touch drag
+            viewport.addEventListener("pointerdown", function (e) {
+                handleCursorMove(e.clientX, e.clientY, viewport);
+            });
+
+            // Prevent default drag behaviors
+            viewport.addEventListener("dragstart", function (e) { e.preventDefault(); });
+
+            if (self.state.initialized) return;
+            self.state.initialized = true;
+
+            // Butter-smooth 60/120 FPS Render & Seek Loop
+            function updateLoop() {
+                self.state.rafId = requestAnimationFrame(updateLoop);
+
+                const now = Date.now();
+                // If user has not moved mouse for 3 seconds, gentle luxury ambient drift
+                if (now - self.state.lastUserTime > 3000) {
+                    self.state.idleTime += 0.008;
+                    self.state.targetProgress = 0.5 + Math.sin(self.state.idleTime) * 0.38;
+                }
+
+                // Spring Lerp Damping (Butter-smooth easing)
+                self.state.currentProgress += (self.state.targetProgress - self.state.currentProgress) * 0.082;
+                const p = self.state.currentProgress;
+
+                // Sync video currentTime to cursor progress
+                if (video.duration && !self.state.isSeeking) {
+                    const targetTime = p * video.duration;
+                    const diff = Math.abs(video.currentTime - targetTime);
+
+                    if (diff > 0.025) {
+                        try {
+                            if ('fastSeek' in video) {
+                                video.fastSeek(targetTime);
+                            } else {
+                                video.currentTime = targetTime;
+                            }
+                        } catch (err) {}
+                    }
+                }
+
+                // 3D Spatial Camera Parallax & Subtle Perspective Shift
+                const rotY = (p - 0.5) * 9.0;
+                const rotX = -(self.state.mouseNormY * 3.2);
+                const panX = (p - 0.5) * -16.0;
+                video.style.transform = "perspective(1200px) rotateY(" + rotY.toFixed(2) + "deg) rotateX(" + rotX.toFixed(2) + "deg) translate3d(" + panX.toFixed(1) + "px, 0, 0) scale(1.025)";
+
+                // Specular Dynamic Light Sheen Sweep following cursor
+                if (specular) {
+                    const sheenPos = (p * 70) + 15;
+                    specular.style.transform = "translate3d(" + (sheenPos - 50).toFixed(1) + "%, 0, 0)";
+                    specular.style.opacity = (0.10 + Math.abs(p - 0.5) * 0.18).toFixed(3);
+                }
+
+                // Live HUD Readout
+                if (angleText) {
+                    if (p < 0.38) {
+                        const deg = ((0.5 - p) * 70).toFixed(0);
+                        angleText.textContent = "SUDUT KIRI • -" + deg + "°";
+                    } else if (p > 0.62) {
+                        const deg = ((p - 0.5) * 70).toFixed(0);
+                        angleText.textContent = "SUDUT KANAN • +" + deg + "°";
+                    } else {
+                        angleText.textContent = "TAMPAK TENGAH • 0°";
+                    }
+                }
+            }
+
+            updateLoop();
+        }
+    };
+
+    // ------------------------------------------------------------------------
+    // 7. Hero Fullscreen Background Video — Cursor-Driven currentTime Seek
+    //    Cursor kiri = awal video, cursor kanan = akhir video, smooth lerp.
+    // ------------------------------------------------------------------------
+    window.SiBangkuHeroBgParallax = {
+        _rafId: null,
+        _targetProgress: 0.5,
+        _currentProgress: 0.5,
+        _initialized: false,
+        init: function () {
+            return; // video autoplay loop, cursor control dinonaktifkan
+            const self = window.SiBangkuHeroBgParallax;
+            if (self._initialized) return;
+
+            const bgVideo = document.getElementById('heroBgVideo');
+            const heroSection = document.getElementById('hero');
+            if (!bgVideo || !heroSection) return;
+
+            self._initialized = true;
+            bgVideo.muted = true;
+
+            // Paksa pause — video tidak boleh autoplay, currentTime dikontrol cursor
+            function ensurePaused() { if (!bgVideo.paused) bgVideo.pause(); }
+            bgVideo.addEventListener('play', ensurePaused);
+            bgVideo.addEventListener('playing', ensurePaused);
+            if (!bgVideo.paused) bgVideo.pause();
+
+            // Set frame awal ke tengah saat metadata siap
+            function setMidFrame() {
+                if (bgVideo.duration) {
+                    bgVideo.currentTime = bgVideo.duration * 0.5;
+                    bgVideo.pause();
+                }
+            }
+            if (bgVideo.readyState >= 1) { setMidFrame(); }
+            else { bgVideo.addEventListener('loadedmetadata', setMidFrame, { once: true }); }
+
+            // Cursor / pointer move → update targetProgress 0..1
+            heroSection.addEventListener('pointermove', function (e) {
+                const rect = heroSection.getBoundingClientRect();
+                if (!rect.width) return;
+                self._targetProgress = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            }, { passive: true });
+
+            // Touch support
+            heroSection.addEventListener('touchmove', function (e) {
+                if (!e.touches.length) return;
+                const rect = heroSection.getBoundingClientRect();
+                if (!rect.width) return;
+                self._targetProgress = Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width));
+            }, { passive: true });
+
+            // Kursor keluar → balik ke tengah
+            heroSection.addEventListener('pointerleave', function () {
+                self._targetProgress = 0.5;
+            }, { passive: true });
+
+            // Render loop — spring lerp lalu seek video
+            function tick() {
+                self._rafId = requestAnimationFrame(tick);
+                self._currentProgress += (self._targetProgress - self._currentProgress) * 0.055;
+                const p = self._currentProgress;
+                if (bgVideo.duration) {
+                    const t = p * bgVideo.duration;
+                    if (Math.abs(bgVideo.currentTime - t) > 0.015) {
+                        try {
+                            if ('fastSeek' in bgVideo) { bgVideo.fastSeek(t); }
+                            else { bgVideo.currentTime = t; }
+                        } catch (_) {}
+                    }
+                }
+            }
+
+            tick();
+        },
+
+        destroy: function () {
+            const self = window.SiBangkuHeroBgParallax;
+            if (self._rafId) cancelAnimationFrame(self._rafId);
+            self._initialized = false;
+            self._rafId = null;
+        }
+    };
+
+    // ------------------------------------------------------------------------
+    // 8. Layout Enhancements — navbar scroll-shrink + CSS scroll reveal
+    // ------------------------------------------------------------------------
+    window.SiBangkuLayout = {
+        init: function () {
+            // ── Navbar scroll-shrink ──────────────────────────────────────
+            const navbar = document.querySelector('.ms-public-navbar');
+            if (navbar && !navbar._hasScrollHandler) {
+                navbar._hasScrollHandler = true;
+                function updateNavbar() {
+                    if (window.scrollY > 30) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                }
+                window.addEventListener('scroll', updateNavbar, { passive: true });
+                updateNavbar();
+            }
+
+            // ── CSS scroll reveal (.sr-fade-up, .sr-scale) ───────────────
+            if ('IntersectionObserver' in window) {
+                const revealObserver = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+                document.querySelectorAll('.sr-fade-up:not(.is-visible), .sr-scale:not(.is-visible)').forEach(function (el) {
+                    revealObserver.observe(el);
+                });
+            } else {
+                document.querySelectorAll('.sr-fade-up, .sr-scale').forEach(function (el) {
+                    el.classList.add('is-visible');
+                });
+            }
+        }
+    };
 })();

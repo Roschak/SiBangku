@@ -336,6 +336,25 @@ public class MainActivity extends AppCompatActivity {{
 ";
                 File.WriteAllText(Path.Combine(javaDir, "MainActivity.java"), mainActivity, utf8NoBom);
 
+                // 7. Seed ready-to-run APK & Desktop EXE if base binaries exist
+                try
+                {
+                    var baseUniversalApk = Path.Combine(tenantsDir, "SiBangku-Universal-App.apk");
+                    if (File.Exists(baseUniversalApk))
+                    {
+                        File.Copy(baseUniversalApk, Path.Combine(targetDir, $"{tenantCode}.apk"), true);
+                        File.Copy(baseUniversalApk, Path.Combine(targetDir, "android", $"{tenantCode}.apk"), true);
+                    }
+
+                    var baseDesktopExe = Path.Combine(tenantsDir, "SiBangku-Desktop-App.exe");
+                    if (File.Exists(baseDesktopExe))
+                    {
+                        File.Copy(baseDesktopExe, Path.Combine(targetDir, "desktop", $"SiBangku-{tenantCode}.exe"), true);
+                        File.Copy(baseDesktopExe, Path.Combine(targetDir, $"SiBangku-{tenantCode}.exe"), true);
+                    }
+                }
+                catch { }
+
                 return true;
             }
             catch

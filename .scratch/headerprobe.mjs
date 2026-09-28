@@ -17,7 +17,7 @@ function connect(wsUrl) {
       close() { ws.close(); }
     });
     ws.onerror = reject;
-    ws.onmessage = (ev) => {
+    ws.onmessage = (ev) => { 
       const msg = JSON.parse(ev.data);
       if (msg.id && pending.has(msg.id)) {
         const { res, rej } = pending.get(msg.id);

@@ -1,0 +1,10 @@
+{
+  "name": "papatungan - SiBangku",
+  "short_name": "papatungan",
+  "start_url": "http://localhost:3000/booking?tenant=PTPTAJA",
+  "display": "standalone",
+  "background_color": "#1C1714",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait",
+  "icons": []
+}

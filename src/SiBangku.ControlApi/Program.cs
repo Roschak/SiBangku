@@ -659,10 +659,16 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
         var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
         var apkCandidates = new[]
         {
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", $"SiBangku-{tenant.TenantCode}.apk"),
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "release", "app-release.apk"),
-            Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
-            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk")
+            Path.Combine(tenantDir, "desktop", $"{tenant.TenantCode}.apk"),
+            Path.Combine(baseDir, "SiBangku-Universal-App.apk"),
+            Path.Combine(baseDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Universal-App.apk"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Universal-App.apk")
         };
 
         foreach (var candidate in apkCandidates)
@@ -685,6 +691,51 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
         }
     }, statusCode: 404);
 });
+
+app.MapGet("/api/v1/tenants/{id}/exe", async (string id, ControlDbContext db) =>
+{
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantId == id || t.TenantCode == id.ToUpperInvariant());
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var baseDir = ResolveTenantsDirectory();
+    if (!string.IsNullOrEmpty(baseDir))
+    {
+        var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+        var exeCandidates = new[]
+        {
+            Path.Combine(tenantDir, "desktop", $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, "desktop", "SiBangku-Desktop-App.exe"),
+            Path.Combine(baseDir, "SiBangku-Desktop-App.exe"),
+            Path.Combine(baseDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Desktop-App.exe"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Desktop-App.exe")
+        };
+
+        foreach (var candidate in exeCandidates)
+        {
+            if (File.Exists(candidate))
+            {
+                var bytes = await File.ReadAllBytesAsync(candidate);
+                return Results.File(bytes, "application/vnd.microsoft.portable-executable", $"SiBangku-{tenant.TenantCode}.exe");
+            }
+        }
+    }
+
+    return Results.Json(new
+    {
+        success = false,
+        error = new
+        {
+            code = "EXE_NOT_COMPILED",
+            message = $"Paket Desktop EXE belum tersedia untuk {tenant.RestaurantName}."
+        }
+    }, statusCode: 404);
+});
+
 
 app.MapPost("/api/v1/tenants", [Authorize(Roles = "SUPER_ADMIN")] async (ProvisionTenantParams paramDto, ITenantProvisioner provisioner, ILogger<Program> logger) =>
 {
