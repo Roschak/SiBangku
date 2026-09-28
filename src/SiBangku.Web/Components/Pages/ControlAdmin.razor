@@ -18,7 +18,7 @@
         <div class="ms-login-split-card">
             <div class="row g-0 align-items-stretch">
                 <!-- Left Visual Panel with rotating-diningtable-loginpage video -->
-                <div class="col-lg-6 d-none d-lg-block">
+                <div class="col-md-6 d-none d-md-block">
                     <div class="ms-login-visual-side">
                         <video class="ms-login-visual-video"
                                src="/video/rotating-diningtable-loginpage.mp4"
@@ -38,8 +38,8 @@
                                 </span>
                             </div>
                             <div class="mt-auto pt-5">
-                                <h4 class="ms-serif text-white fw-bold mb-2">Central SaaS Management</h4>
-                                <p class="small font-mono mb-0" style="color: rgba(243, 232, 200, 0.85); line-height: 1.6;">
+                                <h3 class="ms-serif text-white fw-bold mb-3" style="font-size: 1.85rem; letter-spacing: -0.01em;">Central SaaS Management</h3>
+                                <p class="font-mono mb-0" style="color: rgba(243, 232, 200, 0.90); line-height: 1.65; font-size: 1.02rem;">
                                     Kendali arsitektur multi-tenant, analitik global, isolasi database, dan provisioning outlet platform.
                                 </p>
                             </div>
@@ -48,87 +48,89 @@
                 </div>
 
                 <!-- Right Form Panel -->
-                <div class="col-lg-6">
-                    <div class="ms-login-form-side">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
-                            <div>
-                                <h2 class="fw-bold tracking-tight mb-1" style="color: #1C1714; font-size: 1.85rem;">Hi Administrator</h2>
-                                <p class="small text-muted mb-0">Platform Super Admin Authentication</p>
-                            </div>
-                            <span class="badge rounded-pill px-3 py-1.5 font-mono" style="background: rgba(184, 142, 45, 0.12); color: #B88E2D; border: 1px solid rgba(184, 142, 45, 0.25);">
-                                Super Admin
-                            </span>
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(LoginError))
-                        {
-                            <div class="ms-alert ms-alert-danger mb-4">
-                                <i class="bi bi-shield-x ms-alert-icon"></i>
-                                <div class="ms-alert-content">
-                                    <div class="ms-alert-title">Autentikasi Gagal</div>
-                                    <div>@LoginError</div>
+                <div class="col-12 col-md-6 d-flex align-items-center">
+                    <div class="ms-login-form-side w-100">
+                        <div class="ms-login-form-content">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div>
+                                    <h2 class="ms-login-title mb-1">Hi Administrator</h2>
+                                    <p class="ms-login-subtitle mb-0">Platform Super Admin Authentication</p>
                                 </div>
-                                <button type="button" class="ms-alert-close" @onclick="() => LoginError = null">
-                                    <i class="bi bi-x"></i>
+                                <span class="badge rounded-pill px-3 py-2 font-mono" style="background: rgba(184, 142, 45, 0.12); color: #B88E2D; border: 1px solid rgba(184, 142, 45, 0.3); font-size: 0.8rem;">
+                                    Super Admin
+                                </span>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(LoginError))
+                            {
+                                <div class="ms-alert ms-alert-danger mb-4">
+                                    <i class="bi bi-shield-x ms-alert-icon"></i>
+                                    <div class="ms-alert-content">
+                                        <div class="ms-alert-title">Autentikasi Gagal</div>
+                                        <div>@LoginError</div>
+                                    </div>
+                                    <button type="button" class="ms-alert-close" @onclick="() => LoginError = null">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(LoginSuccessMessage))
+                            {
+                                <div class="ms-alert ms-alert-success mb-4">
+                                    <i class="bi bi-check-circle ms-alert-icon"></i>
+                                    <div class="ms-alert-content">
+                                        <div class="ms-alert-title">Sukses</div>
+                                        <div>@LoginSuccessMessage</div>
+                                    </div>
+                                    <button type="button" class="ms-alert-close" @onclick="() => LoginSuccessMessage = null">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            }
+
+                            <form @onsubmit="HandleLogin">
+                                <div class="ms-form-group mb-3">
+                                    <label class="ms-login-label" for="loginUsername">
+                                        <i class="bi bi-person me-1 text-primary"></i> Username / Email Super Admin <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="ms-input-group position-relative">
+                                        <i class="bi bi-person ms-login-input-icon"></i>
+                                        <input type="text" class="form-control ms-login-input-pill font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
+                                               id="loginUsername" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="Username / Email" />
+                                    </div>
+                                </div>
+
+                                <div class="ms-form-group mb-4">
+                                    <label class="ms-login-label" for="loginPassword">
+                                        <i class="bi bi-shield-lock me-1 text-primary"></i> Kata Sandi Platform <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="ms-input-group position-relative">
+                                        <i class="bi bi-lock ms-login-input-icon"></i>
+                                        <input type="password" class="form-control ms-login-input-pill @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
+                                               id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="ms-btn ms-btn-primary ms-login-btn-pill w-100 gold-shimmer-btn shadow" disabled="@IsSubmitting">
+                                    @if (IsSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Mengautentikasi...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Masuk ke Control Plane</span>
+                                        <i class="bi bi-arrow-right ms-2"></i>
+                                    }
                                 </button>
+                            </form>
+
+                            <div class="mt-4 pt-3 text-center" style="border-top: 1px solid #EFEAE2;">
+                                <a href="/" class="small text-decoration-none fw-medium" style="color: var(--ms-text-muted); font-size: 0.92rem;">
+                                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
+                                </a>
                             </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(LoginSuccessMessage))
-                        {
-                            <div class="ms-alert ms-alert-success mb-4">
-                                <i class="bi bi-check-circle ms-alert-icon"></i>
-                                <div class="ms-alert-content">
-                                    <div class="ms-alert-title">Sukses</div>
-                                    <div>@LoginSuccessMessage</div>
-                                </div>
-                                <button type="button" class="ms-alert-close" @onclick="() => LoginSuccessMessage = null">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        }
-
-                        <form @onsubmit="HandleLogin">
-                            <div class="ms-form-group mb-3">
-                                <label class="ms-form-label fw-semibold" for="loginUsername" style="font-size: 0.82rem; color: #4A3E37;">
-                                    <i class="bi bi-person me-1 text-primary"></i> Username / Email Super Admin <span class="text-danger">*</span>
-                                </label>
-                                <div class="ms-input-group position-relative">
-                                    <i class="bi bi-person ms-input-icon"></i>
-                                    <input type="text" class="form-control ms-login-input-pill font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
-                                           id="loginUsername" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="Username / Email" />
-                                </div>
-                            </div>
-
-                            <div class="ms-form-group mb-4">
-                                <label class="ms-form-label fw-semibold" for="loginPassword" style="font-size: 0.82rem; color: #4A3E37;">
-                                    <i class="bi bi-shield-lock me-1 text-primary"></i> Kata Sandi Platform <span class="text-danger">*</span>
-                                </label>
-                                <div class="ms-input-group position-relative">
-                                    <i class="bi bi-lock ms-input-icon"></i>
-                                    <input type="password" class="form-control ms-login-input-pill @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
-                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
-                                </div>
-                            </div>
-
-                            <button type="submit" class="ms-btn ms-btn-primary ms-login-btn-pill w-100 gold-shimmer-btn shadow" disabled="@IsSubmitting">
-                                @if (IsSubmitting)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    <span>Mengautentikasi...</span>
-                                }
-                                else
-                                {
-                                    <span>Masuk ke Control Plane</span>
-                                    <i class="bi bi-arrow-right ms-2"></i>
-                                }
-                            </button>
-                        </form>
-
-                        <div class="mt-4 pt-3 text-center" style="border-top: 1px solid #EFEAE2;">
-                            <a href="/" class="small text-decoration-none fw-medium" style="color: var(--ms-text-muted);">
-                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
-                            </a>
                         </div>
                     </div>
                 </div>

@@ -170,11 +170,13 @@ select option {
    Public Header & Navigation (Warm Frosted Glass + Champagne Hairline)
    ========================================================================== */
 .ms-public-navbar {
-    position: sticky;
-    top: 1rem;
-    z-index: 1030;
+    position: fixed;
+    top: 1.25rem;
+    left: 0;
+    right: 0;
+    z-index: 1040;
     width: 100%;
-    padding: 0 1rem !important;
+    padding: 0 1.25rem !important;
     background-color: transparent !important;
     border-bottom: none !important;
     box-shadow: none !important;
@@ -182,6 +184,11 @@ select option {
     justify-content: center;
     pointer-events: none;
     transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Non-hero pages start cleanly below the fixed floating capsule navbar */
+.ms-customer-portal > main > .container:first-child {
+    padding-top: 5.5rem !important;
 }
 
 .ms-navbar-capsule {
@@ -3177,7 +3184,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ==========================================================================
-   22. Modern Luxury Split-Card Login Screen
+   22. Modern Luxury Split-Card Login Screen (Ukuran Standar / Proporsional)
    (Matching referensi contoh-Loginpage-ui-design with rotating-diningtable-loginpage)
    ========================================================================== */
 .ms-login-viewport {
@@ -3185,7 +3192,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2.5rem 1.25rem;
+    padding: 3rem 1.5rem;
     background: radial-gradient(circle at 80% 20%, #2A211A 0%, #15100D 60%, #0A0807 100%);
     position: relative;
     overflow: hidden;
@@ -3194,37 +3201,38 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .ms-login-viewport::before {
     content: '';
     position: absolute;
-    width: 650px;
-    height: 650px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.09) 0%, transparent 70%);
-    top: -120px;
-    right: -120px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.10) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
     pointer-events: none;
 }
 
 .ms-login-split-card {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1380px;
     background: #FFFFFF;
-    border-radius: 28px;
-    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(212, 175, 55, 0.25);
+    border-radius: 36px;
+    box-shadow: 0 36px 90px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(212, 175, 55, 0.35);
     overflow: hidden;
     position: relative;
     z-index: 2;
+    min-height: 760px;
 }
 
 .ms-login-visual-side {
     position: relative;
     background: #140E0A;
-    border-radius: 22px;
+    border-radius: 28px;
     overflow: hidden;
-    min-height: 520px;
+    min-height: 720px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 2rem;
-    margin: 0.75rem;
-    height: calc(100% - 1.5rem);
+    padding: 3.5rem 3rem;
+    margin: 1.15rem;
+    height: calc(100% - 2.3rem);
 }
 
 .ms-login-visual-video {
@@ -3234,13 +3242,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     height: 100%;
     object-fit: cover;
     z-index: 1;
-    opacity: 0.88;
+    opacity: 0.90;
 }
 
 .ms-login-visual-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(15,12,10,0.45) 0%, rgba(15,12,10,0.15) 45%, rgba(15,12,10,0.85) 100%);
+    background: linear-gradient(180deg, rgba(15,12,10,0.50) 0%, rgba(15,12,10,0.20) 45%, rgba(15,12,10,0.88) 100%);
     z-index: 2;
     pointer-events: none;
 }
@@ -3255,41 +3263,109 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .ms-login-form-side {
-    padding: 3rem 2.5rem;
+    padding: 4.5rem 4.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
+.ms-login-form-content {
+    max-width: 540px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.ms-login-title {
+    font-size: 2.85rem !important;
+    font-weight: 800 !important;
+    color: #1C1714 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.15 !important;
+}
+
+.ms-login-subtitle {
+    font-size: 1.12rem !important;
+    color: #6C5E53 !important;
+    margin-top: 0.5rem !important;
+    line-height: 1.55 !important;
+}
+
+.ms-login-label {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    color: #2D231B !important;
+    margin-bottom: 0.65rem !important;
+    display: inline-block;
+}
+
+.ms-login-input-icon {
+    position: absolute;
+    left: 1.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.35rem !important;
+    color: #B88E2D;
+    z-index: 5;
+    pointer-events: none;
+}
+
 .ms-login-input-pill {
-    border-radius: 12px !important;
-    border: 1.5px solid #E6DEC8 !important;
-    padding: 0.72rem 1rem 0.72rem 2.75rem !important;
+    height: 60px !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #DDD3C4 !important;
+    padding: 0.95rem 1.35rem 0.95rem 3.65rem !important;
     background: #FAF8F5 !important;
-    font-size: 0.88rem !important;
+    font-size: 1.1rem !important;
+    color: #1C1714 !important;
+    font-weight: 500;
     transition: all 0.2s ease !important;
 }
 
 .ms-login-input-pill:focus {
     background: #FFFFFF !important;
     border-color: #B88E2D !important;
-    box-shadow: 0 0 0 4px rgba(184, 142, 45, 0.15) !important;
+    box-shadow: 0 0 0 4px rgba(184, 142, 45, 0.16) !important;
+    color: #1C1714 !important;
 }
 
 .ms-login-btn-pill {
+    height: 60px !important;
     border-radius: 9999px !important;
-    padding: 0.82rem 1.5rem !important;
-    font-weight: 600 !important;
-    font-size: 0.92rem !important;
+    padding: 0.95rem 2rem !important;
+    font-weight: 700 !important;
+    font-size: 1.18rem !important;
     letter-spacing: 0.02em !important;
+    box-shadow: 0 12px 30px -5px rgba(184, 142, 45, 0.45) !important;
+    transition: all 0.25s ease !important;
+}
+
+.ms-login-btn-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px -5px rgba(184, 142, 45, 0.55) !important;
 }
 
 @media (max-width: 991px) {
     .ms-login-split-card {
-        border-radius: 20px;
+        border-radius: 24px;
+        min-height: auto;
     }
     .ms-login-form-side {
-        padding: 2.25rem 1.5rem;
+        padding: 3rem 2rem;
+    }
+    .ms-login-title {
+        font-size: 2.2rem !important;
+    }
+    .ms-login-subtitle {
+        font-size: 1.02rem !important;
+    }
+    .ms-login-input-pill {
+        height: 54px !important;
+        font-size: 1rem !important;
+        padding-left: 3.25rem !important;
+    }
+    .ms-login-btn-pill {
+        height: 54px !important;
+        font-size: 1.05rem !important;
     }
 }
 

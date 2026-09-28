@@ -24,6 +24,7 @@ Desktop.ini
 
 # Environment files
 .env
+.env.example
 .env.local
 .env.development
 .env.production
