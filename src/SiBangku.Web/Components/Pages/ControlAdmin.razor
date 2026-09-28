@@ -13,26 +13,56 @@
 
 @if (!IsLoggedIn)
 {
-    <!-- Platform Super Admin Login Screen -->
-    <div class="min-vh-100 d-flex flex-column justify-content-center py-5" style="background-color: var(--ms-surface-dark);">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-5 col-xl-4">
-                    <div class="text-center mb-4">
-                        <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
-                            <span class="d-inline-flex align-items-center justify-content-center" 
-                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
-                                <i class="bi bi-sliders2"></i>
-                            </span>
-                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: var(--ms-text-main, #1C1714);">SiBangku Control</span>
-                        </a>
-                        <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Platform Super Admin Authentication</div>
+    <!-- Platform Super Admin Login Screen (Matches contoh-Loginpage-ui-design with rotating-diningtable-loginpage) -->
+    <div class="ms-login-viewport">
+        <div class="ms-login-split-card">
+            <div class="row g-0 align-items-stretch">
+                <!-- Left Visual Panel with rotating-diningtable-loginpage video -->
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="ms-login-visual-side">
+                        <video class="ms-login-visual-video"
+                               src="/video/rotating-diningtable-loginpage.mp4"
+                               autoplay muted loop playsinline preload="auto"></video>
+                        <div class="ms-login-visual-overlay"></div>
+                        <div class="ms-login-visual-content">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                                    <span class="d-inline-flex align-items-center justify-content-center" 
+                                          style="width: 38px; height: 38px; font-size: 1.15rem; background: rgba(212, 175, 55, 0.20); border: 1px solid rgba(212, 175, 55, 0.45); border-radius: 12px; color: #D4AF37;">
+                                        <i class="bi bi-sliders2"></i>
+                                    </span>
+                                    <span class="fs-5 fw-bold tracking-tight text-white ms-serif">SiBangku Control</span>
+                                </a>
+                                <span class="badge bg-dark bg-opacity-75 border border-warning border-opacity-50 px-3 py-1.5 rounded-pill font-mono small text-warning">
+                                    <i class="bi bi-shield-check me-1"></i> Platform Control
+                                </span>
+                            </div>
+                            <div class="mt-auto pt-5">
+                                <h4 class="ms-serif text-white fw-bold mb-2">Central SaaS Management</h4>
+                                <p class="small font-mono mb-0" style="color: rgba(243, 232, 200, 0.85); line-height: 1.6;">
+                                    Kendali arsitektur multi-tenant, analitik global, isolasi database, dan provisioning outlet platform.
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="ms-card p-4 p-md-4.5" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
+                <!-- Right Form Panel -->
+                <div class="col-lg-6">
+                    <div class="ms-login-form-side">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h2 class="fw-bold tracking-tight mb-1" style="color: #1C1714; font-size: 1.85rem;">Hi Administrator</h2>
+                                <p class="small text-muted mb-0">Platform Super Admin Authentication</p>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-1.5 font-mono" style="background: rgba(184, 142, 45, 0.12); color: #B88E2D; border: 1px solid rgba(184, 142, 45, 0.25);">
+                                Super Admin
+                            </span>
+                        </div>
+
                         @if (!string.IsNullOrEmpty(LoginError))
                         {
-                            <div class="ms-alert ms-alert-danger mb-3">
+                            <div class="ms-alert ms-alert-danger mb-4">
                                 <i class="bi bi-shield-x ms-alert-icon"></i>
                                 <div class="ms-alert-content">
                                     <div class="ms-alert-title">Autentikasi Gagal</div>
@@ -46,7 +76,7 @@
 
                         @if (!string.IsNullOrEmpty(LoginSuccessMessage))
                         {
-                            <div class="ms-alert ms-alert-success mb-3">
+                            <div class="ms-alert ms-alert-success mb-4">
                                 <i class="bi bi-check-circle ms-alert-icon"></i>
                                 <div class="ms-alert-content">
                                     <div class="ms-alert-title">Sukses</div>
@@ -59,29 +89,29 @@
                         }
 
                         <form @onsubmit="HandleLogin">
-                            <div class="ms-form-group">
-                                <label class="ms-form-label" for="loginUsername">
+                            <div class="ms-form-group mb-3">
+                                <label class="ms-form-label fw-semibold" for="loginUsername" style="font-size: 0.82rem; color: #4A3E37;">
                                     <i class="bi bi-person me-1 text-primary"></i> Username / Email Super Admin <span class="text-danger">*</span>
                                 </label>
-                                <div class="ms-input-group">
+                                <div class="ms-input-group position-relative">
                                     <i class="bi bi-person ms-input-icon"></i>
-                                    <input type="text" class="ms-form-control has-icon-left font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
+                                    <input type="text" class="form-control ms-login-input-pill font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
                                            id="loginUsername" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="Username / Email" />
                                 </div>
                             </div>
 
                             <div class="ms-form-group mb-4">
-                                <label class="ms-form-label" for="loginPassword">
+                                <label class="ms-form-label fw-semibold" for="loginPassword" style="font-size: 0.82rem; color: #4A3E37;">
                                     <i class="bi bi-shield-lock me-1 text-primary"></i> Kata Sandi Platform <span class="text-danger">*</span>
                                 </label>
-                                <div class="ms-input-group">
+                                <div class="ms-input-group position-relative">
                                     <i class="bi bi-lock ms-input-icon"></i>
-                                    <input type="password" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
+                                    <input type="password" class="form-control ms-login-input-pill @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
                                            id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
                                 </div>
                             </div>
 
-                            <button type="submit" class="ms-btn ms-btn-primary w-100" disabled="@IsSubmitting">
+                            <button type="submit" class="ms-btn ms-btn-primary ms-login-btn-pill w-100 gold-shimmer-btn shadow" disabled="@IsSubmitting">
                                 @if (IsSubmitting)
                                 {
                                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -90,13 +120,13 @@
                                 else
                                 {
                                     <span>Masuk ke Control Plane</span>
-                                    <i class="bi bi-arrow-right ms-1"></i>
+                                    <i class="bi bi-arrow-right ms-2"></i>
                                 }
                             </button>
                         </form>
 
-                        <div class="mt-4 pt-3 text-center" style="border-top: 1px solid var(--ms-border);">
-                            <a href="/" class="small text-decoration-none" style="color: var(--ms-text-muted);">
+                        <div class="mt-4 pt-3 text-center" style="border-top: 1px solid #EFEAE2;">
+                            <a href="/" class="small text-decoration-none fw-medium" style="color: var(--ms-text-muted);">
                                 <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
                             </a>
                         </div>

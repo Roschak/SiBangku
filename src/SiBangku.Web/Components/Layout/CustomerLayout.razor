@@ -39,16 +39,16 @@
 </aside>
 
 <div class="ms-customer-portal d-flex flex-column min-vh-100">
-    <!-- Editorial Luxury Navigation Bar (Warm Frosted Glass + Champagne Hairline) -->
-    <header class="ms-public-navbar py-3 px-3 px-lg-4 sticky-top">
-        <div class="container d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-4">
+    <!-- Editorial Luxury Navigation Bar (Floating Capsule with Frosted Glassmorphism) -->
+    <header class="ms-public-navbar sticky-top">
+        <div class="ms-navbar-capsule">
+            <div class="d-flex align-items-center gap-3 gap-lg-4">
                 <!-- Official SiBangku Brand Logo (Gold on Espresso Mark with Dark Typography) -->
                 <a href="/" class="text-decoration-none d-inline-flex align-items-center">
-                    <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" style="height: 40px; width: auto;" />
+                    <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" style="height: 38px; width: auto;" />
                 </a>
 
-                <nav class="d-none d-lg-flex align-items-center gap-1 ms-2">
+                <nav class="d-none d-lg-flex align-items-center gap-1 ms-1">
                     <NavLink class="ms-public-nav-link" href="" Match="NavLinkMatch.All">
                         <i class="bi bi-house"></i> @Lang["Nav_Home"]
                     </NavLink>
@@ -70,19 +70,19 @@
                 </nav>
             </div>
 
-            <div class="d-flex align-items-center gap-2.5">
-                <!-- Language Selector Button -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Language Selector Button (capsule style) -->
                 <button type="button"
-                        class="btn btn-sm font-mono d-inline-flex align-items-center gap-2 px-3 py-1.5"
-                        style="background: #FFFFFF; border: 1.5px solid rgba(184, 142, 45, 0.40); border-radius: 999px; font-size: 0.80rem; font-weight: 700; color: var(--ms-text-main); box-shadow: 0 2px 8px rgba(45,35,20,0.06); transition: all 0.2s;"
+                        class="btn btn-sm font-mono d-inline-flex align-items-center gap-1.5 px-3 py-1.5"
+                        style="background: rgba(255,255,255,0.9); border: 1.5px solid rgba(184, 142, 45, 0.40); border-radius: 9999px; font-size: 0.78rem; font-weight: 700; color: var(--ms-text-main); box-shadow: 0 2px 8px rgba(45,35,20,0.06); transition: all 0.2s;"
                         @onclick="() => IsLanguageSelectorOpen = true"
                         title="@Lang["Nav_Language"]">
-                    <span style="font-size: 1.1rem; line-height: 1;">@GetFlagEmoji(Lang.CurrentLanguage)</span>
+                    <span style="font-size: 1rem; line-height: 1;">@GetFlagEmoji(Lang.CurrentLanguage)</span>
                     <span class="text-uppercase fw-bold" style="color: var(--ms-text-main);">@Lang.CurrentLanguage</span>
                     <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: #B88E2D;"></i>
                 </button>
 
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap d-none d-sm-inline-flex gold-shimmer-btn">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap d-none d-sm-inline-flex gold-shimmer-btn rounded-pill px-3.5">
                     <i class="bi bi-calendar-plus me-1"></i>
                     <span>@Lang["Nav_BookNow"]</span>
                 </a>

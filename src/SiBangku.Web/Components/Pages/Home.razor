@@ -49,65 +49,22 @@
                 <!-- Subtitle -->
                 <p class="hero-desc-reveal mx-auto mb-5">@Lang["Hero_Subtitle"]</p>
 
-                <!-- Search bar -->
-                <div class="hero-action-reveal mb-3 mx-auto" style="max-width: 560px;">
-                    @if (!string.IsNullOrEmpty(SearchError))
-                    {
-                        <div class="ms-alert ms-alert-danger mb-3 py-2 px-3 small text-start">
-                            <i class="bi bi-exclamation-octagon ms-alert-icon"></i>
-                            <div class="ms-alert-content">@SearchError</div>
-                        </div>
-                    }
-                    <div class="hero-search-bar">
-                        <form @onsubmit="NavigateToBooking" class="d-flex gap-2">
-                            <div class="ms-input-group flex-grow-1">
-                                <i class="bi bi-search ms-input-icon" style="color:#B88E2D;"></i>
-                                <input type="text" class="ms-form-control has-icon-left font-mono text-uppercase border-0"
-                                       @bind="SearchTenantCode"
-                                       placeholder="@Lang["Hero_Search_Placeholder"]"
-                                       style="background:transparent;font-size:.86rem;font-weight:600;box-shadow:none;color:#FAF8F5;" />
-                            </div>
-                            <button type="submit" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap px-4 gold-shimmer-btn" style="border-radius:12px;">
-                                <span>@Lang["Hero_Search_Btn"]</span>
-                                <i class="bi bi-arrow-right ms-1"></i>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Demo chips -->
-                    <div class="mt-3 d-flex flex-wrap justify-content-center align-items-center gap-2">
-                        <span class="font-mono" style="font-size:.72rem;color:rgba(243,232,200,.65);">
-                            <i class="bi bi-shop-window me-1" style="color:#D4AF37;"></i>@Lang.Get("Demo_Try", "Coba Demo:")
-                        </span>
-                        @if (DemoOutlets.Any())
-                        {
-                            @foreach (var outlet in DemoOutlets.Take(4))
-                            {
-                                <button type="button" class="hero-demo-chip" @onclick='() => SelectDemoOutlet(outlet.TenantCode)'>
-                                    <i class="bi bi-stars" style="color:#D4AF37;"></i>
-                                    <span>@outlet.RestaurantName</span>
-                                </button>
-                            }
-                        }
-                        <button type="button" class="hero-demo-chip hero-demo-chip--gold" @onclick="() => IsDirectoryModalOpen = true">
-                            <i class="bi bi-compass"></i>
-                            <span>@Lang.Get("Demo_Directory", "Direktori") (@AllOutlets.Count)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Action buttons -->
-                <div class="hero-action-reveal d-flex flex-wrap justify-content-center gap-3 mt-2">
-                    <button type="button" class="hero-action-btn hero-action-btn--ghost" @onclick="() => IsScannerOpen = true">
-                        <i class="bi bi-camera"></i>
-                        <span>@Lang["Hero_Btn_ScanQR"]</span>
-                    </button>
+                <!-- Action buttons (Pill Duo + Directory, matching referensi landingpage.jpg) -->
+                <div class="hero-action-reveal d-flex flex-wrap justify-content-center align-items-center gap-3 mt-4">
                     <a href="/booking" class="hero-action-btn hero-action-btn--gold gold-shimmer-btn">
-                        <i class="bi bi-calendar-check"></i>
+                        <i class="bi bi-calendar2-check"></i>
                         <span>@Lang["Hero_Btn_Book"]</span>
                     </a>
-                    <a href="/admin" class="hero-action-btn hero-action-btn--ghost font-mono" style="font-size:.8rem;">
-                        <i class="bi bi-shop"></i>
+                    <button type="button" class="hero-action-btn hero-action-btn--ghost" @onclick="() => IsScannerOpen = true">
+                        <i class="bi bi-qr-code-scan"></i>
+                        <span>@Lang["Hero_Btn_ScanQR"]</span>
+                    </button>
+                    <button type="button" class="hero-action-btn hero-action-btn--ghost" @onclick="() => IsDirectoryModalOpen = true">
+                        <i class="bi bi-compass" style="color: #D4AF37;"></i>
+                        <span>@Lang.Get("Demo_Directory", "Direktori Outlet") (@AllOutlets.Count)</span>
+                    </button>
+                    <a href="/admin" class="hero-action-btn hero-action-btn--ghost font-mono" style="font-size: 0.82rem;">
+                        <i class="bi bi-shop" style="color: #D4AF37;"></i>
                         <span>@Lang["Hero_Btn_RestoPortal"]</span>
                     </a>
                 </div>
