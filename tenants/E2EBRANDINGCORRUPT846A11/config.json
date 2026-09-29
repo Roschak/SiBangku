@@ -1,0 +1,20 @@
+{
+  "tenantId": "TEN-2026-A66A4E",
+  "tenantCode": "E2EBRANDINGCORRUPT846A11",
+  "restaurantName": "E2E Resto",
+  "legalEntityName": "E2E branding-corrupt 846a11",
+  "databaseIdentifier": "tenant_e2ebrandingcorrupt846a11",
+  "apkIdentifier": "com.sibangku.e2ebrandingcorrupt846a11",
+  "endpoints": {
+    "webBaseUrl": "http://localhost:3000",
+    "lanBaseUrl": "http://192.168.68.103:3000",
+    "emulatorBaseUrl": "http://10.0.2.2:3000",
+    "customerBookingUrl": "http://localhost:3000/booking?tenant=E2EBRANDINGCORRUPT846A11",
+    "adminPortalUrl": "http://localhost:3000/tenant-admin?tenant=E2EBRANDINGCORRUPT846A11"
+  },
+  "branding": {
+    "primaryColor": "#D4AF37",
+    "secondaryColor": "#A07E3F",
+    "theme": "warm-silk-champagne-gold"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "tenantId": "TEN-2026-4F5454",
+  "tenantCode": "E2ELOGINA1CAE7",
+  "restaurantName": "E2E Resto",
+  "legalEntityName": "E2E login a1cae7",
+  "databaseIdentifier": "tenant_e2elogina1cae7",
+  "apkIdentifier": "com.sibangku.e2elogina1cae7",
+  "endpoints": {
+    "webBaseUrl": "http://localhost:3000",
+    "lanBaseUrl": "http://192.168.68.103:3000",
+    "emulatorBaseUrl": "http://10.0.2.2:3000",
+    "customerBookingUrl": "http://localhost:3000/booking?tenant=E2ELOGINA1CAE7",
+    "adminPortalUrl": "http://localhost:3000/tenant-admin?tenant=E2ELOGINA1CAE7"
+  },
+  "branding": {
+    "primaryColor": "#D4AF37",
+    "secondaryColor": "#A07E3F",
+    "theme": "warm-silk-champagne-gold"
+  }
+}
