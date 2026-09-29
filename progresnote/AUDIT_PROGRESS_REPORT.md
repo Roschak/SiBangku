@@ -76,6 +76,26 @@ Dokumen ini mencatat seluruh temuan audit mendalam, analisis akar masalah (*root
 
 | Test Project | Total Tests | Passed | Failed | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| `SiBangku.Tests.dll` | 14 | 14 | 0 | **100% PASSED** |
+| `SiBangku.Tests.dll` | 74 | 74 | 0 | **100% PASSED** |
 
 Seluruh layanan Docker (`sibangku-web-csharp`, `sibangku-control-api-csharp`, `sibangku-tenant-api-csharp`, `sibangku-postgres-csharp`) berstatus **Healthy & Running**.
+
+---
+
+## 6. Audit Siklus Sandi Tenant, Keamanan PostgreSQL, & Kompilasi Terisolasi
+
+1. **Siklus Sandi Tenant & Self-Healing**:
+   - Resolusi ganda endpoint reset sandi Control API (`TenantId` & `TenantCode`).
+   - Pengecekan ketersediaan database fisik tenant dengan `EnsureDatabaseExistsAsync` sebelum eksekusi EF Core, mencegah crash Npgsql `3D000`.
+   - Inisialisasi otomatis akun admin resto jika belum terbentuk di database fisik.
+   - Fallback lookup via `ClaimTypes.Email` di Tenant API jika `UserId` claim tidak cocok.
+   - Validasi ketat via `PasswordPolicy` dan hashing Argon2id.
+2. **Sentralisasi Keamanan PostgreSQL (`PostgresConnectionHelper`)**:
+   - Validasi nama database anti-SQL Injection (`[a-zA-Z0-9_]{1,63}`).
+   - Normalisasi URI & connection string dengan penegakan SSL di production, network timeout 15s, command timeout 30s, dan keepalive 30s.
+   - Multi-tenant connection pool hardening (`MinPoolSize = 0`, `MaxPoolSize = 5..20`, `ConnectionIdleLifetime = 15s`).
+   - Masking password kredensial pada logging/diagnostik.
+3. **Otomatisasi Kompilasi & Verifikasi Artefak Terisolasi**:
+   - Seeding otomatis APK dan EXE ke setiap workspace baru (`tenants/<KODE>/`).
+   - Penambahan skrip otomatisasi terintegrasi `scripts/compile-tenant-artifacts.ps1`.
+   - Verifikasi sukses terhadap 28 workspace tenant terisolasi (validitas ZIP/Manifest APK dan PE header EXE).

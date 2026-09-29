@@ -22,7 +22,7 @@ namespace SiBangku.Cli
         );
 
         private static string ControlApiUrl = Environment.GetEnvironmentVariable("CONTROL_API_URL") ?? "http://localhost:3001";
-        private static string ControlDbUrl = Environment.GetEnvironmentVariable("CONTROL_DATABASE_URL") ?? "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+        private static string ControlDbUrl = PostgresConnectionHelper.NormalizeConnectionString(Environment.GetEnvironmentVariable("CONTROL_DATABASE_URL") ?? "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev").ConnectionString;
         // Privileged host endpoints use a dedicated master key (never the JWT
         // signing secret). Falls back to the local development default so a
         // plain `dotnet run` against a development Control API keeps working.
@@ -127,7 +127,7 @@ namespace SiBangku.Cli
                     case "tenant":
                         if (args.Length < 2)
                         {
-                            Console.WriteLine("Penggunaan: sibangku-cli tenant <list|create|extend|delete>");
+                            Console.WriteLine("Penggunaan: sibangku-cli tenant <list|create|reset-password|extend|delete>");
                             return 1;
                         }
                         var subCommand = args[1].ToLowerInvariant();
@@ -135,6 +135,7 @@ namespace SiBangku.Cli
                         {
                             "list" => await HandleTenantListAsync(),
                             "create" => await HandleTenantCreateAsync(args),
+                            "reset-password" => await HandleTenantResetPasswordDirectAsync(args),
                             "extend" => await HandleTenantExtendAsync(args),
                             "delete" => await HandleTenantDeleteAsync(args),
                             _ => UnknownCommand()
@@ -753,17 +754,17 @@ namespace SiBangku.Cli
                     return 1;
                 }
 
-                var controlBuilder = new Npgsql.NpgsqlConnectionStringBuilder(ControlDbUrl)
-                {
-                    Database = tenant.DatabaseIdentifier
-                };
+                await PostgresConnectionHelper.EnsureDatabaseExistsAsync(ControlDbUrl, tenant.DatabaseIdentifier);
+                var tenantConn = PostgresConnectionHelper.BuildTenantConnectionString(ControlDbUrl, tenant.DatabaseIdentifier);
 
                 var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>()
-                    .UseNpgsql(controlBuilder.ConnectionString)
+                    .UseNpgsql(tenantConn)
                     .Options;
 
                 await using var tenantDb = new TenantDbContext(tenantOptions);
-                var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN");
+                await tenantDb.Database.EnsureCreatedAsync();
+                var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN")
+                             ?? await tenantDb.Users.FirstOrDefaultAsync();
                 if (adminUser == null)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;

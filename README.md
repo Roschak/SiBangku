@@ -86,7 +86,7 @@ Sistem antarmuka web SiBangku menerapkan prinsip desain **Management System UI K
 
 ## 🏗️ Arsitektur Solusi (.NET 9 & PostgreSQL)
 
-Seluruh proyek berada di dalam folder `src/` dan dihubungkan oleh file solusi [SiBangku.slnx](file:///D:/sertifikat/Apk_SiBangku/SiBangku.slnx):
+Seluruh proyek berada di dalam folder `src/` dan dihubungkan oleh file solusi [SiBangku.sln](file:///D:/mydokumen/myproject/Apk_SiBangku/Apk_SiBangku/SiBangku.sln):
 
 ```
 Apk_SiBangku/
@@ -100,7 +100,7 @@ Apk_SiBangku/
 │   ├── SiBangku.Cli/           # Command-Line Management Tool
 │   └── SiBangku.Tests/         # Unit, Integration & PostgreSQL End-to-End Tests (xUnit)
 ├── docker-compose.yml          # Multi-container orchestration
-└── SiBangku.slnx               # Visual Studio / .NET Solution File
+└── SiBangku.sln                # Visual Studio / .NET Solution File
 ```
 
 ---
@@ -124,7 +124,7 @@ Layanan akan aktif pada endpoint berikut:
 
 1. **Pastikan PostgreSQL berjalan lokal**, lalu build solusi:
    ```bash
-   dotnet build SiBangku.slnx
+   dotnet build SiBangku.sln
    ```
 
 2. **Jalankan Control API** (Terminal 1):
@@ -153,7 +153,7 @@ Layanan akan aktif pada endpoint berikut:
 
 Seluruh pengujian dapat dijalankan dengan perintah:
 ```bash
-dotnet test SiBangku.slnx
+dotnet test SiBangku.sln
 ```
 > **Hasil Pengujian**: 74/74 Tests Passed (0 Warnings, 0 Errors).
 
@@ -172,11 +172,11 @@ tanpa Docker tetap mendapat hasil hijau. Untuk menjalankannya, sediakan server P
 ```bash
 # Server bawaan docker-compose (user 'sibangku' adalah superuser, dibutuhkan hak CREATE DATABASE)
 docker compose up -d postgres
-dotnet test SiBangku.slnx
+dotnet test SiBangku.sln
 
 # Atau arahkan ke server tes Anda sendiri
 SIBANGKU_TEST_POSTGRES="Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=..." \
-  dotnet test SiBangku.slnx
+  dotnet test SiBangku.sln
 ```
 Setiap kali dijalankan, tes membuat database sementara `sibangku_e2e_control_*` beserta database
 tenant-nya, lalu menghapusnya kembali setelah selesai.
@@ -190,10 +190,10 @@ Pipeline [`.github/workflows/ci.yml`](.github/workflows/ci.yml) berjalan pada se
 2. **Audit Kerentanan NuGet** - `NuGetAuditMode=all` (termasuk paket transitif) dengan advisory
    moderate/tinggi/kritis sebagai **error**, ditambah laporan `dotnet list package --vulnerable`
    yang gagal pada **semua** tingkat keparahan (ambang ini didefinisikan di `.github/workflows/ci.yml`).
-   *Jalankan lokal:* `dotnet list SiBangku.slnx package --vulnerable --include-transitive`.
-3. **Pemeriksaan Format Kode** - `dotnet format SiBangku.slnx --verify-no-changes` dengan aturan
+   *Jalankan lokal:* `dotnet list SiBangku.sln package --vulnerable --include-transitive`.
+3. **Pemeriksaan Format Kode** - `dotnet format SiBangku.sln --verify-no-changes` dengan aturan
    dari [`.editorconfig`](.editorconfig) (newline LF dipatok, jadi hasilnya sama di Windows/Linux/macOS).
-   *Perbaiki lokal:* `dotnet format SiBangku.slnx`.
+   *Perbaiki lokal:* `dotnet format SiBangku.sln`.
 4. **APK per Tenant** - mengompilasi APK Android untuk setiap folder `tenants/<KODE>/android`,
    memverifikasi isinya (`classes.dex`, `resources.arsc`, `AndroidManifest.xml`), lalu
    mengunggahnya sebagai artifact `sibangku-<KODE>-apk`.

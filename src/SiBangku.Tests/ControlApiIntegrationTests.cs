@@ -196,5 +196,21 @@ namespace SiBangku.Tests
             Assert.True(response.Headers.Contains("Referrer-Policy"));
             Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").First());
         }
+
+        [Fact]
+        public async Task GetApk_NonExistentTenant_ShouldReturn404()
+        {
+            var client = _factory.CreateClient();
+            var response = await client.GetAsync("/api/v1/tenants/NONEXISTENT/apk");
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetExe_NonExistentTenant_ShouldReturn404()
+        {
+            var client = _factory.CreateClient();
+            var response = await client.GetAsync("/api/v1/tenants/NONEXISTENT/exe");
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }

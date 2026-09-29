@@ -23,8 +23,9 @@ namespace SiBangku.TenantApi.Middleware
         public TenantResolutionMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
-            _controlDbConnectionString = configuration["CONTROL_DATABASE_URL"] ??
-                                         "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+            var raw = configuration["CONTROL_DATABASE_URL"] ??
+                      "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+            _controlDbConnectionString = PostgresConnectionHelper.NormalizeConnectionString(raw).ConnectionString;
             _useInMemory = configuration["UseInMemoryDatabase"] == "true";
         }
 
@@ -105,18 +106,9 @@ namespace SiBangku.TenantApi.Middleware
             }
             else
             {
-                var controlBuilder = new NpgsqlConnectionStringBuilder(_controlDbConnectionString);
-                await EnsurePhysicalDatabaseExistsAsync(controlBuilder, tenant.DatabaseIdentifier);
-
-                var tenantBuilder = new NpgsqlConnectionStringBuilder
-                {
-                    Host = controlBuilder.Host,
-                    Port = controlBuilder.Port,
-                    Username = controlBuilder.Username,
-                    Password = controlBuilder.Password,
-                    Database = tenant.DatabaseIdentifier
-                };
-                optionsBuilder.UseNpgsql(tenantBuilder.ConnectionString);
+                await PostgresConnectionHelper.EnsureDatabaseExistsAsync(_controlDbConnectionString, tenant.DatabaseIdentifier);
+                var tenantConnString = PostgresConnectionHelper.BuildTenantConnectionString(_controlDbConnectionString, tenant.DatabaseIdentifier);
+                optionsBuilder.UseNpgsql(tenantConnString);
             }
 
             tenantContext.DbContext = new TenantDbContext(optionsBuilder.Options);
@@ -136,41 +128,6 @@ namespace SiBangku.TenantApi.Middleware
                 {
                     await tenantContext.DbContext.DisposeAsync();
                 }
-            }
-        }
-
-        private static async Task EnsurePhysicalDatabaseExistsAsync(NpgsqlConnectionStringBuilder controlBuilder, string dbName)
-        {
-            try
-            {
-                var maintenanceDb = !string.IsNullOrWhiteSpace(controlBuilder.Database) ? controlBuilder.Database : "postgres";
-                var sysConnBuilder = new NpgsqlConnectionStringBuilder
-                {
-                    Host = controlBuilder.Host,
-                    Port = controlBuilder.Port,
-                    Username = controlBuilder.Username,
-                    Password = controlBuilder.Password,
-                    Database = maintenanceDb
-                };
-
-                await using var conn = new NpgsqlConnection(sysConnBuilder.ConnectionString);
-                await conn.OpenAsync();
-
-                var checkQuery = "SELECT 1 FROM pg_database WHERE datname = @dbName";
-                await using var checkCmd = new NpgsqlCommand(checkQuery, conn);
-                checkCmd.Parameters.AddWithValue("dbName", dbName);
-                var exists = await checkCmd.ExecuteScalarAsync();
-
-                if (exists == null)
-                {
-                    var createQuery = $"CREATE DATABASE \"{dbName}\"";
-                    await using var createCmd = new NpgsqlCommand(createQuery, conn);
-                    await createCmd.ExecuteNonQueryAsync();
-                }
-            }
-            catch
-            {
-                // Safe ignore if database already exists or in case of concurrent initialization
             }
         }
     }

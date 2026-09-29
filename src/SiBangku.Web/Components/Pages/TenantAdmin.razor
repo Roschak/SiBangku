@@ -5,6 +5,7 @@
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using SiBangku.Shared.Models
+@using SiBangku.Shared.Security
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -230,8 +231,17 @@ else
                         </div>
                     </div>
                 </div>
+                @if (MustChangePassword)
+                {
+                    <div class="alert alert-warning py-1 px-2 mb-2 font-mono text-center" style="font-size: 0.7rem; border-radius: var(--ms-radius-xs);">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Wajib ganti kata sandi
+                    </div>
+                }
                 <div class="d-flex gap-2 mt-2">
-                    <a href="/" class="ms-btn ms-btn-secondary ms-btn-sm w-100" title="Ke Beranda Tamu">
+                    <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-warning" @onclick="PromptChangePassword" title="Ganti Kata Sandi Akun">
+                        <i class="bi bi-key-fill"></i> Sandi
+                    </button>
+                    <a href="/" class="ms-btn ms-btn-secondary ms-btn-sm" title="Ke Beranda Tamu">
                         <i class="bi bi-house"></i>
                     </a>
                     <button class="ms-btn ms-btn-danger ms-btn-sm w-100" @onclick="HandleLogout" title="Logout">
@@ -1554,6 +1564,94 @@ else
             </div>
         </div>
     }
+
+    <!-- MODAL: Tenant Admin Change Password Modal -->
+    @if (ShowChangePasswordModal)
+    {
+        <div class="ms-modal-backdrop" @onclick="() => { if (!MustChangePassword) ShowChangePasswordModal = false; }">
+            <div class="ms-modal-card" style="max-width: 500px;" @onclick:stopPropagation="true">
+                <div class="ms-modal-header" style="background: var(--ms-surface-elevated); border-bottom: 1px solid var(--ms-border);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-lock text-warning fs-5"></i>
+                        <h6 class="ms-modal-title mb-0 fw-bold" style="color: var(--ms-text-main);">
+                            @(MustChangePassword ? "Wajib Atur Kata Sandi Baru" : "Ganti Kata Sandi Akun")
+                        </h6>
+                    </div>
+                    @if (!MustChangePassword)
+                    {
+                        <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="() => ShowChangePasswordModal = false">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    }
+                </div>
+                <div class="ms-modal-body p-4">
+                    @if (MustChangePassword)
+                    {
+                        <div class="ms-alert ms-alert-warning mb-3">
+                            <i class="bi bi-shield-exclamation ms-alert-icon"></i>
+                            <div class="ms-alert-content small">
+                                <strong>Keamanan Akun:</strong> Anda masuk menggunakan kata sandi sementara. Silakan buat kata sandi baru yang aman untuk akun <strong>@Email</strong> sebelum melanjutkan.
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(ChangePasswordError))
+                    {
+                        <div class="ms-alert ms-alert-danger mb-3">
+                            <i class="bi bi-exclamation-triangle ms-alert-icon"></i>
+                            <div class="ms-alert-content small">@ChangePasswordError</div>
+                        </div>
+                    }
+
+                    <div class="ms-form-group mb-3">
+                        <label class="ms-form-label" for="tenantNewPassword">Kata Sandi Baru <span class="text-danger">*</span></label>
+                        <input type="@(ShowChangePasswordText ? "text" : "password")" 
+                               class="ms-form-control font-mono" 
+                               id="tenantNewPassword" 
+                               @bind="NewPasswordInput" 
+                               placeholder="Minimal 12 karakter" />
+                        <small class="text-muted font-mono" style="font-size: 0.7rem;">
+                            Minimal 12 karakter, memuat minimal 3 dari: huruf kecil, huruf besar, angka, simbol.
+                        </small>
+                    </div>
+
+                    <div class="ms-form-group mb-3">
+                        <label class="ms-form-label" for="tenantConfirmPassword">Ulangi Kata Sandi Baru <span class="text-danger">*</span></label>
+                        <input type="@(ShowChangePasswordText ? "text" : "password")" 
+                               class="ms-form-control font-mono" 
+                               id="tenantConfirmPassword" 
+                               @bind="ConfirmPasswordInput" 
+                               placeholder="Ketik ulang kata sandi baru" />
+                    </div>
+
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="toggleShowTenantPw" @bind="ShowChangePasswordText" />
+                        <label class="form-check-label small font-mono" for="toggleShowTenantPw" style="color: var(--ms-text-muted);">
+                            Tampilkan teks kata sandi
+                        </label>
+                    </div>
+                </div>
+                <div class="ms-modal-footer">
+                    @if (!MustChangePassword)
+                    {
+                        <button type="button" class="ms-btn ms-btn-secondary" @onclick="() => ShowChangePasswordModal = false">Batal</button>
+                    }
+                    <button type="button" class="ms-btn ms-btn-primary" @onclick="HandleChangePasswordSubmit" disabled="@IsChangingPassword">
+                        @if (IsChangingPassword)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Menyimpan...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check2 me-1"></i>
+                            <span>Perbarui Kata Sandi</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -1572,6 +1670,15 @@ else
     private bool IsSubmitting = false;
     private string ActiveTab = "overview";
     private string SearchReservationQuery = "";
+
+    // Password Change State
+    private bool MustChangePassword = false;
+    private bool ShowChangePasswordModal = false;
+    private string NewPasswordInput = "";
+    private string ConfirmPasswordInput = "";
+    private bool ShowChangePasswordText = false;
+    private string? ChangePasswordError;
+    private bool IsChangingPassword = false;
 
     // Table Management Models
     private string NewTableNumber = "";
@@ -1738,9 +1845,28 @@ else
             if (response.IsSuccessStatusCode)
             {
                 var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
-                Token = doc.GetProperty("data").GetProperty("token").GetString() ?? "";
+                var data = doc.GetProperty("data");
+                Token = data.GetProperty("token").GetString() ?? "";
+
+                if (data.TryGetProperty("user", out var userProp))
+                {
+                    if (userProp.TryGetProperty("mustChangePassword", out var mcpProp))
+                    {
+                        MustChangePassword = mcpProp.GetBoolean();
+                    }
+                    if (userProp.TryGetProperty("email", out var emailProp) && emailProp.GetString() is { } officialEmail && !string.IsNullOrWhiteSpace(officialEmail))
+                    {
+                        Email = officialEmail;
+                    }
+                }
+
                 IsLoggedIn = true;
-                
+
+                if (MustChangePassword)
+                {
+                    ShowChangePasswordModal = true;
+                }
+
                 await LoadTenantData();
             }
             else
@@ -1763,9 +1889,95 @@ else
     {
         IsLoggedIn = false;
         Token = "";
+        MustChangePassword = false;
+        ShowChangePasswordModal = false;
         ReservationsList.Clear();
         TablesList.Clear();
         ActiveTenant = null;
+    }
+
+    private void PromptChangePassword()
+    {
+        NewPasswordInput = "";
+        ConfirmPasswordInput = "";
+        ChangePasswordError = null;
+        ShowChangePasswordModal = true;
+    }
+
+    private static async Task<string?> ReadApiErrorAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+            if (doc.TryGetProperty("error", out var error) && error.TryGetProperty("message", out var message))
+            {
+                var text = message.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    return text;
+                }
+            }
+        }
+        catch { }
+        return null;
+    }
+
+    private async Task HandleChangePasswordSubmit()
+    {
+        ChangePasswordError = null;
+
+        if (string.IsNullOrWhiteSpace(NewPasswordInput))
+        {
+            ChangePasswordError = "Kata sandi baru tidak boleh kosong.";
+            return;
+        }
+
+        if (NewPasswordInput != ConfirmPasswordInput)
+        {
+            ChangePasswordError = "Konfirmasi kata sandi baru tidak cocok.";
+            return;
+        }
+
+        var policyResult = PasswordPolicy.Validate(NewPasswordInput, Email);
+        if (!policyResult.IsValid)
+        {
+            ChangePasswordError = policyResult.ErrorSummary;
+            return;
+        }
+
+        IsChangingPassword = true;
+        try
+        {
+            var client = GetClient();
+            var response = await client.PostAsJsonAsync("/api/v1/auth/change-password", new
+            {
+                newPassword = NewPasswordInput
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                MustChangePassword = false;
+                ShowChangePasswordModal = false;
+                NewPasswordInput = "";
+                ConfirmPasswordInput = "";
+                Password = "";
+                SuccessAlert = "Kata sandi akun Anda berhasil diperbarui!";
+            }
+            else
+            {
+                var errorMsg = await ReadApiErrorAsync(response);
+                ChangePasswordError = errorMsg ?? "Gagal memperbarui kata sandi. Silakan coba lagi.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ChangePasswordError = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsChangingPassword = false;
+            StateHasChanged();
+        }
     }
 
     private async Task LoadTenantData()

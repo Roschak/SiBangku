@@ -1,4 +1,5 @@
 using System;
+using SiBangku.Db;
 using SiBangku.Shared.Security;
 using Xunit;
 
@@ -168,6 +169,84 @@ namespace SiBangku.Tests
                 Assert.True(PasswordPolicy.Validate(generated).IsValid,
                     $"Generated temporary password failed the policy: {generated}");
             }
+        }
+    }
+
+    public class PostgresConnectionSecurityTests
+    {
+        [Theory]
+        [InlineData("sibangku_tenant_resto1", true)]
+        [InlineData("tenant_db_123", true)]
+        [InlineData("sibangku_control", true)]
+        [InlineData("a", true)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        [InlineData("   ", false)]
+        [InlineData("tenant; DROP DATABASE sibangku_control;", false)]
+        [InlineData("tenant' OR '1'='1", false)]
+        [InlineData("tenant--comment", false)]
+        [InlineData("tenant-with-dash", false)]
+        [InlineData("tenant space", false)]
+        [InlineData("tenant\"quoted\"", false)]
+        public void ValidateDatabaseIdentifier_ShouldPreventSqlInjection(string? identifier, bool expectedValid)
+        {
+            var isValid = PostgresConnectionHelper.ValidateDatabaseIdentifier(identifier);
+            Assert.Equal(expectedValid, isValid);
+        }
+
+        [Fact]
+        public void SanitizeDatabaseIdentifier_ShouldCleanSpecialCharacters()
+        {
+            var sanitized = PostgresConnectionHelper.SanitizeDatabaseIdentifier("Resto-Budi #123!");
+            Assert.Equal("restobudi123", sanitized);
+            Assert.True(PostgresConnectionHelper.ValidateDatabaseIdentifier(sanitized));
+        }
+
+        [Fact]
+        public void NormalizeConnectionString_ShouldSupportUriAndAdoNet()
+        {
+            var uri = "postgresql://myuser:mypass@db.host.internal:5432/mycontrol?sslmode=require";
+            var builder = PostgresConnectionHelper.NormalizeConnectionString(uri);
+
+            Assert.Equal("db.host.internal", builder.Host);
+            Assert.Equal(5432, builder.Port);
+            Assert.Equal("myuser", builder.Username);
+            Assert.Equal("mypass", builder.Password);
+            Assert.Equal("mycontrol", builder.Database);
+            Assert.True(builder.Timeout >= 15);
+            Assert.True(builder.CommandTimeout >= 30);
+        }
+
+        [Fact]
+        public void BuildTenantConnectionString_ShouldEnforceSafePoolingAndPreserveCredentials()
+        {
+            var baseConn = "Host=localhost;Port=5432;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+            var tenantConn = PostgresConnectionHelper.BuildTenantConnectionString(baseConn, "sibangku_tenant_001");
+
+            var builder = new Npgsql.NpgsqlConnectionStringBuilder(tenantConn);
+            Assert.Equal("sibangku_tenant_001", builder.Database);
+            Assert.True(builder.Pooling);
+            Assert.Equal(0, builder.MinPoolSize);
+            Assert.InRange(builder.MaxPoolSize, 5, 20);
+            Assert.Equal(15, builder.ConnectionIdleLifetime);
+        }
+
+        [Fact]
+        public void BuildTenantConnectionString_ShouldRejectUnsafeIdentifier()
+        {
+            var baseConn = "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+            Assert.Throws<ArgumentException>(() =>
+                PostgresConnectionHelper.BuildTenantConnectionString(baseConn, "tenant; DROP DATABASE xyz;"));
+        }
+
+        [Fact]
+        public void MaskConnectionString_ShouldHidePassword()
+        {
+            var conn = "Host=localhost;Database=sibangku_control;Username=sibangku;Password=SuperSecretPassword123#";
+            var masked = PostgresConnectionHelper.MaskConnectionString(conn);
+
+            Assert.DoesNotContain("SuperSecretPassword123#", masked);
+            Assert.Contains("******", masked);
         }
     }
 }

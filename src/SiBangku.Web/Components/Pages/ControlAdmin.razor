@@ -502,6 +502,9 @@ else
                                                         <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-primary" @onclick="() => PromptBillingTenant(tenant)" title="Langganan & Waktu Tenggat">
                                                             <i class="bi bi-credit-card"></i> Billing
                                                         </button>
+                                                        <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono text-warning" @onclick="() => PromptResetTenantPassword(tenant)" title="Atur Ulang Kata Sandi Admin Resto">
+                                                            <i class="bi bi-key-fill"></i> Sandi
+                                                        </button>
                                                         <button class="ms-btn ms-btn-secondary ms-btn-sm font-mono" @onclick="() => PromptEditTenant(tenant)" title="Edit Nama, Email & Sandi">
                                                             <i class="bi bi-pencil-square"></i> Edit
                                                         </button>
@@ -1305,7 +1308,7 @@ else
                     <div class="ms-form-group mb-0">
                         <label class="ms-form-label"><i class="bi bi-key me-1 text-warning"></i> Ganti Kata Sandi Baru (Opsional)</label>
                         <input type="password" class="ms-form-control font-mono" @bind="EditNewPassword" minlength="12" placeholder="Biarkan kosong jika tidak diubah (min. 12 karakter)" />
-                        <small class="text-muted font-mono" style="font-size: 0.7rem;">Minimal 5 karakter. Di-hash dengan enkripsi BCrypt aman.</small>
+                        <small class="text-muted font-mono" style="font-size: 0.7rem;">Minimal 12 karakter (kombinasi huruf besar/kecil, angka, simbol). Di-hash dengan Argon2id aman.</small>
                     </div>
                 </div>
                 <div class="ms-modal-footer">
@@ -2038,7 +2041,9 @@ else
 
             if (response.IsSuccessStatusCode)
             {
-                SuccessAlert = $"Kata sandi admin resto untuk '{ResetTargetTenant.RestaurantName}' ({ResetTargetTenant.TenantCode}) berhasil diatur ulang menjadi: {ResetNewPassword}";
+                var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var adminEmail = doc.TryGetProperty("adminEmail", out var ep) ? ep.GetString() : "admin";
+                SuccessAlert = $"Kata sandi admin resto untuk '{ResetTargetTenant.RestaurantName}' ({ResetTargetTenant.TenantCode}) berhasil diatur ulang!\nEmail Admin: {adminEmail}\nKata Sandi Baru: {ResetNewPassword}";
                 ResetTargetTenant = null;
                 ResetNewPassword = "";
                 ResetConfirmPassword = "";
@@ -2178,12 +2183,10 @@ else
 
             if (!string.IsNullOrWhiteSpace(EditNewPassword))
             {
-                var policyError = PasswordPolicy.Validate(EditNewPassword.Trim(), EditAdminEmail) is { IsValid: false } policyResult
-                    ? policyResult.ErrorSummary
-                    : null;
-                if (policyError is not null)
+                var policyResult = PasswordPolicy.Validate(EditNewPassword.Trim(), EditTargetTenant.TenantCode);
+                if (!policyResult.IsValid)
                 {
-                    EditModalError = policyError;
+                    EditModalError = policyResult.ErrorSummary;
                     return;
                 }
 

@@ -58,24 +58,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # A .NET 9 SDK is required by global.json; the .NET 10 SDK is what supports
-      # the .slnx solution format used by this repository.
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          dotnet-version: '9.0.x'
 
       - name: Restore
-        run: dotnet restore SiBangku.slnx
+        run: dotnet restore SiBangku.sln
 
       - name: Build
-        run: dotnet build SiBangku.slnx --no-restore --configuration Release
+        run: dotnet build SiBangku.sln --no-restore --configuration Release
 
       - name: Test (unit + integration + PostgreSQL end-to-end)
         run: >
-          dotnet test SiBangku.slnx
+          dotnet test SiBangku.sln
           --no-build
           --configuration Release
           --logger "console;verbosity=normal"
@@ -100,23 +96,21 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          dotnet-version: '9.0.x'
 
       # NuGetAuditMode=all extends the built-in audit to transitive packages.
       # Low severity advisories (NU1901) stay warnings; moderate, high and
       # critical (NU1902-NU1904) fail the build. Warnings are only raised during
       # restore, so the gate must be applied to `dotnet restore`.
       - name: Restore with the vulnerability gate
-        run: dotnet restore SiBangku.slnx -p:NuGetAuditMode=all -warnaserror:NU1902,NU1903,NU1904
+        run: dotnet restore SiBangku.sln -p:NuGetAuditMode=all -warnaserror:NU1902,NU1903,NU1904
 
       - name: Audit report (direct + transitive)
         shell: bash
         run: |
           set -euo pipefail
 
-          dotnet list SiBangku.slnx package --vulnerable --include-transitive \
+          dotnet list SiBangku.sln package --vulnerable --include-transitive \
             | tee /tmp/nuget-audit.txt
 
           {
@@ -147,16 +141,14 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          dotnet-version: '9.0.x'
 
       # .editorconfig pins end_of_line=lf so this verdict is identical on Linux,
       # Windows and macOS instead of following the developer's OS newline.
       - name: Verify formatting
         run: |
-          if ! dotnet format SiBangku.slnx --verify-no-changes --verbosity minimal; then
-            echo "::error::Format kode tidak sesuai .editorconfig. Jalankan 'dotnet format SiBangku.slnx' secara lokal lalu commit hasilnya."
+          if ! dotnet format SiBangku.sln --verify-no-changes --verbosity minimal; then
+            echo "::error::Format kode tidak sesuai .editorconfig. Jalankan 'dotnet format SiBangku.sln' secara lokal lalu commit hasilnya."
             exit 1
           fi
 
