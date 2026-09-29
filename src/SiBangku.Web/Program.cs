@@ -49,7 +49,7 @@ app.Use(async (context, next) =>
     headers["Content-Security-Policy"] =
         "default-src 'self'; " +
         // Blazor Server bootstraps with an inline script; unsafe-inline is required.
-        "script-src 'self' 'unsafe-inline'; " +
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
         // Inline style attributes are used extensively throughout the UI kit.
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
         "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; " +

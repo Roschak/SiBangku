@@ -24,6 +24,7 @@ Desktop.ini
 
 # Environment files
 .env
+.env.example
 .env.local
 .env.development
 .env.production
@@ -38,6 +39,7 @@ tenants/*/android/build/
 tenants/*/android/app/build/
 tenants/*/android/.cxx/
 tenants/*/android/local.properties
+tenants/E2E*/
 
 # Packaged mobile binaries are produced by CI and published as artifacts,
 # never committed: the previous hand-made download was not a valid package.

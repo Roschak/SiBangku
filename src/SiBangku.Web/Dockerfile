@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copy Solution structure
-COPY SiBangku.slnx ./
+COPY SiBangku.sln ./
 COPY src/SiBangku.Shared/SiBangku.Shared.csproj src/SiBangku.Shared/
 COPY src/SiBangku.Web/SiBangku.Web.csproj src/SiBangku.Web/
 

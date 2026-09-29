@@ -7,8 +7,9 @@ var builder = Host.CreateApplicationBuilder(args);
 // Load environment variables
 builder.Configuration.AddEnvironmentVariables();
 
-var controlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
-                   "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var rawControlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
+                      "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var controlDbUrl = PostgresConnectionHelper.NormalizeConnectionString(rawControlDbUrl, !builder.Environment.IsDevelopment()).ConnectionString;
 
 // Register Control DB
 builder.Services.AddDbContext<ControlDbContext>(options => options.UseNpgsql(controlDbUrl));

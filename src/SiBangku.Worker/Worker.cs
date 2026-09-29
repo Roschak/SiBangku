@@ -100,18 +100,17 @@ namespace SiBangku.Worker
                 {
                     try
                     {
-                        // Build connection string for individual tenant DB
-                        var tenantBuilder = new NpgsqlConnectionStringBuilder
+                        if (!PostgresConnectionHelper.ValidateDatabaseIdentifier(tenant.DatabaseIdentifier))
                         {
-                            Host = controlBuilder.Host,
-                            Port = controlBuilder.Port,
-                            Username = controlBuilder.Username,
-                            Password = controlBuilder.Password,
-                            Database = tenant.DatabaseIdentifier
-                        };
+                            _logger.LogWarning("Invalid tenant database identifier '{dbName}'. Skipping.", tenant.DatabaseIdentifier);
+                            continue;
+                        }
+
+                        // Build connection string for individual tenant DB with safe pooling and preserved SSL
+                        var tenantConnString = PostgresConnectionHelper.BuildTenantConnectionString(_controlDbConnectionString, tenant.DatabaseIdentifier);
 
                         var optionsBuilder = new DbContextOptionsBuilder<TenantDbContext>();
-                        optionsBuilder.UseNpgsql(tenantBuilder.ConnectionString);
+                        optionsBuilder.UseNpgsql(tenantConnString);
 
                         using (var tenantDb = new TenantDbContext(optionsBuilder.Options))
                         {

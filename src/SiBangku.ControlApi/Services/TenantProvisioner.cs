@@ -77,68 +77,13 @@ namespace SiBangku.ControlApi.Services
             // provisioning step
 
             // 2. Create the physical database on PostgreSQL server
-            var controlBuilder = new NpgsqlConnectionStringBuilder(_controlDbConnectionString);
-            var controlHost = controlBuilder.Host;
-            var controlPort = controlBuilder.Port;
-            var controlUser = controlBuilder.Username;
-            var controlPassword = controlBuilder.Password;
-
-            // Connect to maintenance DB (control DB first, fallback to postgres) to run CREATE DATABASE
-            var maintenanceDb = !string.IsNullOrWhiteSpace(controlBuilder.Database) ? controlBuilder.Database : "postgres";
-            var systemBuilder = new NpgsqlConnectionStringBuilder
-            {
-                Host = controlHost,
-                Port = controlPort,
-                Username = controlUser,
-                Password = controlPassword,
-                Database = maintenanceDb
-            };
-
-            NpgsqlConnection? conn = null;
-            try
-            {
-                conn = new NpgsqlConnection(systemBuilder.ConnectionString);
-                await conn.OpenAsync();
-            }
-            catch
-            {
-                systemBuilder.Database = "postgres";
-                conn = new NpgsqlConnection(systemBuilder.ConnectionString);
-                await conn.OpenAsync();
-            }
-
-            await using (conn)
-            {
-                // Check if database exists
-                var checkQuery = "SELECT 1 FROM pg_database WHERE datname = @dbName";
-                await using (var checkCmd = new NpgsqlCommand(checkQuery, conn))
-                {
-                    checkCmd.Parameters.AddWithValue("dbName", dbName);
-                    var exists = await checkCmd.ExecuteScalarAsync();
-
-                    if (exists == null)
-                    {
-                        var createQuery = $"CREATE DATABASE \"{dbName}\"";
-                        await using (var createCmd = new NpgsqlCommand(createQuery, conn))
-                        {
-                            await createCmd.ExecuteNonQueryAsync();
-                        }
-                    }
-                }
-            }
+            var controlConn = _controlDbConnectionString;
+            await PostgresConnectionHelper.EnsureDatabaseExistsAsync(controlConn, dbName);
 
             // 3. Connect to newly created database and run schema generation
-            var tenantBuilder = new NpgsqlConnectionStringBuilder
-            {
-                Host = controlHost,
-                Port = controlPort,
-                Username = controlUser,
-                Password = controlPassword,
-                Database = dbName
-            };
-
+            var tenantConnString = PostgresConnectionHelper.BuildTenantConnectionString(controlConn, dbName);
             var optionsBuilder = new DbContextOptionsBuilder<TenantDbContext>();
-            optionsBuilder.UseNpgsql(tenantBuilder.ConnectionString);
+            optionsBuilder.UseNpgsql(tenantConnString);
 
             using (var tenantContext = new TenantDbContext(optionsBuilder.Options))
             {

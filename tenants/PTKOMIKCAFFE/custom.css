@@ -9,7 +9,6 @@
   --tenant-surface-dark: #1C1714;
 }
 
-/* Kustomisasi gaya tombol & aksen outlet */
 .btn-tenant-accent {
   background: linear-gradient(135deg, #D4AF37 0%, #A07E3F 100%);
   color: #FFFFFF;

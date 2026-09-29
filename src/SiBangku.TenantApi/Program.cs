@@ -30,8 +30,9 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Add configurations from environment variables
 builder.Configuration.AddEnvironmentVariables();
 
-var controlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
-                   "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var rawControlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
+                      "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var controlDbUrl = PostgresConnectionHelper.NormalizeConnectionString(rawControlDbUrl, !builder.Environment.IsDevelopment()).ConnectionString;
 
 // Secrets must come from configuration (environment variables). A signing key
 // is never hardcoded for production: the Development fallback exists only so
@@ -347,7 +348,7 @@ app.MapPost("/api/v1/auth/login", async (HttpContext context, TenantContext tena
     }
 }).RequireRateLimiting("auth");
 
-app.MapPost("/api/v1/auth/change-password", [Authorize] async (HttpContext context, TenantContext tenantContext) =>
+app.MapPost("/api/v1/auth/change-password", [Authorize] async (HttpContext context, TenantContext tenantContext, ILogger<Program> logger) =>
 {
     var tenantDb = tenantContext.DbContext;
     if (tenantDb == null) return Results.BadRequest("Database unresolved");
@@ -365,6 +366,14 @@ app.MapPost("/api/v1/auth/change-password", [Authorize] async (HttpContext conte
 
     var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var user = await tenantDb.Users.FindAsync(userId);
+    if (user == null)
+    {
+        var userEmail = context.User.FindFirst(ClaimTypes.Email)?.Value;
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            user = await tenantDb.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userEmail.ToLower());
+        }
+    }
 
     if (user == null)
     {
@@ -380,6 +389,8 @@ app.MapPost("/api/v1/auth/change-password", [Authorize] async (HttpContext conte
     user.PasswordHash = PasswordHasher.Hash(newPassword!);
     user.MustChangePassword = false;
     await tenantDb.SaveChangesAsync();
+
+    logger.LogInformation("Password successfully changed for user {Email} in tenant {TenantCode}.", user.Email, tenantContext.CurrentTenant?.TenantCode);
 
     return Results.Ok(new { success = true, message = "Password changed successfully" });
 });

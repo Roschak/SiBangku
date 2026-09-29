@@ -5,25 +5,59 @@
 @if (IsOpen)
 {
     <div class="modal fade show d-block" tabindex="-1" role="dialog"
-         style="background-color: rgba(28, 22, 19, 0.45); backdrop-filter: blur(8px); z-index: 1060;">
+         style="background-color: rgba(28, 22, 19, 0.55); backdrop-filter: blur(8px); z-index: 1060;">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.25); border-radius: var(--ms-radius-lg); box-shadow: var(--ms-shadow-xl, 0 20px 50px rgba(0,0,0,0.15)); color: var(--ms-text-main, #1C1714); max-height: 85vh;">
+            <div class="modal-content" style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-lg, 16px); box-shadow: 0 25px 60px rgba(0,0,0,0.22); color: var(--ms-text-main, #1C1714); max-height: 88vh;">
 
                 <!-- Header -->
-                <div class="modal-header py-3 px-4" style="background: #F4EFE6; border-bottom: 1px solid rgba(184, 142, 45, 0.18);">
-                    <div class="d-flex align-items-center gap-2">
+                <div class="modal-header py-3 px-4" style="background: #F4EFE6; border-bottom: 1px solid rgba(184, 142, 45, 0.22);">
+                    <div class="d-flex align-items-center gap-2.5">
                         <span class="d-inline-flex align-items-center justify-content-center"
-                              style="width: 36px; height: 36px; background: rgba(184, 142, 45, 0.12); border: 1px solid rgba(184, 142, 45, 0.35); border-radius: var(--ms-radius-xs); color: #B88E2D;">
+                              style="width: 38px; height: 38px; background: rgba(184, 142, 45, 0.14); border: 1px solid rgba(184, 142, 45, 0.4); border-radius: 10px; color: #B88E2D; font-size: 1.15rem;">
                             <i class="bi bi-globe2"></i>
                         </span>
                         <div>
-                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.02rem;">@Lang["Lang_Modal_Title"]</h6>
+                            <h6 class="modal-title ms-serif fw-bold mb-0" style="font-size: 1.05rem; color: var(--ms-text-main);">@Lang["Lang_Modal_Title"]</h6>
                             <span class="small font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">
-                                @LanguageService.AvailableLanguages.Count @Lang["Lang_Available"]
+                                @Lang.Get("Lang_Modal_Subtitle", "Pilih bahasa tampilan yang Anda inginkan") • @LanguageService.SupportedLanguages.Count @Lang.Get("Lang_Supported_Pill", "Didukung Penuh")
                             </span>
                         </div>
                     </div>
                     <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+
+                <!-- Quick Switch Bar for Top Supported Languages -->
+                <div class="px-4 py-2.5" style="background: #FAF8F5; border-bottom: 1px solid rgba(184, 142, 45, 0.15);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="font-mono fw-bold" style="font-size: 0.68rem; letter-spacing: 0.1em; color: #B88E2D; text-transform: uppercase;">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>@Lang.Get("Lang_Quick_Title", "Bahasa Utama (Siap Digunakan):")
+                        </span>
+                        <span class="font-mono badge bg-warning-subtle text-warning-emphasis" style="font-size: 0.62rem; border-radius: 6px;">
+                            Aktif: <strong class="text-uppercase">@Lang.CurrentLanguage</strong>
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1.5">
+                        @foreach (var quickLang in LanguageService.SupportedLanguages)
+                        {
+                            var isQuickActive = quickLang.Code.Equals(Lang.CurrentLanguage, StringComparison.OrdinalIgnoreCase);
+                            <button type="button"
+                                    class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1 font-mono"
+                                    style="border-radius: 8px; font-size: 0.72rem; transition: all 0.2s;
+                                           background: @(isQuickActive ? "#B88E2D" : "#FFFFFF");
+                                           color: @(isQuickActive ? "#FFFFFF" : "var(--ms-text-main)");
+                                           border: 1px solid @(isQuickActive ? "#B88E2D" : "rgba(184,142,45,0.25)");
+                                           font-weight: @(isQuickActive ? "700" : "500");
+                                           box-shadow: @(isQuickActive ? "0 2px 8px rgba(184,142,45,0.35)" : "none");"
+                                    @onclick="() => SelectLanguage(quickLang.Code)">
+                                <span>@GetFlagEmoji(quickLang.Code)</span>
+                                <span>@quickLang.NativeName</span>
+                                @if (isQuickActive)
+                                {
+                                    <i class="bi bi-check2 ms-0.5"></i>
+                                }
+                            </button>
+                        }
+                    </div>
                 </div>
 
                 <!-- Search -->
@@ -33,7 +67,7 @@
                         <input type="text" class="ms-form-control has-icon-left"
                                placeholder="@Lang["Lang_Search_Placeholder"]"
                                @bind="SearchQuery" @bind:event="oninput"
-                               style="font-size: 0.9rem;" />
+                               style="font-size: 0.88rem; border-radius: 10px;" />
                     </div>
                     @if (!string.IsNullOrWhiteSpace(SearchQuery))
                     {
@@ -56,7 +90,7 @@
                     {
                         @foreach (var group in GroupedLanguages)
                         {
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom: 1px solid rgba(184, 142, 45, 0.12);">
                                     <span class="font-mono fw-bold" style="font-size: 0.7rem; letter-spacing: 0.12em; color: #B88E2D; text-transform: uppercase;">
                                         @group.Key
@@ -67,16 +101,18 @@
                                     @foreach (var lang in group.Value)
                                     {
                                         var isActive = lang.Code.Equals(Lang.CurrentLanguage, StringComparison.OrdinalIgnoreCase);
+                                        var isSupported = lang.IsFullySupported || LanguageService.IsSupported(lang.Code);
                                         <div class="col-lg-4 col-md-6 col-6">
                                             <button type="button"
-                                                    class="w-100 text-start p-2 border-0 d-flex align-items-center gap-2"
-                                                    style="background: @(isActive ? "rgba(184, 142, 45, 0.08)" : "#FAFAFA");
-                                                           border: 1px solid @(isActive ? "rgba(184, 142, 45, 0.5)" : "rgba(184, 142, 45, 0.12)") !important;
-                                                           border-radius: 10px; cursor: pointer; transition: all 0.15s;"
+                                                    class="w-100 text-start p-2.5 border-0 d-flex align-items-center gap-2.5"
+                                                    style="background: @(isActive ? "rgba(184, 142, 45, 0.12)" : "#FAFAFA");
+                                                           border: @(isActive ? "2px solid #B88E2D" : "1px solid rgba(184, 142, 45, 0.18)") !important;
+                                                           border-radius: 12px; cursor: pointer; transition: all 0.18s;
+                                                           box-shadow: @(isActive ? "0 4px 14px rgba(184,142,45,0.20)" : "none");"
                                                     @onclick="() => SelectLanguage(lang.Code)">
-                                                <span style="font-size: 1.3rem; line-height: 1;">@GetFlagEmoji(lang.Code)</span>
+                                                <span style="font-size: 1.4rem; line-height: 1;">@GetFlagEmoji(lang.Code)</span>
                                                 <div class="flex-grow-1 overflow-hidden">
-                                                    <div class="fw-semibold text-truncate" style="font-size: 0.85rem; color: var(--ms-text-main);">
+                                                    <div class="fw-semibold text-truncate" style="font-size: 0.88rem; color: var(--ms-text-main);">
                                                         @lang.NativeName
                                                     </div>
                                                     <div class="font-mono text-truncate" style="font-size: 0.68rem; color: var(--ms-text-dim);">
@@ -87,8 +123,14 @@
                                                     <span class="font-mono fw-bold" style="font-size: 0.65rem; color: var(--ms-text-dim); text-transform: uppercase;">@lang.Code</span>
                                                     @if (isActive)
                                                     {
-                                                        <span class="ms-badge ms-badge-primary" style="font-size: 0.58rem; padding: 0.15rem 0.4rem;">
-                                                            <i class="bi bi-check-lg me-1"></i>@Lang["Lang_Current"]
+                                                        <span class="badge text-white font-mono" style="font-size: 0.60rem; padding: 0.2rem 0.45rem; background: #B88E2D; border-radius: 6px;">
+                                                            <i class="bi bi-check-circle-fill me-1"></i>@Lang["Lang_Current"]
+                                                        </span>
+                                                    }
+                                                    else if (isSupported)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success font-mono" style="font-size: 0.58rem; padding: 0.15rem 0.35rem; border-radius: 6px;">
+                                                            <i class="bi bi-patch-check-fill me-0.5"></i>@Lang.Get("Lang_Supported_Pill", "Siap")
                                                         </span>
                                                     }
                                                     @if (lang.IsRtl)
@@ -106,12 +148,12 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer py-2 px-4 d-flex justify-content-between" style="background: #F4EFE6; border-top: 1px solid rgba(184, 142, 45, 0.18);">
+                <div class="modal-footer py-2.5 px-4 d-flex justify-content-between" style="background: #F4EFE6; border-top: 1px solid rgba(184, 142, 45, 0.18);">
                     <span class="font-mono" style="font-size: 0.72rem; color: var(--ms-text-dim);">
                         <i class="bi bi-translate me-1" style="color: #B88E2D;"></i>
-                        @LanguageService.AvailableLanguages.Count @Lang["Lang_Available"]
+                        @LanguageService.SupportedLanguages.Count @Lang.Get("Lang_Supported_Pill", "bahasa siap digunakan")
                     </span>
-                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm" @onclick="Close">
+                    <button type="button" class="ms-btn ms-btn-secondary ms-btn-sm px-3" @onclick="Close">
                         <i class="bi bi-x-lg me-1"></i> @Lang["Common_Close"]
                     </button>
                 </div>
@@ -164,10 +206,10 @@
     {
         "Southeast Asia" => 0,
         "East Asia" => 1,
-        "South Asia" => 2,
+        "Europe" => 2,
         "Middle East" => 3,
-        "Central Asia" => 4,
-        "Europe" => 5,
+        "South Asia" => 4,
+        "Central Asia" => 5,
         "Africa" => 6,
         "Americas" => 7,
         _ => 99

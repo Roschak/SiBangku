@@ -336,6 +336,63 @@ public class MainActivity extends AppCompatActivity {{
 ";
                 File.WriteAllText(Path.Combine(javaDir, "MainActivity.java"), mainActivity, utf8NoBom);
 
+                // 7. Seed ready-to-run APK & Desktop EXE if base binaries exist
+                try
+                {
+                    var baseUniversalApkCandidates = new[]
+                    {
+                        Path.Combine(tenantsDir, "SiBangku-Universal-App.apk"),
+                        Path.Combine(tenantsDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Universal-App.apk"),
+                        Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Universal-App.apk"),
+                        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Universal-App.apk"),
+                        @"D:\mydokumen\myproject\Apk_SiBangku\Apk_SiBangku\src\SiBangku.Web\wwwroot\downloads\SiBangku-Universal-App.apk"
+                    };
+
+                    string? baseUniversalApk = null;
+                    foreach (var cand in baseUniversalApkCandidates)
+                    {
+                        try
+                        {
+                            var full = Path.GetFullPath(cand);
+                            if (File.Exists(full)) { baseUniversalApk = full; break; }
+                        }
+                        catch { }
+                    }
+
+                    if (!string.IsNullOrEmpty(baseUniversalApk))
+                    {
+                        File.Copy(baseUniversalApk, Path.Combine(targetDir, $"{tenantCode}.apk"), true);
+                        File.Copy(baseUniversalApk, Path.Combine(targetDir, "android", $"{tenantCode}.apk"), true);
+                    }
+
+                    var baseDesktopExeCandidates = new[]
+                    {
+                        Path.Combine(tenantsDir, "SiBangku-Desktop-App.exe"),
+                        Path.Combine(tenantsDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Desktop-App.exe"),
+                        Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Desktop-App.exe"),
+                        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Desktop-App.exe"),
+                        @"D:\mydokumen\myproject\Apk_SiBangku\Apk_SiBangku\src\SiBangku.Web\wwwroot\downloads\SiBangku-Desktop-App.exe"
+                    };
+
+                    string? baseDesktopExe = null;
+                    foreach (var cand in baseDesktopExeCandidates)
+                    {
+                        try
+                        {
+                            var full = Path.GetFullPath(cand);
+                            if (File.Exists(full)) { baseDesktopExe = full; break; }
+                        }
+                        catch { }
+                    }
+
+                    if (!string.IsNullOrEmpty(baseDesktopExe))
+                    {
+                        File.Copy(baseDesktopExe, Path.Combine(targetDir, "desktop", $"SiBangku-{tenantCode}.exe"), true);
+                        File.Copy(baseDesktopExe, Path.Combine(targetDir, $"SiBangku-{tenantCode}.exe"), true);
+                    }
+                }
+                catch { }
+
                 return true;
             }
             catch

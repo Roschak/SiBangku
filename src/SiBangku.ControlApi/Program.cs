@@ -31,8 +31,9 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Add configurations from environment variables
 builder.Configuration.AddEnvironmentVariables();
 
-var controlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
-                   "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var rawControlDbUrl = builder.Configuration["CONTROL_DATABASE_URL"] ??
+                      "Host=localhost;Database=sibangku_control;Username=sibangku;Password=sibangku_dev";
+var controlDbUrl = PostgresConnectionHelper.NormalizeConnectionString(rawControlDbUrl, !builder.Environment.IsDevelopment()).ConnectionString;
 
 // Secrets must come from configuration (environment variables). A signing key
 // is never hardcoded for production: the Development fallback exists only so
@@ -559,24 +560,55 @@ app.MapPost("/api/v1/internal/tenant/reset-password", async (HttpContext context
         return WeakPasswordResult(policyResult);
     }
 
-    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantCode == tenantCode);
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantCode == tenantCode || t.TenantId == tenantCode);
     if (tenant == null)
     {
         return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = $"Tenant dengan kode '{tenantCode}' tidak ditemukan." } }, statusCode: 404);
     }
 
-    var builder = new NpgsqlConnectionStringBuilder(controlDbUrl) { Database = tenant.DatabaseIdentifier };
-    var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(builder.ConnectionString).Options;
+    DbContextOptions<TenantDbContext> tenantOptions;
+    if (app.Configuration["UseInMemoryDatabase"] == "true")
+    {
+        tenantOptions = new DbContextOptionsBuilder<TenantDbContext>()
+            .UseInMemoryDatabase(tenant.DatabaseIdentifier)
+            .Options;
+    }
+    else
+    {
+        await PostgresConnectionHelper.EnsureDatabaseExistsAsync(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+        var tenantConn = PostgresConnectionHelper.BuildTenantConnectionString(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+        tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(tenantConn).Options;
+    }
 
     await using var tenantDb = new TenantDbContext(tenantOptions);
+    await tenantDb.Database.EnsureCreatedAsync();
     var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN");
     if (adminUser == null)
     {
-        return Results.Json(new { success = false, error = new { code = "USER_NOT_FOUND", message = "Pengguna admin tidak ditemukan di database tenant." } }, statusCode: 404);
+        adminUser = await tenantDb.Users.FirstOrDefaultAsync();
     }
 
-    adminUser.PasswordHash = PasswordHasher.Hash(newPassword);
-    adminUser.MustChangePassword = false;
+    if (adminUser == null)
+    {
+        adminUser = new User
+        {
+            UserId = "tenant-admin-" + Guid.NewGuid().ToString("N")[..8],
+            TenantId = tenant.TenantId,
+            Email = $"admin@{tenant.TenantCode.ToLowerInvariant()}.com",
+            Name = "Restaurant Owner",
+            Role = "TENANT_ADMIN",
+            PasswordHash = PasswordHasher.Hash(newPassword!),
+            MustChangePassword = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        await tenantDb.Users.AddAsync(adminUser);
+    }
+    else
+    {
+        adminUser.PasswordHash = PasswordHasher.Hash(newPassword);
+        adminUser.MustChangePassword = false;
+    }
+
     await tenantDb.SaveChangesAsync();
 
     return Results.Ok(new { success = true, message = $"Kata sandi untuk admin resto '{tenant.RestaurantName}' ({adminUser.Email}) berhasil diperbarui.", adminEmail = adminUser.Email });
@@ -659,10 +691,16 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
         var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
         var apkCandidates = new[]
         {
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", $"SiBangku-{tenant.TenantCode}.apk"),
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "release", "app-release.apk"),
-            Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
-            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk")
+            Path.Combine(tenantDir, "desktop", $"{tenant.TenantCode}.apk"),
+            Path.Combine(baseDir, "SiBangku-Universal-App.apk"),
+            Path.Combine(baseDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Universal-App.apk"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Universal-App.apk")
         };
 
         foreach (var candidate in apkCandidates)
@@ -685,6 +723,51 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
         }
     }, statusCode: 404);
 });
+
+app.MapGet("/api/v1/tenants/{id}/exe", async (string id, ControlDbContext db) =>
+{
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantId == id || t.TenantCode == id.ToUpperInvariant());
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var baseDir = ResolveTenantsDirectory();
+    if (!string.IsNullOrEmpty(baseDir))
+    {
+        var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+        var exeCandidates = new[]
+        {
+            Path.Combine(tenantDir, "desktop", $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, "desktop", "SiBangku-Desktop-App.exe"),
+            Path.Combine(baseDir, "SiBangku-Desktop-App.exe"),
+            Path.Combine(baseDir, "..", "src", "SiBangku.Web", "wwwroot", "downloads", "SiBangku-Desktop-App.exe"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", "SiBangku-Desktop-App.exe")
+        };
+
+        foreach (var candidate in exeCandidates)
+        {
+            if (File.Exists(candidate))
+            {
+                var bytes = await File.ReadAllBytesAsync(candidate);
+                return Results.File(bytes, "application/vnd.microsoft.portable-executable", $"SiBangku-{tenant.TenantCode}.exe");
+            }
+        }
+    }
+
+    return Results.Json(new
+    {
+        success = false,
+        error = new
+        {
+            code = "EXE_NOT_COMPILED",
+            message = $"Paket Desktop EXE belum tersedia untuk {tenant.RestaurantName}."
+        }
+    }, statusCode: 404);
+});
+
 
 app.MapPost("/api/v1/tenants", [Authorize(Roles = "SUPER_ADMIN")] async (ProvisionTenantParams paramDto, ITenantProvisioner provisioner, ILogger<Program> logger) =>
 {
@@ -808,7 +891,8 @@ app.MapPost("/api/v1/tenants/{id}/reset-password", [Authorize(Roles = "SUPER_ADM
     using var document = await JsonDocument.ParseAsync(context.Request.Body);
     var newPassword = document.RootElement.TryGetProperty("newPassword", out var np) ? np.GetString() : null;
 
-    var tenant = await db.Tenants.FindAsync(id);
+    var tenant = await db.Tenants.FindAsync(id)
+        ?? await db.Tenants.FirstOrDefaultAsync(t => t.TenantCode == id.ToUpperInvariant());
     if (tenant == null)
     {
         return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
@@ -820,11 +904,22 @@ app.MapPost("/api/v1/tenants/{id}/reset-password", [Authorize(Roles = "SUPER_ADM
         return WeakPasswordResult(policyResult);
     }
 
-    var controlConn = controlDbUrl;
-    var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(controlConn) { Database = tenant.DatabaseIdentifier };
-    var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(connBuilder.ConnectionString).Options;
+    DbContextOptions<TenantDbContext> tenantOptions;
+    if (config["UseInMemoryDatabase"] == "true")
+    {
+        tenantOptions = new DbContextOptionsBuilder<TenantDbContext>()
+            .UseInMemoryDatabase(tenant.DatabaseIdentifier)
+            .Options;
+    }
+    else
+    {
+        await PostgresConnectionHelper.EnsureDatabaseExistsAsync(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+        var tenantConn = PostgresConnectionHelper.BuildTenantConnectionString(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+        tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(tenantConn).Options;
+    }
 
     await using var tenantDb = new TenantDbContext(tenantOptions);
+    await tenantDb.Database.EnsureCreatedAsync();
     var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN");
     if (adminUser == null)
     {
@@ -892,10 +987,22 @@ app.MapPut("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (str
     if (root.TryGetProperty("adminEmail", out var em) && !string.IsNullOrWhiteSpace(em.GetString()))
     {
         var newEmail = em.GetString()!.Trim();
-        var controlConn = controlDbUrl;
-        var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(controlConn) { Database = tenant.DatabaseIdentifier };
-        var tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(connBuilder.ConnectionString).Options;
+        DbContextOptions<TenantDbContext> tenantOptions;
+        if (builder.Configuration["UseInMemoryDatabase"] == "true")
+        {
+            tenantOptions = new DbContextOptionsBuilder<TenantDbContext>()
+                .UseInMemoryDatabase(tenant.DatabaseIdentifier)
+                .Options;
+        }
+        else
+        {
+            await PostgresConnectionHelper.EnsureDatabaseExistsAsync(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+            var tenantConn = PostgresConnectionHelper.BuildTenantConnectionString(controlDbUrl, tenant.DatabaseIdentifier, !app.Environment.IsDevelopment());
+            tenantOptions = new DbContextOptionsBuilder<TenantDbContext>().UseNpgsql(tenantConn).Options;
+        }
+
         await using var tenantDb = new TenantDbContext(tenantOptions);
+        await tenantDb.Database.EnsureCreatedAsync();
         var adminUser = await tenantDb.Users.FirstOrDefaultAsync(u => u.Role == "TENANT_ADMIN" || u.Role == "RESTAURANT_ADMIN")
                      ?? await tenantDb.Users.FirstOrDefaultAsync();
         if (adminUser != null)
@@ -973,43 +1080,42 @@ app.MapDelete("/api/v1/tenants/{id}", [Authorize(Roles = "SUPER_ADMIN")] async (
 
     var dbName = tenant.DatabaseIdentifier;
 
-    // Connect to postgres defaults to drop database
-    var controlBuilder = new NpgsqlConnectionStringBuilder(controlDbUrl);
-    var systemBuilder = new NpgsqlConnectionStringBuilder
+    if (!PostgresConnectionHelper.ValidateDatabaseIdentifier(dbName))
     {
-        Host = controlBuilder.Host,
-        Port = controlBuilder.Port,
-        Username = controlBuilder.Username,
-        Password = controlBuilder.Password,
-        Database = "postgres"
-    };
+        return Results.Json(new { success = false, error = new { code = "INVALID_DB_NAME", message = "Nama database tidak aman atau tidak valid." } }, statusCode: 400);
+    }
 
     try
     {
-        await using (var conn = new NpgsqlConnection(systemBuilder.ConnectionString))
+        if (builder.Configuration["UseInMemoryDatabase"] != "true")
+    {
+        try
         {
-            await conn.OpenAsync();
-
-            // Terminate other active connections first
-            var terminateQuery = $"SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = @dbName AND pid <> pg_backend_pid()";
-            await using (var termCmd = new NpgsqlCommand(terminateQuery, conn))
+            var maintenanceConn = PostgresConnectionHelper.BuildMaintenanceConnectionString(controlDbUrl, "postgres");
+            await using (var conn = new NpgsqlConnection(maintenanceConn))
             {
-                termCmd.Parameters.AddWithValue("dbName", dbName);
-                await termCmd.ExecuteNonQueryAsync();
-            }
+                await conn.OpenAsync();
 
-            // Drop database with strict identifier validation to prevent SQL injection
-            if (!System.Text.RegularExpressions.Regex.IsMatch(dbName, @"^[a-zA-Z0-9_]+$"))
-            {
-                return Results.Json(new { success = false, error = new { code = "INVALID_DB_NAME", message = "Nama database tidak aman atau tidak valid." } }, statusCode: 400);
-            }
+                // Terminate other active connections first
+                var terminateQuery = "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = @dbName AND pid <> pg_backend_pid()";
+                await using (var termCmd = new NpgsqlCommand(terminateQuery, conn))
+                {
+                    termCmd.Parameters.AddWithValue("dbName", dbName);
+                    await termCmd.ExecuteNonQueryAsync();
+                }
 
-            var dropQuery = $"DROP DATABASE IF EXISTS \"{dbName}\"";
-            await using (var dropCmd = new NpgsqlCommand(dropQuery, conn))
-            {
-                await dropCmd.ExecuteNonQueryAsync();
+                var dropQuery = $"DROP DATABASE IF EXISTS \"{dbName}\"";
+                await using (var dropCmd = new NpgsqlCommand(dropQuery, conn))
+                {
+                    await dropCmd.ExecuteNonQueryAsync();
+                }
             }
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to drop physical database for tenant {id}", id);
+        }
+    }
 
         // Delete records
         db.Tenants.Remove(tenant);
