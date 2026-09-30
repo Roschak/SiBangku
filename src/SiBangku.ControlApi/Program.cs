@@ -662,7 +662,8 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
             Path.Combine(tenantDir, "android", "app", "build", "outputs", "apk", "release", "app-release.apk"),
             Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"),
-            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk")
+            Path.Combine(tenantDir, "android", $"{tenant.TenantCode}.apk"),
+            Path.Combine(tenantDir, "android", "app", $"{tenant.TenantCode}.apk")
         };
 
         foreach (var candidate in apkCandidates)
@@ -675,13 +676,108 @@ app.MapGet("/api/v1/tenants/{id}/apk", async (string id, ControlDbContext db) =>
         }
     }
 
+    // Fallback: Stream Universal APK and automatically cache/seed it in tenant folder
+    var universalApk = ResolveUniversalFile("SiBangku-Universal-App.apk");
+    if (!string.IsNullOrEmpty(universalApk) && File.Exists(universalApk))
+    {
+        var bytes = await File.ReadAllBytesAsync(universalApk);
+
+        // Auto-seed to tenant workspace so it is available locally
+        if (!string.IsNullOrEmpty(baseDir))
+        {
+            try
+            {
+                var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+                if (Directory.Exists(tenantDir))
+                {
+                    File.Copy(universalApk, Path.Combine(tenantDir, $"{tenant.TenantCode}.apk"), true);
+                    var androidDir = Path.Combine(tenantDir, "android");
+                    if (Directory.Exists(androidDir))
+                    {
+                        File.Copy(universalApk, Path.Combine(androidDir, $"{tenant.TenantCode}.apk"), true);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        return Results.File(bytes, "application/vnd.android.package-archive", $"SiBangku-{tenant.TenantCode}.apk");
+    }
+
     return Results.Json(new
     {
         success = false,
         error = new
         {
             code = "APK_NOT_COMPILED",
-            message = $"Paket APK belum dikompilasi secara biner untuk {tenant.RestaurantName}. Anda dapat membuka folder source di VS Code ('tenants/{tenant.TenantCode}/android') atau mengunduh paket ZIP."
+            message = $"Paket APK belum tersedia untuk {tenant.RestaurantName}."
+        }
+    }, statusCode: 404);
+});
+
+app.MapGet("/api/v1/tenants/{id}/exe", async (string id, ControlDbContext db) =>
+{
+    var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.TenantId == id || t.TenantCode == id.ToUpperInvariant());
+    if (tenant == null)
+    {
+        return Results.Json(new { success = false, error = new { code = "NOT_FOUND", message = "Tenant tidak ditemukan." } }, statusCode: 404);
+    }
+
+    var baseDir = ResolveTenantsDirectory();
+    if (!string.IsNullOrEmpty(baseDir))
+    {
+        var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+        var exeCandidates = new[]
+        {
+            Path.Combine(tenantDir, "desktop", $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, "desktop", $"{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.exe"),
+            Path.Combine(tenantDir, $"{tenant.TenantCode}.exe")
+        };
+
+        foreach (var candidate in exeCandidates)
+        {
+            if (File.Exists(candidate))
+            {
+                var bytes = await File.ReadAllBytesAsync(candidate);
+                return Results.File(bytes, "application/vnd.microsoft.portable-executable", $"SiBangku-{tenant.TenantCode}.exe");
+            }
+        }
+    }
+
+    // Fallback: Stream Universal Desktop EXE and automatically cache/seed it in tenant folder
+    var universalExe = ResolveUniversalFile("SiBangku-Desktop-App.exe");
+    if (!string.IsNullOrEmpty(universalExe) && File.Exists(universalExe))
+    {
+        var bytes = await File.ReadAllBytesAsync(universalExe);
+
+        // Auto-seed to tenant workspace so it is available locally
+        if (!string.IsNullOrEmpty(baseDir))
+        {
+            try
+            {
+                var tenantDir = Path.Combine(baseDir, tenant.TenantCode);
+                if (Directory.Exists(tenantDir))
+                {
+                    var desktopDir = Path.Combine(tenantDir, "desktop");
+                    Directory.CreateDirectory(desktopDir);
+                    File.Copy(universalExe, Path.Combine(desktopDir, $"SiBangku-{tenant.TenantCode}.exe"), true);
+                    File.Copy(universalExe, Path.Combine(tenantDir, $"SiBangku-{tenant.TenantCode}.exe"), true);
+                }
+            }
+            catch { }
+        }
+
+        return Results.File(bytes, "application/vnd.microsoft.portable-executable", $"SiBangku-{tenant.TenantCode}.exe");
+    }
+
+    return Results.Json(new
+    {
+        success = false,
+        error = new
+        {
+            code = "EXE_NOT_COMPILED",
+            message = $"Paket Desktop EXE belum tersedia untuk {tenant.RestaurantName}."
         }
     }, statusCode: 404);
 });
@@ -1134,6 +1230,32 @@ static string? ResolveTenantsDirectory()
         {
             var full = Path.GetFullPath(c);
             if (Directory.Exists(full)) return full;
+        }
+        catch { }
+    }
+    return null;
+}
+
+static string? ResolveUniversalFile(string filename)
+{
+    var candidates = new[]
+    {
+        Path.Combine(Directory.GetCurrentDirectory(), "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads", filename),
+        Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", filename),
+        Path.Combine(AppContext.BaseDirectory, "..", "wwwroot", "downloads", filename),
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+        Path.Combine(@"D:\mydokumen\myproject\Apk_SiBangku\Apk_SiBangku\src\SiBangku.Web\wwwroot\downloads", filename)
+    };
+
+    foreach (var c in candidates)
+    {
+        try
+        {
+            var full = Path.GetFullPath(c);
+            if (File.Exists(full)) return full;
         }
         catch { }
     }

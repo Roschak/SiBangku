@@ -1154,6 +1154,7 @@ else
 
                         <!-- 4. Unduh Paket Lengkap ZIP -->
                         <a href="@($"http://localhost:3001/api/v1/tenants/{SelectedPackageTenant.TenantCode}/package")" 
+                           target="_blank"
                            download="SiBangku-@(SelectedPackageTenant.TenantCode)-package.zip" 
                            class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(40, 167, 69, 0.45);">
                             <div class="d-flex align-items-center gap-3">
@@ -1166,18 +1167,34 @@ else
                             <span class="ms-badge ms-badge-success"><i class="bi bi-download me-1"></i> Unduh ZIP</span>
                         </a>
 
-                        <!-- 5. Unduh Paket Android APK (.apk) -->
+                        <!-- 5. Unduh Paket Desktop Windows (.exe) -->
+                        <a href="@($"http://localhost:3001/api/v1/tenants/{SelectedPackageTenant.TenantCode}/exe")" 
+                           target="_blank"
+                           download="SiBangku-@(SelectedPackageTenant.TenantCode).exe" 
+                           class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(13, 110, 253, 0.45);">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-windows fs-3 text-primary"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold" style="color: var(--ms-text-main);">Unduh Paket Desktop Windows (.exe)</div>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">Launcher native Windows super cepat (~4 KB, jalan mulus di PC kasir)</small>
+                                </div>
+                            </div>
+                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh EXE</span>
+                        </a>
+
+                        <!-- 6. Unduh Paket Android APK (.apk) -->
                         <a href="@($"http://localhost:3001/api/v1/tenants/{SelectedPackageTenant.TenantCode}/apk")" 
+                           target="_blank"
                            download="SiBangku-@(SelectedPackageTenant.TenantCode).apk" 
                            class="ms-btn ms-btn-outline d-flex align-items-center justify-content-between p-3 text-decoration-none" style="border-color: rgba(25, 135, 84, 0.45);">
                             <div class="d-flex align-items-center gap-3">
                                 <i class="bi bi-android2 fs-3 text-success"></i>
                                 <div class="text-start">
                                     <div class="fw-bold" style="color: var(--ms-text-main);">Unduh Paket Android APK (.apk)</div>
-                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">File biner Android siap pasang (tersedia jika sudah dikompilasi)</small>
+                                    <small class="text-muted font-mono" style="font-size: 0.72rem;">File biner Android siap pasang (tersedia langsung)</small>
                                 </div>
                             </div>
-                            <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh APK</span>
+                            <span class="ms-badge ms-badge-success"><i class="bi bi-download me-1"></i> Unduh APK</span>
                         </a>
                     </div>
 
@@ -1604,6 +1621,37 @@ else
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IsLoggedIn)
+        {
+            try
+            {
+                var sessionJson = await JS.InvokeAsync<string>("localStorage.getItem", "sibangku_control_session");
+                if (!string.IsNullOrWhiteSpace(sessionJson))
+                {
+                    using var doc = JsonDocument.Parse(sessionJson);
+                    var root = doc.RootElement;
+                    var savedToken = root.TryGetProperty("token", out var tp) ? tp.GetString() : null;
+                    if (!string.IsNullOrEmpty(savedToken))
+                    {
+                        Token = savedToken;
+                        Email = root.TryGetProperty("email", out var ep) ? ep.GetString() ?? "" : "";
+                        AdminName = root.TryGetProperty("name", out var np) ? np.GetString() ?? "Super Admin" : "Super Admin";
+                        ProfileName = AdminName;
+                        ProfileEmail = Email;
+                        IsLoggedIn = true;
+                        StateHasChanged();
+
+                        _ = RefreshTenants();
+                        _ = RefreshAuditLogs();
+                    }
+                }
+            }
+            catch { }
+        }
+    }
+
     private async Task HandleLogin()
     {
         HasAttemptedLogin = true;
@@ -1642,9 +1690,26 @@ else
                     ProfileEmail = Email;
                 }
 
+                try
+                {
+                    var sessionData = new
+                    {
+                        token = Token,
+                        email = Email,
+                        name = AdminName
+                    };
+                    await JS.InvokeVoidAsync("localStorage.setItem", "sibangku_control_session", JsonSerializer.Serialize(sessionData));
+                }
+                catch { }
+
+                // Instantly transition to dashboard
                 IsLoggedIn = true;
-                await RefreshTenants();
-                await RefreshAuditLogs();
+                IsSubmitting = false;
+                StateHasChanged();
+
+                _ = RefreshTenants();
+                _ = RefreshAuditLogs();
+                return;
             }
             else
             {
@@ -1684,12 +1749,20 @@ else
         }
     }
 
-    private void HandleLogout()
+    private async Task HandleLogout()
     {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.removeItem", "sibangku_control_session");
+        }
+        catch { }
+
         IsLoggedIn = false;
         Token = "";
+        Password = "";
         TenantsList.Clear();
         AuditLogsList.Clear();
+        StateHasChanged();
     }
 
     private async Task RefreshProfile()

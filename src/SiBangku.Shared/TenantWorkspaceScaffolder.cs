@@ -336,12 +336,61 @@ public class MainActivity extends AppCompatActivity {{
 ";
                 File.WriteAllText(Path.Combine(javaDir, "MainActivity.java"), mainActivity, utf8NoBom);
 
+                // 7. Auto-copy prebuilt binary packages (EXE & APK)
+                try
+                {
+                    var exePath = ResolveUniversalBinary("SiBangku-Desktop-App.exe");
+                    if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+                    {
+                        File.Copy(exePath, Path.Combine(targetDir, "desktop", $"SiBangku-{tenantCode}.exe"), true);
+                        File.Copy(exePath, Path.Combine(targetDir, $"SiBangku-{tenantCode}.exe"), true);
+                    }
+
+                    var apkPath = ResolveUniversalBinary("SiBangku-Universal-App.apk");
+                    if (!string.IsNullOrEmpty(apkPath) && File.Exists(apkPath))
+                    {
+                        File.Copy(apkPath, Path.Combine(targetDir, $"{tenantCode}.apk"), true);
+                        var androidDir = Path.Combine(targetDir, "android");
+                        if (Directory.Exists(androidDir))
+                        {
+                            File.Copy(apkPath, Path.Combine(androidDir, $"{tenantCode}.apk"), true);
+                        }
+                    }
+                }
+                catch { }
+
                 return true;
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static string? ResolveUniversalBinary(string filename)
+        {
+            var candidates = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads", filename),
+                Path.Combine(AppContext.BaseDirectory, "wwwroot", "downloads", filename),
+                Path.Combine(AppContext.BaseDirectory, "..", "wwwroot", "downloads", filename),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "src", "SiBangku.Web", "wwwroot", "downloads", filename),
+                Path.Combine(@"D:\mydokumen\myproject\Apk_SiBangku\Apk_SiBangku\src\SiBangku.Web\wwwroot\downloads", filename)
+            };
+
+            foreach (var c in candidates)
+            {
+                try
+                {
+                    var full = Path.GetFullPath(c);
+                    if (File.Exists(full)) return full;
+                }
+                catch { }
+            }
+            return null;
         }
     }
 }

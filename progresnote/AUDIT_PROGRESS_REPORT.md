@@ -76,6 +76,21 @@ Dokumen ini mencatat seluruh temuan audit mendalam, analisis akar masalah (*root
 
 | Test Project | Total Tests | Passed | Failed | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| `SiBangku.Tests.dll` | 14 | 14 | 0 | **100% PASSED** |
+| `SiBangku.Tests.dll` | 74 | 74 | 0 | **100% PASSED** |
 
 Seluruh layanan Docker (`sibangku-web-csharp`, `sibangku-control-api-csharp`, `sibangku-tenant-api-csharp`, `sibangku-postgres-csharp`) berstatus **Healthy & Running**.
+
+---
+
+## 6. Audit & Perbaikan Sesi Login & Unduhan Biner APK/EXE
+
+### Masalah yang Ditangani:
+1. Sesi login admin hilang saat refresh atau navigasi kembali.
+2. Login terasa lambat/freeze menunggu query data latar belakang.
+3. Unduhan APK/EXE menghasilkan layar hitam dengan JSON error `EXE_NOT_COMPILED` / `APK_NOT_COMPILED`.
+
+### Hasil Solusi:
+1. **Session Persistence**: Terpasang di `ControlAdmin.razor` & `TenantAdmin.razor` via `localStorage`. Sesi tetap aktif saat berpindah tab atau refresh.
+2. **Instant Login**: Transisi tampilan instan begitu token diterima, pemuatan data berjalan asinkron di latar belakang.
+3. **Fail-Safe Downloads**: Endpoint `/apk` & `/exe` memiliki fallback universal otomatis dan auto-seeding ke folder tenant. Seluruh link unduhan menggunakan `target="_blank"`.
+4. **Dokumentasi Lengkap**: Tersedia di file [note/STATUS_PROGRESS_YANG_SUDAH_DAN_BELUM.md](../note/STATUS_PROGRESS_YANG_SUDAH_DAN_BELUM.md).

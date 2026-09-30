@@ -1385,6 +1385,39 @@ else
                             </table>
                         </div>
 
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <a href="@($"http://localhost:3001/api/v1/tenants/{TenantCode}/apk")" 
+                                   target="_blank"
+                                   download="SiBangku-@(TenantCode).apk" 
+                                   class="ms-card p-3 d-flex align-items-center justify-content-between text-decoration-none h-100" style="border: 1px solid rgba(25, 135, 84, 0.35);">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-android2 fs-2 text-success"></i>
+                                        <div>
+                                            <div class="fw-bold" style="color: var(--ms-text-main);">Unduh APK Android (@TenantCode)</div>
+                                            <small class="text-muted font-mono" style="font-size: 0.72rem;">File biner APK siap dipasang di tablet/HP pelayan</small>
+                                        </div>
+                                    </div>
+                                    <span class="ms-badge ms-badge-success"><i class="bi bi-download me-1"></i> Unduh APK</span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="@($"http://localhost:3001/api/v1/tenants/{TenantCode}/exe")" 
+                                   target="_blank"
+                                   download="SiBangku-@(TenantCode).exe" 
+                                   class="ms-card p-3 d-flex align-items-center justify-content-between text-decoration-none h-100" style="border: 1px solid rgba(13, 110, 253, 0.35);">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-windows fs-2 text-primary"></i>
+                                        <div>
+                                            <div class="fw-bold" style="color: var(--ms-text-main);">Unduh Desktop EXE (@TenantCode)</div>
+                                            <small class="text-muted font-mono" style="font-size: 0.72rem;">Aplikasi kasir desktop native instan (~4 KB)</small>
+                                        </div>
+                                    </div>
+                                    <span class="ms-badge ms-badge-primary"><i class="bi bi-download me-1"></i> Unduh EXE</span>
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="p-3 rounded border text-center" style="background: var(--ms-surface-elevated); border-color: var(--ms-border) !important;">
                             <button type="button" class="ms-btn ms-btn-primary px-4" @onclick="TriggerApkSync">
                                 <i class="bi bi-arrow-repeat me-1"></i> Trigger Manual APK Sync / Rebuild
@@ -1525,12 +1558,52 @@ else
 }
 
 @code {
+    [SupplyParameterFromQuery(Name = "tenant")]
+    public string? TenantQuery { get; set; }
+
     private bool IsLoggedIn = false;
     private bool HasAttemptedLogin = false;
     private string TenantCode = "";
     private string Email = "";
     private string Password = "";
     private string? LoginError;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(TenantQuery) && string.IsNullOrWhiteSpace(TenantCode))
+        {
+            TenantCode = TenantQuery.Trim().ToUpperInvariant();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !IsLoggedIn)
+        {
+            try
+            {
+                var sessionJson = await JS.InvokeAsync<string>("localStorage.getItem", "sibangku_tenant_session");
+                if (!string.IsNullOrWhiteSpace(sessionJson))
+                {
+                    using var doc = JsonDocument.Parse(sessionJson);
+                    var root = doc.RootElement;
+                    var savedToken = root.TryGetProperty("token", out var tp) ? tp.GetString() : null;
+                    var savedTenant = root.TryGetProperty("tenantCode", out var tcp) ? tcp.GetString() : null;
+                    if (!string.IsNullOrEmpty(savedToken) && !string.IsNullOrEmpty(savedTenant))
+                    {
+                        Token = savedToken;
+                        TenantCode = savedTenant;
+                        Email = root.TryGetProperty("email", out var ep) ? ep.GetString() ?? "" : "";
+                        IsLoggedIn = true;
+                        StateHasChanged();
+
+                        _ = LoadTenantData();
+                    }
+                }
+            }
+            catch { }
+        }
+    }
     
     // Global Alerts
     private string? SuccessAlert;
@@ -1707,9 +1780,25 @@ else
             {
                 var doc = await response.Content.ReadFromJsonAsync<JsonElement>();
                 Token = doc.GetProperty("data").GetProperty("token").GetString() ?? "";
+
+                try
+                {
+                    var sessionData = new
+                    {
+                        token = Token,
+                        tenantCode = TenantCode.Trim().ToUpperInvariant(),
+                        email = Email.Trim()
+                    };
+                    await JS.InvokeVoidAsync("localStorage.setItem", "sibangku_tenant_session", JsonSerializer.Serialize(sessionData));
+                }
+                catch { }
+
                 IsLoggedIn = true;
+                IsSubmitting = false;
+                StateHasChanged();
                 
-                await LoadTenantData();
+                _ = LoadTenantData();
+                return;
             }
             else
             {
@@ -1727,13 +1816,21 @@ else
         }
     }
 
-    private void HandleLogout()
+    private async Task HandleLogout()
     {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.removeItem", "sibangku_tenant_session");
+        }
+        catch { }
+
         IsLoggedIn = false;
         Token = "";
+        Password = "";
         ReservationsList.Clear();
         TablesList.Clear();
         ActiveTenant = null;
+        StateHasChanged();
     }
 
     private async Task LoadTenantData()
