@@ -646,4 +646,47 @@
             } catch (e) { }
         }
     };
+
+    // ------------------------------------------------------------------------
+    // 6. Universal File Download & Export Helper (CSV, PDF, Images, Packages)
+    // ------------------------------------------------------------------------
+    window.SiBangkuDownload = {
+        downloadText: function (filename, content, mimeType) {
+            try {
+                const blob = new Blob([content], { type: mimeType || 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function () {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 150);
+                return true;
+            } catch (e) {
+                console.error('Download failed:', e);
+                return false;
+            }
+        },
+        downloadUrl: function (url, filename) {
+            try {
+                const a = document.createElement('a');
+                a.href = url;
+                if (filename) a.download = filename;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function () {
+                    document.body.removeChild(a);
+                }, 150);
+                return true;
+            } catch (e) {
+                console.error('Download URL failed:', e);
+                return false;
+            }
+        }
+    };
 })();
+

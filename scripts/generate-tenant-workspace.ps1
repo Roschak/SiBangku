@@ -68,7 +68,7 @@ Kode dan aset di folder ini terpisah dari codebase inti SiBangku Platform.
 
 ---
 
-## 📁 Struktur Direktori
+## Struktur Direktori
 * `config.json` : Konfigurasi identitas outlet, database, dan URL endpoint.
 * `custom.css`  : Styling dan tema visual khusus (warna, font, elemen antarmuka).
 * `web/`        : Web launcher dan konfigurasi Progressive Web App (PWA).
@@ -77,7 +77,7 @@ Kode dan aset di folder ini terpisah dari codebase inti SiBangku Platform.
 
 ---
 
-## 🚀 Menjalankan & Membuka Aplikasi
+##  Menjalankan & Membuka Aplikasi
 1. **Desktop Client (Kasir Windows):**
    * Jalankan berkas di: `desktop/SiBangku-$TenantCode.bat`.
    * Otomatis membuka aplikasi kasir & reservasi dalam jendela mandiri mode POS di port 3000.

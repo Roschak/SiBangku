@@ -39,6 +39,14 @@ tenants/*/android/app/build/
 tenants/*/android/.cxx/
 tenants/*/android/local.properties
 
+# Temporary E2E test tenants and binary packages (prevents bloat on git push)
+tenants/E2E*
+tenants/E2E*/**
+tenants/*/*.apk
+tenants/*/*.aab
+tenants/*/*.exe
+tenants/*/desktop/*.exe
+
 # Packaged mobile binaries are produced by CI and published as artifacts,
 # never committed: the previous hand-made download was not a valid package.
 src/SiBangku.Web/wwwroot/downloads/*.apk
@@ -50,3 +58,4 @@ tenants/*/android/**/*.aab
 test-results/
 TestResults/
 *.trx
+

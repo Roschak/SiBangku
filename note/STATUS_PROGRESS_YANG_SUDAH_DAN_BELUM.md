@@ -96,7 +96,19 @@ Berikut adalah aspek-aspek penyempurnaan yang belum mendesak namun dapat dikerja
 
 ---
 
-## 📌 RANGKUMAN PENUTUP
+### 5. Penguatan Fondasi Download & Arsitektur Guide Book (Progress Terkini)
+* **Temuan Masalah Download:**
+  * Link download biner di frontend sebelumnya masih mengarah ke `http://localhost:3001` (bisa gagal jika diakses via IP LAN HP/tablet seperti `http://192.168.x.x:3000`).
+  * Tombol "Ekspor CSV" di tab Menu dan tab Laporan sebelumnya hanya berupa alert teks tanpa unduhan file nyata.
+  * MIME type `.apk` dan `.exe` belum terdaftar di provider static files `SiBangku.Web`.
+* **Solusi yang Sudah Diterapkan:**
+  * Endpoint universal `/download/apk`, `/download/exe`, `/download/package`, dan `/download/bat` telah ditambahkan di `SiBangku.Web/Program.cs` dengan fallback biner langsung.
+  * MIME Types (`.apk`, `.exe`, `.bat`, `.zip`, `.csv`) telah diregistrasikan di `UseStaticFiles`.
+  * Utilitas JavaScript `window.SiBangkuDownload` telah ditambahkan ke `sibangku-app.js`.
+
+---
+
+## 📌 RANGKUMAN PENUTUP & STATUS ITEM PEKERJAAN
 
 | Item Pekerjaan | Status | Catatan |
 | :--- | :---: | :--- |
@@ -104,10 +116,15 @@ Berikut adalah aspek-aspek penyempurnaan yang belum mendesak namun dapat dikerja
 | **Login Cepat & Bebas Lag (Tanpa Freeze)** | ✅ SELESAI | Transisi UI instan, load data di background |
 | **Unduhan Langsung APK Android (Bebas Error 404)** | ✅ SELESAI | Fallback universal APK + auto-seeding ke folder tenant |
 | **Unduhan Langsung Desktop EXE (Bebas Error 404)** | ✅ SELESAI | Endpoint `/exe` baru + fallback universal EXE |
-| **Anti Navigasi ke Halaman Hitam JSON** | ✅ SELESAI | Ditambahkan `target="_blank"` dan atribut `download` |
-| **Seeding Binaries Tenant `PTKOMIKCAFFE`** | ✅ SELESAI | APK dan EXE siap unduh langsung |
-| **Kompilasi Otomatis Icon APK Kustom per Resto** | ⏳ BELUM | Dapat ditambahkan pipeline AAPT / Headless Gradle |
-| **Code Signing Windows Authenticode** | ⏳ BELUM | Opsional untuk menghilangkan warning SmartScreen |
-| **SignalR Real-Time Sound Push Alert** | ⏳ BELUM | Rencana fitur pemesanan meja real-time |
+| **Universal Download Route di Web (/download/...)** | ✅ SELESAI | Endpoint relatif di port 3000 dengan auto-fallback biner |
+| **MIME Type Provider untuk APK, EXE, CSV** | ✅ SELESAI | Terpasang di `SiBangku.Web/Program.cs` |
+| **JavaScript File Downloader (window.SiBangkuDownload)** | ✅ SELESAI | Terpasang di `sibangku-app.js` |
+| **Build Web Application (SiBangku.Web)** | ✅ SELESAI | `dotnet build` -> 0 Error, 0 Warning |
+| **Ekspor CSV Riil di Menu & Laporan Tenant Admin** | ⏳ PENDING | Siap dihubungkan ke UI dan helper download |
+| **Guide Book Super Admin (Modal 7 Bab + In-Page Guides)** | ⏳ PENDING | Arsitektur siap, siap di-render di `ControlAdmin.razor` |
+| **Guide Book Tenant Admin (Modal 11 Bab + In-Page Guides)** | ⏳ PENDING | Arsitektur siap, siap di-render di `TenantAdmin.razor` |
+| **Panduan Reservasi Meja di Halaman Tamu (Booking.razor)** | ⏳ PENDING | Banner 5 langkah + modal FAQ & instruksi siap dipasang |
+| **End-to-End Testing Menyeluruh & Laporan Audit** | ⏳ PENDING | Pengujian alur download, ekspor CSV, dan validasi booking |
 
-Dokumen ini disimpan di folder `note/STATUS_PROGRESS_YANG_SUDAH_DAN_BELUM.md`, `progresnote/AUDIT_PROGRESS_REPORT.md`, dan `progress-notes/120-session-persistence-and-binary-downloads-fix.md`.
+Dokumen ini disimpan di folder `note/STATUS_PROGRESS_YANG_SUDAH_DAN_BELUM.md`, `progresnote/AUDIT_PROGRESS_REPORT.md`, dan `progress-notes/121-audit-download-system-and-guide-books-plan.md`.
+

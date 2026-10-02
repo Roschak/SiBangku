@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -166,7 +168,86 @@ namespace SiBangku.Worker
                             tenant.TenantName, tenant.DatabaseIdentifier);
                     }
                 }
+
+                // ==========================================
+                // JOB 3: Automatic Cleanup of Orphaned Tenant Caches & Leftovers
+                // ==========================================
+                try
+                {
+                    await CleanupOrphanedTenantCacheAsync(controlDb);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to run tenant cache cleanup job. Continuing.");
+                }
             }
+        }
+
+        private async Task CleanupOrphanedTenantCacheAsync(ControlDbContext controlDb)
+        {
+            var validCodes = await controlDb.Tenants
+                .Where(t => t.Status != "DELETED")
+                .Select(t => t.TenantCode.ToUpper())
+                .ToListAsync();
+
+            var validSet = new HashSet<string>(validCodes, StringComparer.OrdinalIgnoreCase);
+
+            var baseDir = AppContext.BaseDirectory;
+            var tenantsDir = FindTenantsDirectory(baseDir);
+
+            if (tenantsDir != null && Directory.Exists(tenantsDir))
+            {
+                var tenantFolders = Directory.GetDirectories(tenantsDir);
+                foreach (var folder in tenantFolders)
+                {
+                    var dirName = Path.GetFileName(folder);
+                    if (string.IsNullOrWhiteSpace(dirName)) continue;
+
+                    bool isTestOrOrphan = dirName.StartsWith("E2E", StringComparison.OrdinalIgnoreCase) ||
+                                          !validSet.Contains(dirName);
+
+                    if (isTestOrOrphan)
+                    {
+                        try
+                        {
+                            var cacheDirs = new[] { ".gradle", "build", "app/build", "bin", "obj", ".cache" };
+                            foreach (var cd in cacheDirs)
+                            {
+                                var subPath = Path.Combine(folder, "android", cd.Replace('/', Path.DirectorySeparatorChar));
+                                if (Directory.Exists(subPath))
+                                {
+                                    Directory.Delete(subPath, true);
+                                }
+                            }
+
+                            if (dirName.StartsWith("E2E", StringComparison.OrdinalIgnoreCase))
+                            {
+                                Directory.Delete(folder, true);
+                                _logger.LogInformation("Worker automatically cleaned temporary test tenant cache directory: {folder}", dirName);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogDebug(ex, "Could not clean cached tenant folder {folder}: {msg}", dirName, ex.Message);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string? FindTenantsDirectory(string startDir)
+        {
+            var current = new DirectoryInfo(startDir);
+            for (int i = 0; i < 6 && current != null; i++)
+            {
+                var candidate = Path.Combine(current.FullName, "tenants");
+                if (Directory.Exists(candidate))
+                {
+                    return candidate;
+                }
+                current = current.Parent;
+            }
+            return null;
         }
     }
 }

@@ -1,21 +1,18 @@
 @inherits LayoutComponentBase
 
 <div class="d-flex flex-column min-vh-100">
-    <header class="ms-public-navbar py-2 px-3 px-lg-4">
-        <div class="container-fluid d-flex align-items-center justify-content-between">
-            <a href="/" class="ms-public-brand">
-                <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                </span>
-                <span>SiBangku</span>
-                <span class="ms-public-brand-badge">SaaS Platform</span>
+    <!-- Floating Capsule Navigation Bar with Frosted Glassmorphism -->
+    <header class="ms-capsule-navbar-wrapper">
+        <div class="ms-capsule-navbar">
+            <a href="/" class="ms-capsule-brand">
+                <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku SaaS" class="ms-capsule-brand-img" />
             </a>
 
             <div class="d-flex align-items-center gap-2">
-                <a href="/" class="ms-btn ms-btn-outline ms-btn-sm">
+                <a href="/" class="ms-capsule-nav-link">
                     <i class="bi bi-house"></i> Beranda
                 </a>
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap gold-shimmer-btn px-3 py-1.5" style="border-radius: 9999px;">
                     <i class="bi bi-calendar-check"></i> Pesan Meja
                 </a>
             </div>

@@ -13,92 +13,157 @@
 
 @if (!IsLoggedIn)
 {
-    <!-- Platform Super Admin Login Screen -->
-    <div class="min-vh-100 d-flex flex-column justify-content-center py-5" style="background-color: var(--ms-surface-dark);">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-5 col-xl-4">
-                    <div class="text-center mb-4">
-                        <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
-                            <span class="d-inline-flex align-items-center justify-content-center" 
-                                  style="width: 36px; height: 36px; font-size: 1.1rem; background: rgba(212, 175, 55, 0.10); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: var(--ms-radius-sm); color: #D4AF37;">
-                                <i class="bi bi-sliders2"></i>
-                            </span>
-                            <span class="fs-5 fw-bold tracking-tight ms-serif" style="color: var(--ms-text-main, #1C1714);">SiBangku Control</span>
-                        </a>
-                        <div class="font-mono text-muted" style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Platform Super Admin Authentication</div>
+    <!-- Platform Super Admin Split-Screen Login Page (Reference: contoh-Loginpage-ui-design.jpg) -->
+    <div class="login-page-ui-design">
+        <!-- Ambient Looping Video Layer -->
+        <video class="login-page-ambient-video" autoplay loop muted playsinline preload="auto">
+            <source src="videos/rotating-diningtable-loginpage.mp4" type="video/mp4" />
+        </video>
+        <div class="login-page-ambient-overlay"></div>
+
+        <div class="login-showcase-container">
+            <div class="login-showcase-card">
+                <!-- Left Column: Visual Showcase Box with Rotating Dining Table Video -->
+                <div class="rotating-diningtable-loginpage">
+                    <video class="rotating-diningtable-video" autoplay loop muted playsinline preload="auto">
+                        <source src="videos/rotating-diningtable-loginpage.mp4" type="video/mp4" />
+                    </video>
+                    <div class="rotating-diningtable-overlay"></div>
+
+                    <!-- Header Overlay: Selected Works / Nav Buttons -->
+                    <div class="rotating-diningtable-header">
+                        <span class="text-white fw-bold small">
+                            <i class="bi bi-shield-check text-warning me-1.5"></i> Platform Control Plane
+                        </span>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="/" class="login-box-pill-btn">Beranda</a>
+                            <a href="/admin" class="login-box-pill-btn primary">Portal Resto</a>
+                        </div>
                     </div>
 
-                    <div class="ms-card p-4 p-md-4.5" style="background-color: var(--ms-surface-card); border: 1px solid var(--ms-border);">
+                    <!-- Footer Overlay: Author/Product Badge & Controls -->
+                    <div class="rotating-diningtable-footer">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="login-box-avatar">
+                                <i class="bi bi-sliders2"></i>
+                            </div>
+                            <div>
+                                <div class="text-white fw-bold small">SiBangku Fleet</div>
+                                <div class="text-white-50 font-mono" style="font-size: 0.74rem;">Multi-Tenant Core Engine</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="login-box-arrow-btn" title="Root Protected">
+                                <i class="bi bi-lock-fill text-success"></i>
+                            </span>
+                            <span class="login-box-arrow-btn" title="Fleet Auto-Sync">
+                                <i class="bi bi-cpu text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Clean White Login Form Panel -->
+                <div class="login-form-panel">
+                    <!-- Top Brand & Language Bar -->
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <a href="/" class="text-decoration-none d-flex align-items-center gap-2">
+                            <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku" style="height: 38px; width: auto;" />
+                        </a>
+                        <span class="ms-capsule-btn-lang" style="cursor: default;">
+                            <i class="bi bi-globe2 text-warning"></i>
+                            <span>ID</span>
+                            <i class="bi bi-chevron-down small opacity-50"></i>
+                        </span>
+                    </div>
+
+                    <!-- Centered Greeting & Form -->
+                    <div>
+                        <h2 class="login-greeting-title">Hi Super Admin</h2>
+                        <p class="login-greeting-subtitle">Selamat datang di Control Plane Platform SiBangku</p>
+
                         @if (!string.IsNullOrEmpty(LoginError))
                         {
-                            <div class="ms-alert ms-alert-danger mb-3">
-                                <i class="bi bi-shield-x ms-alert-icon"></i>
-                                <div class="ms-alert-content">
-                                    <div class="ms-alert-title">Autentikasi Gagal</div>
-                                    <div>@LoginError</div>
-                                </div>
-                                <button type="button" class="ms-alert-close" @onclick="() => LoginError = null">
-                                    <i class="bi bi-x"></i>
-                                </button>
+                            <div class="alert alert-danger py-2.5 px-3 mb-3 d-flex align-items-center gap-2 small rounded-3" role="alert">
+                                <i class="bi bi-shield-x fs-6 text-danger"></i>
+                                <div class="flex-grow-1">@LoginError</div>
+                                <button type="button" class="btn-close btn-close-sm" @onclick="() => LoginError = null"></button>
                             </div>
                         }
 
                         @if (!string.IsNullOrEmpty(LoginSuccessMessage))
                         {
-                            <div class="ms-alert ms-alert-success mb-3">
-                                <i class="bi bi-check-circle ms-alert-icon"></i>
-                                <div class="ms-alert-content">
-                                    <div class="ms-alert-title">Sukses</div>
-                                    <div>@LoginSuccessMessage</div>
-                                </div>
-                                <button type="button" class="ms-alert-close" @onclick="() => LoginSuccessMessage = null">
-                                    <i class="bi bi-x"></i>
-                                </button>
+                            <div class="alert alert-success py-2.5 px-3 mb-3 d-flex align-items-center gap-2 small rounded-3" role="alert">
+                                <i class="bi bi-check-circle fs-6 text-success"></i>
+                                <div class="flex-grow-1">@LoginSuccessMessage</div>
+                                <button type="button" class="btn-close btn-close-sm" @onclick="() => LoginSuccessMessage = null"></button>
                             </div>
                         }
 
                         <form @onsubmit="HandleLogin">
-                            <div class="ms-form-group">
-                                <label class="ms-form-label" for="loginUsername">
-                                    <i class="bi bi-person me-1 text-primary"></i> Username / Email Super Admin <span class="text-danger">*</span>
-                                </label>
-                                <div class="ms-input-group">
-                                    <i class="bi bi-person ms-input-icon"></i>
-                                    <input type="text" class="ms-form-control has-icon-left font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")" 
-                                           id="loginUsername" name="username" autocomplete="username" @bind="Email" @bind:event="oninput" placeholder="Username / Email" />
-                                </div>
+                            <div class="login-input-group">
+                                <input type="text"
+                                       class="login-input-control font-mono @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Email) ? "is-invalid" : "")"
+                                       id="loginUsername"
+                                       name="username"
+                                       autocomplete="username"
+                                       @bind="Email"
+                                       @bind:event="oninput"
+                                       placeholder="Username / Email Super Admin" />
                             </div>
 
-                            <div class="ms-form-group mb-4">
-                                <label class="ms-form-label" for="loginPassword">
-                                    <i class="bi bi-shield-lock me-1 text-primary"></i> Kata Sandi Platform <span class="text-danger">*</span>
-                                </label>
-                                <div class="ms-input-group">
-                                    <i class="bi bi-lock ms-input-icon"></i>
-                                    <input type="password" class="ms-form-control has-icon-left @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")" 
-                                           id="loginPassword" name="password" autocomplete="current-password" @bind="Password" @bind:event="oninput" placeholder="Masukkan kata sandi" />
-                                </div>
+                            <div class="login-input-group mb-2">
+                                <input type="password"
+                                       class="login-input-control @(HasAttemptedLogin && string.IsNullOrWhiteSpace(Password) ? "is-invalid" : "")"
+                                       id="loginPassword"
+                                       name="password"
+                                       autocomplete="current-password"
+                                       @bind="Password"
+                                       @bind:event="oninput"
+                                       placeholder="Kata Sandi Platform" />
                             </div>
 
-                            <button type="submit" class="ms-btn ms-btn-primary w-100" disabled="@IsSubmitting">
+                            <div class="text-end mb-3">
+                                <a href="javascript:void(0)" class="text-decoration-none small text-danger fw-semibold" @onclick='() => LoginError = "Reset kata sandi Super Admin harus dilakukan via konsol server."'>
+                                    Lupa kata sandi?
+                                </a>
+                            </div>
+
+                            <button type="submit" class="login-btn-primary mb-3" disabled="@IsSubmitting">
                                 @if (IsSubmitting)
                                 {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span class="spinner-border spinner-border-sm" role="status"></span>
                                     <span>Mengautentikasi...</span>
                                 }
                                 else
                                 {
                                     <span>Masuk ke Control Plane</span>
-                                    <i class="bi bi-arrow-right ms-1"></i>
+                                    <i class="bi bi-arrow-right"></i>
                                 }
                             </button>
-                        </form>
 
-                        <div class="mt-4 pt-3 text-center" style="border-top: 1px solid var(--ms-border);">
-                            <a href="/" class="small text-decoration-none" style="color: var(--ms-text-muted);">
-                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda Publik
+                            <div class="login-form-divider">
+                                <span>or</span>
+                            </div>
+
+                            <a href="/admin" class="login-btn-secondary mb-3">
+                                <i class="bi bi-shop text-warning"></i>
+                                <span>Beralih ke Portal Mitra Restoran</span>
                             </a>
+                        </form>
+                    </div>
+
+                    <!-- Bottom Signup Hint & Social Icons -->
+                    <div class="pt-3">
+                        <p class="text-center small text-muted mb-3" style="font-size: 0.88rem;">
+                            Autentikasi terenkripsi tingkat root • <a href="/" class="text-decoration-none text-danger fw-bold">Kembali ke Beranda</a>
+                        </p>
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+                            <a href="/" class="login-social-icon" title="Beranda"><i class="bi bi-house"></i></a>
+                            <a href="/booking" class="login-social-icon" title="Portal Reservasi"><i class="bi bi-calendar-check"></i></a>
+                            <a href="/admin" class="login-social-icon" title="Portal Mitra Resto"><i class="bi bi-shop"></i></a>
+                            <a href="https://github.com" target="_blank" class="login-social-icon" title="Repository Docs"><i class="bi bi-github"></i></a>
                         </div>
                     </div>
                 </div>

@@ -39,50 +39,49 @@
 </aside>
 
 <div class="ms-customer-portal d-flex flex-column min-vh-100">
-    <!-- Editorial Luxury Navigation Bar (Warm Frosted Glass + Champagne Hairline) -->
-    <header class="ms-public-navbar py-3 px-3 px-lg-4 sticky-top">
-        <div class="container d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-4">
-                <!-- Official SiBangku Brand Logo (Gold on Espresso Mark with Dark Typography) -->
-                <a href="/" class="text-decoration-none d-inline-flex align-items-center">
-                    <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" style="height: 40px; width: auto;" />
+    <!-- Floating Capsule Navigation Bar with Frosted Glassmorphism (Reference: referensi landingpage.jpg) -->
+    <header class="ms-capsule-navbar-wrapper">
+        <div class="ms-capsule-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Official SiBangku Brand Logo (Gold & Espresso for White Capsule Navbar) -->
+                <a href="/" class="ms-capsule-brand">
+                    <img src="brand/Navbar-Header-Logo.svg" alt="SiBangku Hospitality" class="ms-capsule-brand-img" />
                 </a>
 
-                <nav class="d-none d-lg-flex align-items-center gap-1 ms-2">
-                    <NavLink class="ms-public-nav-link" href="" Match="NavLinkMatch.All">
+                <nav class="d-none d-lg-flex align-items-center gap-1 ms-2 ms-capsule-nav-links">
+                    <NavLink class="ms-capsule-nav-link" href="" Match="NavLinkMatch.All">
                         <i class="bi bi-house"></i> @Lang["Nav_Home"]
                     </NavLink>
-                    <a class="ms-public-nav-link" href="#simulasi">
+                    <a class="ms-capsule-nav-link" href="#simulasi">
                         <i class="bi bi-grid-1x2"></i> @Lang.Get("Nav_Floorplan", "Denah Meja")
                     </a>
-                    <a class="ms-public-nav-link" href="#keunggulan">
+                    <a class="ms-capsule-nav-link" href="#keunggulan">
                         <i class="bi bi-gem"></i> @Lang.Get("Nav_Features", "Keunggulan")
                     </a>
-                    <a class="ms-public-nav-link" href="#alur">
+                    <a class="ms-capsule-nav-link" href="#alur">
                         <i class="bi bi-signpost-split"></i> @Lang.Get("Nav_HowItWorks", "3 Langkah")
                     </a>
-                    <a class="ms-public-nav-link" href="#teknologi">
+                    <a class="ms-capsule-nav-link" href="#teknologi">
                         <i class="bi bi-cpu"></i> @Lang.Get("Nav_Tech", "Arsitektur")
                     </a>
-                    <NavLink class="ms-public-nav-link" href="booking">
+                    <NavLink class="ms-capsule-nav-link" href="booking">
                         <i class="bi bi-calendar2-check"></i> @Lang["Nav_Booking"]
                     </NavLink>
                 </nav>
             </div>
 
-            <div class="d-flex align-items-center gap-2.5">
-                <!-- Language Selector Button -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Language Selector Button in Capsule Style -->
                 <button type="button"
-                        class="btn btn-sm font-mono d-inline-flex align-items-center gap-1.5 px-3 py-1.5"
-                        style="background: #FFFFFF; border: 1px solid rgba(184, 142, 45, 0.30); border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: var(--ms-text-main); box-shadow: 0 2px 6px rgba(45,35,20,0.05); transition: all 0.2s;"
+                        class="ms-capsule-btn-lang"
                         @onclick="() => IsLanguageSelectorOpen = true"
                         title="@Lang["Nav_Language"]">
-                    <i class="bi bi-globe2" style="color: #B88E2D; font-size: 0.9rem;"></i>
+                    <i class="bi bi-globe2" style="color: #E2BF65; font-size: 0.85rem;"></i>
                     <span class="text-uppercase">@Lang.CurrentLanguage</span>
-                    <i class="bi bi-chevron-down" style="font-size: 0.6rem; color: var(--ms-text-dim);"></i>
+                    <i class="bi bi-chevron-down" style="font-size: 0.55rem; opacity: 0.7;"></i>
                 </button>
 
-                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap d-none d-sm-inline-flex gold-shimmer-btn">
+                <a href="/booking" class="ms-btn ms-btn-primary ms-btn-sm text-nowrap gold-shimmer-btn px-3.5 py-1.5" style="border-radius: 9999px;">
                     <i class="bi bi-calendar-plus me-1"></i>
                     <span>@Lang["Nav_BookNow"]</span>
                 </a>

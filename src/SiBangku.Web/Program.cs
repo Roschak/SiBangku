@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SiBangku.Web.Components;
@@ -69,8 +71,108 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// Setup MIME type mappings for downloadable binaries & data files
+var contentTypeProvider = new FileExtensionContentTypeProvider();
+contentTypeProvider.Mappings[".apk"] = "application/vnd.android.package-archive";
+contentTypeProvider.Mappings[".exe"] = "application/vnd.microsoft.portable-executable";
+contentTypeProvider.Mappings[".bat"] = "application/x-bat";
+contentTypeProvider.Mappings[".zip"] = "application/zip";
+contentTypeProvider.Mappings[".csv"] = "text/csv";
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = contentTypeProvider
+});
+
 app.UseAntiforgery();
 app.MapStaticAssets();
+
+// Universal Download Endpoints with Fallback & Direct Binary Streaming
+app.MapGet("/download/apk/{tenantCode?}", async (string? tenantCode, IHttpClientFactory httpFactory, IWebHostEnvironment env) =>
+{
+    var code = string.IsNullOrWhiteSpace(tenantCode) ? "UNIVERSAL" : tenantCode.Trim().ToUpperInvariant();
+    try
+    {
+        var client = httpFactory.CreateClient("ControlApi");
+        var response = await client.GetAsync($"/api/v1/tenants/{code}/apk");
+        if (response.IsSuccessStatusCode)
+        {
+            var stream = await response.Content.ReadAsStreamAsync();
+            return Results.File(stream, "application/vnd.android.package-archive", $"SiBangku-{code}.apk");
+        }
+    }
+    catch { }
+
+    var localFallback = Path.Combine(env.WebRootPath, "downloads", "SiBangku-Universal-App.apk");
+    if (File.Exists(localFallback))
+    {
+        var bytes = await File.ReadAllBytesAsync(localFallback);
+        return Results.File(bytes, "application/vnd.android.package-archive", $"SiBangku-{code}.apk");
+    }
+
+    return Results.NotFound(new { error = "File APK belum tersedia." });
+});
+
+app.MapGet("/download/exe/{tenantCode?}", async (string? tenantCode, IHttpClientFactory httpFactory, IWebHostEnvironment env) =>
+{
+    var code = string.IsNullOrWhiteSpace(tenantCode) ? "UNIVERSAL" : tenantCode.Trim().ToUpperInvariant();
+    try
+    {
+        var client = httpFactory.CreateClient("ControlApi");
+        var response = await client.GetAsync($"/api/v1/tenants/{code}/exe");
+        if (response.IsSuccessStatusCode)
+        {
+            var stream = await response.Content.ReadAsStreamAsync();
+            return Results.File(stream, "application/vnd.microsoft.portable-executable", $"SiBangku-{code}.exe");
+        }
+    }
+    catch { }
+
+    var localFallback = Path.Combine(env.WebRootPath, "downloads", "SiBangku-Desktop-App.exe");
+    if (File.Exists(localFallback))
+    {
+        var bytes = await File.ReadAllBytesAsync(localFallback);
+        return Results.File(bytes, "application/vnd.microsoft.portable-executable", $"SiBangku-{code}.exe");
+    }
+
+    return Results.NotFound(new { error = "File Desktop EXE belum tersedia." });
+});
+
+app.MapGet("/download/package/{tenantCode?}", async (string? tenantCode, IHttpClientFactory httpFactory, IWebHostEnvironment env) =>
+{
+    var code = string.IsNullOrWhiteSpace(tenantCode) ? "UNIVERSAL" : tenantCode.Trim().ToUpperInvariant();
+    try
+    {
+        var client = httpFactory.CreateClient("ControlApi");
+        var response = await client.GetAsync($"/api/v1/tenants/{code}/package");
+        if (response.IsSuccessStatusCode)
+        {
+            var stream = await response.Content.ReadAsStreamAsync();
+            return Results.File(stream, "application/zip", $"SiBangku-{code}-package.zip");
+        }
+    }
+    catch { }
+
+    return Results.NotFound(new { error = "Paket workspace belum siap." });
+});
+
+app.MapGet("/download/bat/{tenantCode?}", (string? tenantCode, HttpContext ctx) =>
+{
+    var code = string.IsNullOrWhiteSpace(tenantCode) ? "DEFAULT" : tenantCode.Trim().ToUpperInvariant();
+    var host = ctx.Request.Host.Value;
+    var scheme = ctx.Request.Scheme;
+    var url = $"{scheme}://{host}/tenant-admin?tenant={code}";
+    var batContent = $@"@echo off
+title SiBangku Desktop POS - {code}
+echo ========================================================
+echo   SiBangku POS Launcher - Tenant [{code}]
+echo   Membuka portal kasir & manajemen meja...
+echo ========================================================
+start msedge --app=""{url}"" 2>nul || start chrome --app=""{url}"" 2>nul || start """" ""{url}""
+exit
+";
+    return Results.File(System.Text.Encoding.UTF8.GetBytes(batContent), "application/x-bat", $"SiBangku-Launcher-{code.ToLowerInvariant()}.bat");
+});
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
